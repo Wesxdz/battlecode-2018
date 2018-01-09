@@ -1,0 +1,4 @@
+// Research Plan
+// Getting a Facotry up and running
+// Map Analysis, Best route, Enemies, Defense
+// Rocket and Ship planning
