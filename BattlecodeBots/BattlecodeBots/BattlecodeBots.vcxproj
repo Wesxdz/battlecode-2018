@@ -132,7 +132,6 @@
     <ClCompile Include="OrbitPattern.cpp" />
     <ClCompile Include="PlanetMap.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Priority.cpp" />
     <ClCompile Include="Ranger.cpp" />
     <ClCompile Include="ResearchInfo.cpp" />
     <ClCompile Include="Robot.cpp" />
@@ -158,7 +157,6 @@
     <ClInclude Include="OrbitPattern.h" />
     <ClInclude Include="PlanetMap.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Priority.h" />
     <ClInclude Include="Ranger.h" />
     <ClInclude Include="ResearchInfo.h" />
     <ClInclude Include="Robot.h" />

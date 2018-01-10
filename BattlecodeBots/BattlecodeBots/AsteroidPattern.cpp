@@ -1,12 +1,11 @@
 #include "AsteroidPattern.h"
 
-
-
-AsteroidPattern::AsteroidPattern()
+AsteroidPattern::AsteroidPattern(GameMap& map)
 {
-}
 
+}
 
 AsteroidPattern::~AsteroidPattern()
 {
+
 }
