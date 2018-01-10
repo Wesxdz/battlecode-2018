@@ -4,6 +4,7 @@
 
 class Unit
 {
+public:
 	Unit();
 	~Unit();
 public:

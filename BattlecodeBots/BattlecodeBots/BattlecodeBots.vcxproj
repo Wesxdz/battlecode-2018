@@ -23,6 +23,7 @@
     <ProjectGuid>{DEB90EAC-03B8-4084-907F-88A9A1BAFDD3}</ProjectGuid>
     <RootNamespace>BattlecodeBots</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <ProjectName>API</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -118,6 +119,8 @@
     <ClCompile Include="AsteroidPattern.cpp" />
     <ClCompile Include="AsteroidStrike.cpp" />
     <ClCompile Include="Direction.cpp" />
+    <ClCompile Include="examplefuncsplayer.c" />
+    <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameMap.cpp" />
     <ClCompile Include="Healer.cpp" />
@@ -127,11 +130,15 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapLocation.cpp" />
     <ClCompile Include="OrbitPattern.cpp" />
+    <ClCompile Include="PlanetMap.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Priority.cpp" />
     <ClCompile Include="Ranger.cpp" />
     <ClCompile Include="ResearchInfo.cpp" />
     <ClCompile Include="Robot.cpp" />
+    <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="RocketLandingInfo.cpp" />
+    <ClCompile Include="Structure.cpp" />
     <ClCompile Include="Unit.cpp" />
     <ClCompile Include="Worker.cpp" />
   </ItemGroup>
@@ -140,6 +147,7 @@
     <ClInclude Include="AsteroidStrike.h" />
     <ClInclude Include="bc.h" />
     <ClInclude Include="Direction.h" />
+    <ClInclude Include="Factory.h" />
     <ClInclude Include="GameController.h" />
     <ClInclude Include="GameMap.h" />
     <ClInclude Include="Healer.h" />
@@ -148,11 +156,15 @@
     <ClInclude Include="Mage.h" />
     <ClInclude Include="MapLocation.h" />
     <ClInclude Include="OrbitPattern.h" />
+    <ClInclude Include="PlanetMap.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Priority.h" />
     <ClInclude Include="Ranger.h" />
     <ClInclude Include="ResearchInfo.h" />
     <ClInclude Include="Robot.h" />
+    <ClInclude Include="Rocket.h" />
     <ClInclude Include="RocketLandingInfo.h" />
+    <ClInclude Include="Structure.h" />
     <ClInclude Include="Unit.h" />
     <ClInclude Include="Worker.h" />
   </ItemGroup>

@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BattlecodeBots", "BattlecodeBots\BattlecodeBots.vcxproj", "{DEB90EAC-03B8-4084-907F-88A9A1BAFDD3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "API", "BattlecodeBots\BattlecodeBots.vcxproj", "{DEB90EAC-03B8-4084-907F-88A9A1BAFDD3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WesleyBot01", "WesleyBot01\WesleyBot01.vcxproj", "{C075BB21-6E9A-40BD-9AAE-F3A4355F6C88}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WesleyBot", "WesleyBot\WesleyBot01.vcxproj", "{C075BB21-6E9A-40BD-9AAE-F3A4355F6C88}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JoshBot", "JoshBot\JoshBot.vcxproj", "{DB17A96E-7D49-4211-B9A0-AB4EB1D79694}"
 EndProject

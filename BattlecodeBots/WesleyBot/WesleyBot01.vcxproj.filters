@@ -18,57 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Worker.h">
-      <Filter>Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Healer.h">
-      <Filter>Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Knight.h">
-      <Filter>Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Mage.h">
-      <Filter>Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Priority.h">
-      <Filter>Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Ranger.h">
-      <Filter>Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Robot.h">
-      <Filter>Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Unit.h">
-      <Filter>Units</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Priority.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Unit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Robot.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Ranger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Healer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Knight.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Worker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
