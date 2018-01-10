@@ -1,17 +1,11 @@
 #include "GameController.h"
 
-bc_GameController* GameController::gc = nullptr;
-
-void GameController::Initialize()
-{
-	gc = new_bc_GameController();
-}
-
 GameController::GameController()
 {
+	self = new_bc_GameController();
 }
-
 
 GameController::~GameController()
 {
+	delete_bc_GameController(self);
 }

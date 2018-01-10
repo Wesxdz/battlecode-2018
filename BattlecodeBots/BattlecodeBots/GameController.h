@@ -5,8 +5,7 @@
 class GameController
 {
 public:
-	static void Initialize();
-	static bc_GameController* gc;
+	bc_GameController* self;
 public:
 	GameController();
 	~GameController();
