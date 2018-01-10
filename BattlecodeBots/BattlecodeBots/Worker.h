@@ -6,5 +6,6 @@ class Worker :
 public:
 	Worker();
 	~Worker();
+	uint32_t ReplicateCost();
 };
 

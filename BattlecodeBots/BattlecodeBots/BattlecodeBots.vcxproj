@@ -118,7 +118,6 @@
   <ItemGroup>
     <ClCompile Include="AsteroidPattern.cpp" />
     <ClCompile Include="AsteroidStrike.cpp" />
-    <ClCompile Include="Direction.cpp" />
     <ClCompile Include="examplefuncsplayer.c" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
@@ -131,7 +130,6 @@
     <ClCompile Include="MapLocation.cpp" />
     <ClCompile Include="OrbitPattern.cpp" />
     <ClCompile Include="PlanetMap.cpp" />
-    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Ranger.cpp" />
     <ClCompile Include="ResearchInfo.cpp" />
     <ClCompile Include="Robot.cpp" />
@@ -145,7 +143,6 @@
     <ClInclude Include="AsteroidPattern.h" />
     <ClInclude Include="AsteroidStrike.h" />
     <ClInclude Include="bc.h" />
-    <ClInclude Include="Direction.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="GameController.h" />
     <ClInclude Include="GameMap.h" />
@@ -156,7 +153,6 @@
     <ClInclude Include="MapLocation.h" />
     <ClInclude Include="OrbitPattern.h" />
     <ClInclude Include="PlanetMap.h" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="Ranger.h" />
     <ClInclude Include="ResearchInfo.h" />
     <ClInclude Include="Robot.h" />
