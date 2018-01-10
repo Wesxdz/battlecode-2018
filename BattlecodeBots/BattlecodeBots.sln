@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WesleyBot", "WesleyBot\Wesl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JoshBot", "JoshBot\JoshBot.vcxproj", "{DB17A96E-7D49-4211-B9A0-AB4EB1D79694}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EvanBot", "EvanBot\EvanBot\EvanBot.vcxproj", "{54C6B8F6-0CA1-4943-9FD7-2199A728214E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{DB17A96E-7D49-4211-B9A0-AB4EB1D79694}.Release|x64.Build.0 = Release|x64
 		{DB17A96E-7D49-4211-B9A0-AB4EB1D79694}.Release|x86.ActiveCfg = Release|Win32
 		{DB17A96E-7D49-4211-B9A0-AB4EB1D79694}.Release|x86.Build.0 = Release|Win32
+		{54C6B8F6-0CA1-4943-9FD7-2199A728214E}.Debug|x64.ActiveCfg = Debug|x64
+		{54C6B8F6-0CA1-4943-9FD7-2199A728214E}.Debug|x64.Build.0 = Debug|x64
+		{54C6B8F6-0CA1-4943-9FD7-2199A728214E}.Debug|x86.ActiveCfg = Debug|Win32
+		{54C6B8F6-0CA1-4943-9FD7-2199A728214E}.Debug|x86.Build.0 = Debug|Win32
+		{54C6B8F6-0CA1-4943-9FD7-2199A728214E}.Release|x64.ActiveCfg = Release|x64
+		{54C6B8F6-0CA1-4943-9FD7-2199A728214E}.Release|x64.Build.0 = Release|x64
+		{54C6B8F6-0CA1-4943-9FD7-2199A728214E}.Release|x86.ActiveCfg = Release|Win32
+		{54C6B8F6-0CA1-4943-9FD7-2199A728214E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
