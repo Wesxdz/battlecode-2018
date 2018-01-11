@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LOCATION_H 
+#define LOCATION_H
 
 #include "bc.h"
 #include "MapLocation.h"
@@ -53,3 +54,4 @@ public:
 	// Within range
 };
 
+#endif

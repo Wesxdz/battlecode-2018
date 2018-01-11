@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UNIT_H 
+#define UNIT_H
 
 #include "bc.h"
 
@@ -57,3 +58,4 @@ namespace units {
 
 }
 
+#endif

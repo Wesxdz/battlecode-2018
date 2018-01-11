@@ -61,7 +61,7 @@ public:
 	/*
 	@return Units within selection criteria
 	*/
-	static std::vector<std::shared_ptr<units::Unit>> Units(bc_Selection selection = Visible);
+	static std::vector<std::shared_ptr<units::Unit>> Units(bc_Selection selection);
 	/*
 	Functions you may wish to use with this
 	bc_GameController_sense_nearby_units
@@ -92,7 +92,7 @@ inline std::vector<std::shared_ptr<T>> GameController::Wrap(bc_VecUnit * bcUnits
 }
 
 template<class T, class V>
-inline std::shared_ptr<V> GameController::Convert(std::shared_ptr<T> original)
+inline std::shared_ptr<T> GameController::Convert(std::shared_ptr<V> original)
 {
 	return std::static_pointer_cast<T>(original);
 }

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RANGER_H 
+#define RANGER_H
 
 #include "Robot.h"
 
@@ -45,3 +46,4 @@ namespace units {
 }
 
 
+#endif
