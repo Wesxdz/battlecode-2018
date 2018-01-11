@@ -44,6 +44,12 @@ namespace units {
 		return bc_GameController_can_harvest(GameController::gc, id, direction);
 	}
 
+	void Worker::Harvest(bc_Direction direction)
+	{
+		return bc_GameController_harvest(GameController::gc, id, direction);
+		CHECK_ERRORS();
+	}
+
 	uint8_t Worker::CanBlueprint(bc_UnitType structure, bc_Direction direction)
 	{
 		return bc_GameController_can_blueprint(GameController::gc, id, structure, direction);

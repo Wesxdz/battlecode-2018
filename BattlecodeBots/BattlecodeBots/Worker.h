@@ -34,6 +34,10 @@ namespace units {
 		*/
 		uint8_t CanHarvest(bc_Direction direction);
 		/*
+		@execute Harvests up to the worker's harvest amount of karbonite from the given location, adding it to the team's resource pool.
+		*/
+		void Harvest(bc_Direction direction);
+		/*
 		@return Whether the worker can blueprint a unit of the given type. The worker can only blueprint factories, and rockets if Rocketry has been researched. The team must have sufficient karbonite in its resource pool. The worker cannot already have performed an action this round.
 		*/
 		uint8_t CanBlueprint(bc_UnitType structure, bc_Direction direction);
