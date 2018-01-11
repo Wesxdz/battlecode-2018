@@ -3,19 +3,16 @@
 #include "Worker.h"
 #include <iostream>
 
-int main()
+int main() 
 {
 	std::cout << "WesleyBot initialize" << std::endl;
 	GameController player;
-	while (true)
-	{
+	while (true) {
 		uint32_t round = player.Round();
 		std::cout << "Round: " << round << std::endl;
 		auto units = player.Units(bc_Selection::MyTeam);
-		for (auto unit : units) 
-		{
-			if (unit->type == bc_UnitType::Worker) 
-			{
+		for (auto unit : units) {
+			if (unit->type == bc_UnitType::Worker) {
 				auto worker = player.Convert<units::Worker>(unit);
 				if (worker->IsMoveReady() && worker->CanMove(North)) {
 					worker->Move(North);
