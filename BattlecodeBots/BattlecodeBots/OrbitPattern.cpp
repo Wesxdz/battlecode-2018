@@ -2,9 +2,9 @@
 
 #include "GameController.h"
 
-OrbitPattern::OrbitPattern(GameController& gc)
+OrbitPattern::OrbitPattern()
 {
-	self = bc_GameController_orbit_pattern(gc.self);
+	self = bc_GameController_orbit_pattern(GameController::gc);
 }
 
 OrbitPattern::~OrbitPattern()

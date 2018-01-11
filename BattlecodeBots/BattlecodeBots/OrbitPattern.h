@@ -2,8 +2,6 @@
 
 #include "bc.h"
 
-class GameController;
-
 /*
 The duration of flight is determined by a sinusoidal function y=a*sin(bx)+c where the x-axis is the round number of takeoff and the y-axis is the flight duration.
 The time delay is guaranteed to be in the range [50, 200], inclusive.
@@ -13,7 +11,7 @@ class OrbitPattern
 private:
 	bc_OrbitPattern* self;
 public:
-	OrbitPattern(GameController& gc);
+	OrbitPattern();
 	~OrbitPattern();
 	/*
 	@return Amplitude of the orbit.
