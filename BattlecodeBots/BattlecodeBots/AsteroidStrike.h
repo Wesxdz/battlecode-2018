@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASTEROIDSTRIKE_H 
+#define ASTEROIDSTRIKE_H
 
 #include "bc.h"
 #include "MapLocation.h"
@@ -20,3 +21,4 @@ public:
 	MapLocation Loc();
 };
 
+#endif

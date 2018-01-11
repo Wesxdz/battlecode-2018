@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAMECONTROLLER_H 
+#define GAMECONTROLLER_H
 
 #include "bc.h"
 
@@ -96,3 +97,5 @@ inline std::shared_ptr<T> GameController::Convert(std::shared_ptr<V> original)
 {
 	return std::static_pointer_cast<T>(original);
 }
+
+#endif

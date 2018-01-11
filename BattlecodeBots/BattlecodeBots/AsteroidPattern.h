@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASTEROIDPATTERN_H 
+#define ASTEROIDPATTERN_H
 
 #include "bc.h"
 #include "AsteroidStrike.h"
@@ -26,3 +27,4 @@ public:
 
 };
 
+#endif
