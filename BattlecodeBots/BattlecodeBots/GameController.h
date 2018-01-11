@@ -9,6 +9,15 @@ namespace units {
 	class Unit;
 }
 
+enum bc_Selection {
+	// All the units within the vision range, in no particular order. Does not include units in space.
+	Visible,
+	// All the units on your team. Does not include units in space.
+	MyTeam,
+	// All the units of this team that are in space.You cannot see units on the other team that are in space.
+	Space,
+};
+
 /*
 Should be instantiated before using C++ wrapper
 */
@@ -49,14 +58,6 @@ public:
 	*/
 	static std::shared_ptr<units::Unit> Unit(uint16_t id);
 	static std::shared_ptr<units::Unit> Unit(bc_Unit* unit);
-	enum bc_Selection {
-		// All the units within the vision range, in no particular order. Does not include units in space.
-		Visible,
-		// All the units on your team. Does not include units in space.
-		MyTeam,
-		// All the units of this team that are in space.You cannot see units on the other team that are in space.
-		Space,
-	};
 	/*
 	@return Units within selection criteria
 	*/
@@ -71,6 +72,12 @@ public:
 	template <class T>
 	static std::vector<std::shared_ptr<T>> Wrap(bc_VecUnit* bcUnits);
 
+	/*template <class T>
+	static std::vector<std::shared_ptr<T>> Subset(std::vector<std::shared_ptr<units::Unit>> units);*/
+
+	template <class T, class V>
+	static std::shared_ptr<T> Convert(std::shared_ptr<V> original);
+
 };
 
 template<class T>
@@ -82,4 +89,10 @@ inline std::vector<std::shared_ptr<T>> GameController::Wrap(bc_VecUnit * bcUnits
 	}
 	delete_bc_VecUnit(bcUnits);
 	return units;
+}
+
+template<class T, class V>
+inline std::shared_ptr<V> GameController::Convert(std::shared_ptr<T> original)
+{
+	return std::static_pointer_cast<T>(original);
 }
