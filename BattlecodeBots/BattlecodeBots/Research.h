@@ -19,6 +19,10 @@ public:
 	*/
 	uint8_t Queue(bc_UnitType branch);
 	/*
+	@return Returns the number of rounds left until the upgrade at the front of the research queue is applied.
+	*/
+	uint32_t RoundsLeft();
+	/*
 	@return The max level of a unit branch
 	*/
 	static uintptr_t MaxLevel(bc_UnitType branch);

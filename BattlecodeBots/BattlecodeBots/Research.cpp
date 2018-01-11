@@ -22,6 +22,11 @@ uint8_t Research::Queue(bc_UnitType branch)
 	return bc_GameController_queue_research(GameController::gc);
 }
 
+uint32_t Research::RoundsLeft()
+{
+	return bc_ResearchInfo_rounds_left(self);
+}
+
 uintptr_t Research::MaxLevel(bc_UnitType branch)
 {
 	return max_level(branch);
