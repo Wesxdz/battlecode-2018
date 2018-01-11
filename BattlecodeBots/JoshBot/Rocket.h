@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ROCKET_H 
+#define ROCKET_H
 
 #include "Structure.h"
 
@@ -37,3 +38,4 @@ namespace units {
 }
 
 
+#endif

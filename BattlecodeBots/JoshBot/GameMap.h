@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAMEMAP_H 
+#define GAMEMAP_H
 
 #include "bc.h"
 
@@ -29,3 +30,4 @@ public:
 
 };
 
+#endif

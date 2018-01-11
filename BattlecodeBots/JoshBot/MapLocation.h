@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAPLOCATION_H 
+#define MAPLOCATION_H
 
 #include "bc.h"
 
@@ -72,3 +73,4 @@ public:
 	std::shared_ptr<units::Unit> Occupant();
 };
 
+#endif

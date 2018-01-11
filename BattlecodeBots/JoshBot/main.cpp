@@ -5,6 +5,7 @@
 #include "GameController.h"
 #include "Unit.h"
 #include "Worker.h"
+#include "Location.h"
 
 bool check_errors()
 {
@@ -23,11 +24,23 @@ bool check_errors()
 }
 
 GameController gc;
+int round;
 std::vector<std::shared_ptr<units::Unit>> units;
 
+enum WorkerPriority {
+	KARB,
+	FACTORY
+};
+WorkerPriority currWorkerPriority = WorkerPriority::FACTORY;
+
 void UpdateWorkerEarth(int index) {
-	units::Worker worker;
-	worker.Init(units[index]->self);
+	//units::Worker worker;
+	//worker.Init(units[index]->self);
+	//auto location = worker.Loc();
+	//if (location.OnPlanet(bc_Planet::Earth)) {
+	//	auto mapLocation = location.ToMapLocation();
+	//	if()
+	//}
 }
 void UpdateKnightEarth(int index) {
 
@@ -45,7 +58,8 @@ void UpdateHealerEarth(int index) {
 void UpdateEarth() {
 	std::cout << "This bot is on Earth\n";
 	while (true) {
-
+		round = gc.Round();
+		std::cout << "Round: " << round;
 		// Research...
 
 		units = gc.Units(bc_Selection::MyTeam);
@@ -70,6 +84,8 @@ void UpdateEarth() {
 					break;
 			}
 		}
+
+
 		gc.EndTurn();
 	}
 }
@@ -77,8 +93,8 @@ void UpdateEarth() {
 void UpdateMars() {
 	std::cout << "This bot is on Mars\n";
 	while (true) {
-		auto teamUnits = gc.Units();
-		if (teamUnits.size() > 0) {
+		units = gc.Units(bc_Selection::MyTeam);
+		if (units.size() > 0) {
 
 		} else {
 			gc.EndTurn();

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PLANETMAP_H 
+#define PLANETMAP_H
 
 #include "bc.h"
 
@@ -51,3 +52,4 @@ public:
 
 };
 
+#endif

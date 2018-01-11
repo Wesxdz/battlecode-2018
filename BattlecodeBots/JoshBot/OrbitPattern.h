@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ORBITPATTERN_H 
+#define ORBITPATTERN_H
 
 #include "bc.h"
 
@@ -31,3 +32,4 @@ public:
 	uint32_t Duration(uint32_t round);
 };
 
+#endif

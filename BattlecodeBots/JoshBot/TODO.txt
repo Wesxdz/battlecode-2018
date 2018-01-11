@@ -5,3 +5,5 @@
 
 Wrap Method can initialize to the length to avoid multiple resizings...
 certain methods can take in the previous iteration? And that way we can we dont copy so many values..
+
+We NEED to keep track of our team on a planet. Call bc_GameController_my_team will get us Every Unit on the other planet
