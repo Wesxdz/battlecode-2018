@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HEALER_H 
+#define HEALER_H
 
 #include "Robot.h"
 
@@ -43,3 +44,4 @@ namespace units {
 
 }
 
+#endif

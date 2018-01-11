@@ -1,4 +1,5 @@
-#pragma once
+#ifndef STRUCTURE_H 
+#define STRUCTURE_H
 
 #include "Unit.h"
 
@@ -60,3 +61,4 @@ Structures cannot be blueprinted or built on Mars.
 	};
 
 }
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAGE_H 
+#define MAGE_H
 
 #include "Robot.h"
 
@@ -28,3 +29,4 @@ namespace units {
 }
 
 
+#endif

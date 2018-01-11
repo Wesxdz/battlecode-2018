@@ -1,4 +1,5 @@
-#pragma once
+#ifndef KNIGHT_H 
+#define KNIGHT_H
 
 #include "Robot.h"
 
@@ -29,3 +30,4 @@ namespace units {
 
 }
 
+#endif

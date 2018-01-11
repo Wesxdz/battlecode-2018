@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ROBOT_H 
+#define ROBOT_H
 
 #include "Unit.h"
 
@@ -79,3 +80,4 @@ namespace units {
 }
 
 
+#endif
