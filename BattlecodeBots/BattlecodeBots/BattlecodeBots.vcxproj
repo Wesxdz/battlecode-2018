@@ -126,15 +126,12 @@
     <ClCompile Include="Knight.cpp" />
     <ClCompile Include="Location.cpp" />
     <ClCompile Include="Mage.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="MapLocation.cpp" />
     <ClCompile Include="OrbitPattern.cpp" />
     <ClCompile Include="PlanetMap.cpp" />
     <ClCompile Include="Ranger.cpp" />
-    <ClCompile Include="ResearchInfo.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Rocket.cpp" />
-    <ClCompile Include="RocketLandingInfo.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="Unit.cpp" />
     <ClCompile Include="Worker.cpp" />
@@ -154,10 +151,8 @@
     <ClInclude Include="OrbitPattern.h" />
     <ClInclude Include="PlanetMap.h" />
     <ClInclude Include="Ranger.h" />
-    <ClInclude Include="ResearchInfo.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="Rocket.h" />
-    <ClInclude Include="RocketLandingInfo.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="Unit.h" />
     <ClInclude Include="Worker.h" />

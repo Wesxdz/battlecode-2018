@@ -2,6 +2,12 @@
 
 #include "bc.h"
 
+#include <memory>
+
+namespace units {
+	class Unit;
+}
+
 /*
 A MapLocation represents a concrete space on a given planet. 
 It has x and y coordinates, in addition to the planet itself, as attributes.
@@ -47,5 +53,22 @@ public:
 	@return This location is within the distance squared range of #location, inclusive.
 	*/
 	uint8_t IsWithinRange(MapLocation& location, uint32_t range);
+	/*
+	@return The current amount of karbonite at this location
+	*/
+	uint32_t Karbonite();
+	/*
+	@return Whether the location is on the map and within the vision range.
+	*/
+	uint8_t IsVisible();
+	/*
+	@error LocationNotVisible - the location is outside the vision range.
+	@return Whether the location is clear for a unit to occupy, either by movement or by construction.
+	*/
+	uint8_t Occupiable();
+	/*
+	@return The unit at the location
+	*/
+	std::shared_ptr<units::Unit> Occupant();
 };
 

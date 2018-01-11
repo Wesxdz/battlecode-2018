@@ -1,7 +1,7 @@
 #include <iostream>
 #include <random>
 #include <assert.h>
-#include <bc.h>
+#include "bc.h"
 
 int TestFunction() {
 	int x = 0;

@@ -7,20 +7,6 @@ PlanetMap::PlanetMap()
 {
 }
 
-PlanetMap PlanetMap::Earth(GameMap & map)
-{
-	PlanetMap earth;
-	earth.self = bc_GameMap_earth_map_get(map.self);
-	return earth;
-}
-
-PlanetMap PlanetMap::Mars(GameMap & map)
-{
-	PlanetMap mars;
-	mars.self = bc_GameMap_mars_map_get(map.self);
-	return mars;
-}
-
 PlanetMap::~PlanetMap()
 {
 	delete_bc_PlanetMap(self);

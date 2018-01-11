@@ -6,13 +6,9 @@ Location::Location()
 {
 }
 
-Location::Location()
-{
-	delete_bc_Location(self);
-}
-
 Location::~Location()
 {
+	delete_bc_Location(self);
 }
 
 uint8_t Location::OnMap()
