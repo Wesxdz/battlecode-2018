@@ -56,6 +56,11 @@ public:
 	*/
 	std::vector<std::shared_ptr<units::Worker>> InitialWorkers();
 
+	/*
+	@return All locations on planet
+	*/
+	std::vector<std::vector<MapLocation>> Locations();
+
 };
 
 #endif

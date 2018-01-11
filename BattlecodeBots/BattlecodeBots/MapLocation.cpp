@@ -21,17 +21,17 @@ MapLocation::~MapLocation()
 
 bc_Planet MapLocation::Planet()
 {
-	return bc_Planet();
+	return bc_MapLocation_planet_get(self);
 }
 
 int32_t MapLocation::X()
 {
-	return int32_t();
+	return bc_MapLocation_x_get(self);
 }
 
 int32_t MapLocation::Y()
 {
-	return int32_t();
+	return bc_MapLocation_y_get(self);
 }
 
 MapLocation MapLocation::Neighbor(MapLocation& origin, bc_Direction direction)
