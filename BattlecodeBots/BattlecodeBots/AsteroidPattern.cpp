@@ -1,6 +1,7 @@
 #include "AsteroidPattern.h"
 
 #include "GameController.h"
+#include "Log.h"
 
 AsteroidPattern::AsteroidPattern()
 {
@@ -19,5 +20,7 @@ uint8_t AsteroidPattern::WillAsteroidStrike(uint32_t round)
 
 AsteroidStrike AsteroidPattern::Strike(uint32_t round)
 {
-	return AsteroidStrike(bc_AsteroidPattern_asteroid(self, round));
+	auto strike = AsteroidStrike(bc_AsteroidPattern_asteroid(self, round));
+	CHECK_ERRORS();
+	return strike;
 }

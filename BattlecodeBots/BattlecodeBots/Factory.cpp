@@ -1,6 +1,7 @@
 #include "Factory.h"
 
 #include "GameController.h"
+#include "Log.h"
 
 namespace units {
 
@@ -40,6 +41,7 @@ namespace units {
 	void Factory::Produce(bc_UnitType robot)
 	{
 		bc_GameController_produce_robot(GameController::gc, id, robot);
+		CHECK_ERRORS();
 	}
 
 }

@@ -1,6 +1,7 @@
 #include "Healer.h"
 
 #include "GameController.h"
+#include "Log.h"
 
 namespace units {
 
@@ -30,6 +31,7 @@ namespace units {
 	void Healer::Heal(std::shared_ptr<Robot> target)
 	{
 		bc_GameController_heal(GameController::gc, id, target->id);
+		CHECK_ERRORS();
 	}
 
 	uint8_t Healer::IsOverchargeReady()
@@ -45,6 +47,7 @@ namespace units {
 	void Healer::Overcharge(std::shared_ptr<Robot> target)
 	{
 		bc_GameController_overcharge(GameController::gc, id, target->id);
+		CHECK_ERRORS();
 	}
 
 	void Healer::Attack(units::Unit& target)

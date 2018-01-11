@@ -1,6 +1,7 @@
 #include "Mage.h"
 
 #include "GameController.h"
+#include "Log.h"
 
 namespace units {
 
@@ -25,6 +26,7 @@ namespace units {
 	void Mage::Blink(MapLocation location)
 	{
 		bc_GameController_blink(GameController::gc, id, location.self);
+		CHECK_ERRORS();
 	}
 
 }

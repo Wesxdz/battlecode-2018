@@ -2,6 +2,7 @@
 
 #include "Robot.h"
 #include "GameController.h"
+#include "Log.h"
 
 namespace units {
 
@@ -48,6 +49,7 @@ namespace units {
 	void Structure::Load(std::shared_ptr<Robot> robot)
 	{
 		bc_GameController_load(GameController::gc, id, robot->id);
+		CHECK_ERRORS();
 	}
 
 	uint8_t Structure::CanUnload(bc_Direction direction)
@@ -58,6 +60,7 @@ namespace units {
 	void Structure::Unload(bc_Direction direction)
 	{
 		bc_GameController_unload(GameController::gc, id, direction);
+		CHECK_ERRORS();
 	}
 
 }

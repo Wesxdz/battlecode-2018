@@ -6,7 +6,9 @@
 
 #include <memory>
 
-class Structure;
+namespace units {
+	class Structure;
+}
 
 /*
 A Location represents the location of a robot. 
@@ -43,7 +45,7 @@ public:
 	@error UnitNotInGarrison
 	@return The structure whose garrison the unit is in.
 	*/
-	std::shared_ptr<Structure> GarrisonStructure();
+	std::shared_ptr<units::Structure> GarrisonStructure();
 	/*
 	@return Whether the unit is in space.
 	*/

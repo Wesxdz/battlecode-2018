@@ -1,6 +1,7 @@
 #include "Ranger.h"
 
 #include "GameController.h"
+#include "Log.h"
 
 namespace units {
 
@@ -29,7 +30,9 @@ namespace units {
 
 	MapLocation Ranger::SnipeTarget()
 	{
-		return MapLocation(bc_Unit_ranger_target_location(self));
+		auto location = MapLocation(bc_Unit_ranger_target_location(self));
+		CHECK_ERRORS();
+		return location;
 	}
 
 	uint8_t Ranger::IsSnipeReady()
@@ -45,6 +48,7 @@ namespace units {
 	void Ranger::BeginSnipe(MapLocation location)
 	{
 		bc_GameController_begin_snipe(GameController::gc, id, location.self);
+		CHECK_ERRORS();
 	}
 
 }
