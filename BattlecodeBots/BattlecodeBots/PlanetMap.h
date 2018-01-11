@@ -59,7 +59,7 @@ public:
 	/*
 	@return All locations on planet
 	*/
-	std::vector<std::vector<MapLocation>> Locations();
+	std::vector<MapLocation> Locations();
 
 };
 

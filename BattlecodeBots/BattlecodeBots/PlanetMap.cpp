@@ -59,12 +59,12 @@ std::vector<std::shared_ptr<units::Worker>> PlanetMap::InitialWorkers()
 	return workers;
 }
 
-std::vector<std::vector<MapLocation>> PlanetMap::Locations() {
-	auto locations = std::vector<std::vector<MapLocation>>();
+std::vector<MapLocation> PlanetMap::Locations() {
+	auto locations = std::vector<MapLocation>();
 	auto planet = Planet();
 	for (int x = 0; x < Width(); x++) {
 		for (int y = 0; y < Height(); y++) {
-			locations[x][y] = MapLocation(planet, x, y);
+			locations.push_back(MapLocation(planet, x, y));
 		}
 	}
 	return locations;

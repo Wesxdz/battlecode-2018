@@ -3,6 +3,7 @@
 #include "Unit.h"
 #include "Worker.h"
 #include <iostream>
+#include "Data.h"
 
 /*
 Instead of micromanaging individual unit behavior, prioritize goals based on available data and
@@ -12,18 +13,7 @@ int main()
 {
 	std::cout << "WesleyBot initialize" << std::endl;
 	GameController player;
-	GameMap spaceMap;
-	PlanetMap planetMap;
-	if (player.Planet() == bc_Planet::Earth) {
-		planetMap = spaceMap.Earth();
-	}
-	else {
-		planetMap = spaceMap.Mars();
-	}
-	auto locations = planetMap.Locations();
-	for (MapLocation& location : locations) {
-
-	}
+	Data data;
 	while (true)
 	{
 		uint32_t round = player.Round();
