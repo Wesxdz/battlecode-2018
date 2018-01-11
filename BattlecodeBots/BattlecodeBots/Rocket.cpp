@@ -1,6 +1,7 @@
 #include "Rocket.h"
 
 #include "GameController.h"
+#include "Log.h"
 
 namespace units {
 
@@ -35,6 +36,7 @@ namespace units {
 	void Rocket::Launch(MapLocation location)
 	{
 		bc_GameController_launch_rocket(GameController::gc, id, location.self);
+		CHECK_ERRORS();
 	}
 
 }

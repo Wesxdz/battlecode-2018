@@ -1,6 +1,7 @@
 #include "Robot.h"
 
 #include "GameController.h"
+#include "Log.h"
 
 namespace units {
 
@@ -80,6 +81,7 @@ namespace units {
 	void Robot::Move(bc_Direction direction)
 	{
 		bc_GameController_move_robot(GameController::gc, id, direction);
+		CHECK_ERRORS();
 	}
 
 	uint8_t Robot::IsAttackReady()
@@ -94,7 +96,8 @@ namespace units {
 
 	void Robot::Attack(units::Unit& target)
 	{
-		return bc_GameController_attack(GameController::gc, id, target.id);
+		bc_GameController_attack(GameController::gc, id, target.id);
+		CHECK_ERRORS();
 	}
 
 }

@@ -2,6 +2,7 @@
 
 #include "GameController.h"
 #include "Unit.h"
+#include "Log.h"
 
 MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y)
 {
@@ -33,12 +34,12 @@ int32_t MapLocation::Y()
 	return int32_t();
 }
 
-MapLocation MapLocation::Neighbor(MapLocation & origin, bc_Direction direction)
+MapLocation MapLocation::Neighbor(MapLocation& origin, bc_Direction direction)
 {
 	return MapLocation(bc_MapLocation_add(origin.self, direction));
 }
 
-MapLocation MapLocation::Translate(MapLocation & origin, int32_t dx, int32_t dy)
+MapLocation MapLocation::Translate(MapLocation& origin, int32_t dx, int32_t dy)
 {
 	return bc_MapLocation_translate(origin.self, dx, dy);
 }
@@ -81,6 +82,7 @@ uint8_t MapLocation::Occupiable()
 std::shared_ptr<units::Unit> MapLocation::Occupant()
 {
 	auto unit = GameController::Unit(bc_GameController_sense_unit_at_location(GameController::gc, self));
+	CHECK_ERRORS();
 	unit->Init(unit->self);
 	return unit;
 }

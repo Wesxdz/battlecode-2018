@@ -1,6 +1,8 @@
 #include "Location.h"
 
+#include "GameController.h"
 #include "Structure.h"
+#include "Log.h"
 
 Location::Location()
 {
@@ -23,7 +25,9 @@ uint8_t Location::OnPlanet(bc_Planet planet)
 
 MapLocation Location::ToMapLocation()
 {
-	return MapLocation(bc_Location_map_location(self));
+	auto location = MapLocation(bc_Location_map_location(self));
+	CHECK_ERRORS();
+	return location;
 }
 
 uint8_t Location::IsInGarrison()
@@ -31,11 +35,13 @@ uint8_t Location::IsInGarrison()
 	return bc_Location_is_in_garrison(self);
 }
 
-std::shared_ptr<Structure> Location::GarrisonStructure()
+std::shared_ptr<units::Structure> Location::GarrisonStructure()
 {
-	uint16_t stuctureID = bc_Location_structure(self);
-	// TODO Implement, pass in vector of structures?
-	return std::shared_ptr<Structure>();
+	uint16_t structureId = bc_Location_structure(self);
+	auto structure = std::make_shared<units::Structure>();
+	structure->Init(bc_GameController_unit(GameController::gc, structureId));
+	CHECK_ERRORS();
+	return structure;
 }
 
 uint8_t Location::IsInSpace()

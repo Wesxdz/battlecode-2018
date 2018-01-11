@@ -118,6 +118,7 @@
   <ItemGroup>
     <ClCompile Include="AsteroidPattern.cpp" />
     <ClCompile Include="AsteroidStrike.cpp" />
+    <ClCompile Include="bc.cpp" />
     <ClCompile Include="examplefuncsplayer.c" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="Healer.h" />
     <ClInclude Include="Knight.h" />
     <ClInclude Include="Location.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="Mage.h" />
     <ClInclude Include="MapLocation.h" />
     <ClInclude Include="OrbitPattern.h" />

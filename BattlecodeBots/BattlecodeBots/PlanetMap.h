@@ -2,6 +2,7 @@
 #define PLANETMAP_H
 
 #include "bc.h"
+#include "Worker.h"
 
 #include <vector>
 
@@ -49,6 +50,11 @@ public:
 	@return The amount of Karbonite initially deposited at the given location.
 	*/
 	uint32_t InitialKarbonite(MapLocation& location);
+
+	/*
+	@return The initial units on the map. Each team starts with 1 to 3 Workers on Earth.
+	*/
+	std::vector<std::shared_ptr<units::Worker>> InitialWorkers();
 
 };
 

@@ -1,6 +1,7 @@
 #include "Knight.h"
 
 #include "GameController.h"
+#include "Log.h"
 
 namespace units {
 
@@ -30,6 +31,7 @@ namespace units {
 	void Knight::Javelin(std::shared_ptr<Unit> target)
 	{
 		bc_GameController_javelin(GameController::gc, id, target->id);
+		CHECK_ERRORS();
 	}
 
 }
