@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FACTORY_H 
+#define FACTORY_H
 
 #include "Structure.h"
 
@@ -40,3 +41,4 @@ namespace units {
 }
 
 
+#endif

@@ -5,6 +5,10 @@
 
 PlanetMap::PlanetMap()
 {
+	self = new_bc_PlanetMap();
+	planetType = bc_PlanetMap_planet_get(self);
+	width = bc_PlanetMap_width_get(self);
+	height = bc_PlanetMap_height_get(self);
 }
 
 PlanetMap::~PlanetMap()

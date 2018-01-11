@@ -3,7 +3,9 @@
 #include "GameController.h"
 #include "Unit.h"
 
-MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y)
+MapLocation::MapLocation() { }
+
+MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y) : planet(planet), x(x), y(y)
 {
 	self = new_bc_MapLocation(planet, x, y);
 }
@@ -15,22 +17,9 @@ MapLocation::MapLocation(bc_MapLocation * loc)
 
 MapLocation::~MapLocation()
 {
-	delete_bc_MapLocation(self);
-}
-
-bc_Planet MapLocation::Planet()
-{
-	return bc_Planet();
-}
-
-int32_t MapLocation::X()
-{
-	return int32_t();
-}
-
-int32_t MapLocation::Y()
-{
-	return int32_t();
+	if (self != nullptr) {
+		delete_bc_MapLocation(self);
+	}
 }
 
 MapLocation MapLocation::Neighbor(MapLocation & origin, bc_Direction direction)

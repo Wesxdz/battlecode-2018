@@ -57,6 +57,10 @@ namespace units {
 	{
 		bc_GameController_build(GameController::gc, id, blueprint->id);
 	}
+	void Worker::Build(int structureID)
+	{
+		bc_GameController_build(GameController::gc, id, structureID);
+	}
 
 	uint8_t Worker::CanRepair(std::shared_ptr<Structure> structure)
 	{

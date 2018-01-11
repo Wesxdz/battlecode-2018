@@ -46,6 +46,7 @@ namespace units {
 		@execute Builds a given blueprint, increasing its health by the worker's build amount. 
 		*/
 		void Build(std::shared_ptr<Structure> blueprint);
+		void Build(int structureID);
 		/*
 		@return Whether the given worker can repair the given strucutre. Tests that the worker is able to execute a worker action, that the structure is built, and that the structure is within range.
 		*/

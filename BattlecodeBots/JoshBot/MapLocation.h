@@ -16,20 +16,27 @@ It has x and y coordinates, in addition to the planet itself, as attributes.
 class MapLocation
 {
 public:
-	bc_MapLocation* self;
+	bc_MapLocation* self = nullptr;
+	bc_Planet planet;
+	int x;
+	int y;
 public:
+	MapLocation();
 	MapLocation(bc_Planet planet, int32_t x, int32_t y);
 	MapLocation(bc_MapLocation* loc);
 	~MapLocation();
-	bc_Planet Planet();
+	/*
+	@return The planet this MapLocation is on
+	*/
+	bc_Planet Planet() { return planet; }
 	/*
 	@return The x coordinate of the map location.
 	*/
-	int32_t X();
+	int32_t X() { return x; }
 	/*
 	@return The y coordinate of the map location.
 	*/
-	int32_t Y();
+	int32_t Y() { return y; }
 	/*
 	@return The location one square from #origin in the given direction.
 	*/

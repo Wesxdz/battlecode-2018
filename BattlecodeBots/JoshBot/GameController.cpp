@@ -9,6 +9,8 @@
 #include "Factory.h"
 #include "Rocket.h"
 
+bc_GameController* GameController::gc = nullptr;
+
 GameController::GameController()
 {
 	gc = new_bc_GameController();

@@ -18,6 +18,9 @@ class PlanetMap
 {
 public:
 	bc_PlanetMap* self;
+	bc_Planet planetType;
+	uintptr_t width;
+	uintptr_t height;
 public:
 	PlanetMap();
 	~PlanetMap();
