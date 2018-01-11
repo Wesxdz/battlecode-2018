@@ -113,6 +113,50 @@
   <ItemGroup>
     <Text Include="TODO.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AsteroidPattern.cpp" />
+    <ClCompile Include="AsteroidStrike.cpp" />
+    <ClCompile Include="Factory.cpp" />
+    <ClCompile Include="GameController.cpp" />
+    <ClCompile Include="GameMap.cpp" />
+    <ClCompile Include="Healer.cpp" />
+    <ClCompile Include="Knight.cpp" />
+    <ClCompile Include="Location.cpp" />
+    <ClCompile Include="Mage.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapLocation.cpp" />
+    <ClCompile Include="OrbitPattern.cpp" />
+    <ClCompile Include="PlanetMap.cpp" />
+    <ClCompile Include="Ranger.cpp" />
+    <ClCompile Include="Robot.cpp" />
+    <ClCompile Include="Rocket.cpp" />
+    <ClCompile Include="Structure.cpp" />
+    <ClCompile Include="Unit.cpp" />
+    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Worker.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AsteroidPattern.h" />
+    <ClInclude Include="AsteroidStrike.h" />
+    <ClInclude Include="bc.h" />
+    <ClInclude Include="Factory.h" />
+    <ClInclude Include="GameController.h" />
+    <ClInclude Include="GameMap.h" />
+    <ClInclude Include="Healer.h" />
+    <ClInclude Include="Knight.h" />
+    <ClInclude Include="Location.h" />
+    <ClInclude Include="Mage.h" />
+    <ClInclude Include="MapLocation.h" />
+    <ClInclude Include="OrbitPattern.h" />
+    <ClInclude Include="PlanetMap.h" />
+    <ClInclude Include="Ranger.h" />
+    <ClInclude Include="Robot.h" />
+    <ClInclude Include="Rocket.h" />
+    <ClInclude Include="Structure.h" />
+    <ClInclude Include="Unit.h" />
+    <ClInclude Include="Util.h" />
+    <ClInclude Include="Worker.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
