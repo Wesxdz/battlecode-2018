@@ -13,6 +13,11 @@ PlanetMap::~PlanetMap()
 	delete_bc_PlanetMap(self);
 }
 
+PlanetMap::PlanetMap(const PlanetMap& other)
+{
+	self = bc_PlanetMap_clone(other.self);
+}
+
 bc_Planet PlanetMap::Planet()
 {
 	return bc_PlanetMap_planet_get(self);
@@ -50,8 +55,8 @@ uint32_t PlanetMap::InitialKarbonite(MapLocation& location)
 std::vector<std::shared_ptr<units::Worker>> PlanetMap::InitialWorkers()
 {
 	auto workers = std::vector<std::shared_ptr<units::Worker>>();
-	bc_VecUnit* bcWorkers;
-	for (intptr_t i = 0; i < bc_VecUnit_len(bcWorkers); i++) {
+	bc_VecUnit* bcWorkers = bc_PlanetMap_initial_units_get(self);
+	for (uintptr_t i = 0; i < bc_VecUnit_len(bcWorkers); i++) {
 		auto worker = std::make_shared<units::Worker>();
 		worker->Init(bc_VecUnit_index(bcWorkers, i));
 		workers.push_back(worker);
@@ -62,8 +67,8 @@ std::vector<std::shared_ptr<units::Worker>> PlanetMap::InitialWorkers()
 std::vector<MapLocation> PlanetMap::Locations() {
 	auto locations = std::vector<MapLocation>();
 	auto planet = Planet();
-	for (int x = 0; x < Width(); x++) {
-		for (int y = 0; y < Height(); y++) {
+	for (uintptr_t x = 0; x < Width(); x++) {
+		for (uintptr_t y = 0; y < Height(); y++) {
 			locations.push_back(MapLocation(planet, x, y));
 		}
 	}

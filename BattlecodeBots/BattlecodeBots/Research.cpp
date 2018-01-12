@@ -19,7 +19,7 @@ uint8_t Research::Reset()
 
 uint8_t Research::Queue(bc_UnitType branch)
 {
-	return bc_GameController_queue_research(GameController::gc);
+	return bc_GameController_queue_research(GameController::gc, branch);
 }
 
 uint32_t Research::RoundsLeft()

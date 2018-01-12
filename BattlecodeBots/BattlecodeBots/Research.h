@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RESEARCH_H
+#define RESEARCH_H
 
 #include "bc.h"
 
@@ -31,4 +32,6 @@ public:
 	*/
 	static uint32_t TimeToResearch(bc_UnitType branch, uintptr_t level);
 };
+
+#endif
 

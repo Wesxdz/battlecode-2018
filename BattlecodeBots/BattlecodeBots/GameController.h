@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <memory>
+class PlanetMap;
 
 namespace units {
 	class Unit;
@@ -43,6 +44,10 @@ public:
 	*/
 	static bc_Planet Planet();
 	/*
+	@return The planet map of this player
+	*/
+	static bc_PlanetMap* PlanetMap();
+	/*
 	Research Engineering Division (Red)
 	The Branched Logistics Union of Electronicists (Blue)
 	Red takes the first turn
@@ -73,29 +78,40 @@ public:
 	template <class T>
 	static std::vector<std::shared_ptr<T>> Wrap(bc_VecUnit* bcUnits);
 
-	/*template <class T>
-	static std::vector<std::shared_ptr<T>> Subset(std::vector<std::shared_ptr<units::Unit>> units);*/
-
 	template <class T, class V>
 	static std::shared_ptr<T> Convert(std::shared_ptr<V> original);
 
 };
 
 template<class T>
-inline std::vector<std::shared_ptr<T>> GameController::Wrap(bc_VecUnit * bcUnits)
+inline std::vector<std::shared_ptr<T>> GameController::Wrap(bc_VecUnit* bcUnits)
 {
 	auto units = std::vector<std::shared_ptr<T>>();
 	for (uintptr_t i = 0; i < bc_VecUnit_len(bcUnits); i++) {
-		units.push_back(std::dynamic_pointer_cast<T>(GameController::Unit(bc_VecUnit_index(bcUnits, i))));
+		units.push_back(std::static_pointer_cast<T>(GameController::Unit(bc_VecUnit_index(bcUnits, i))));
 	}
 	delete_bc_VecUnit(bcUnits);
 	return units;
 }
 
-template<class T, class V>
-inline std::shared_ptr<T> GameController::Convert(std::shared_ptr<V> original)
+#include "Unit.h"
+#include "Knight.h"
+#include "Worker.h"
+
+template<>
+inline std::shared_ptr<units::Knight> GameController::Convert(std::shared_ptr<units::Unit> original)
 {
-	return std::static_pointer_cast<T>(original);
+	auto updatedType = std::make_shared<units::Knight>();
+	updatedType->Init(original->id);
+	return updatedType;
+}
+
+template<>
+inline std::shared_ptr<units::Worker> GameController::Convert(std::shared_ptr<units::Unit> original)
+{
+	auto updatedType = std::make_shared<units::Worker>();
+	updatedType->Init(original->id);
+	return updatedType;
 }
 
 #endif

@@ -22,6 +22,7 @@ public:
 public:
 	PlanetMap();
 	~PlanetMap();
+	PlanetMap(const PlanetMap& other);
 	/*
 	@return The planet of the map
 	*/

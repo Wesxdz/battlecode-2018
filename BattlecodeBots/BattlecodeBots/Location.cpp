@@ -13,7 +13,12 @@ Location::~Location()
 	delete_bc_Location(self);
 }
 
-uint8_t Location::OnMap()
+Location::Location(const Location& other)
+{
+	self = bc_Location_clone(other.self);
+}
+
+uint8_t Location::IsOnMap()
 {
 	return bc_Location_is_on_map(self);
 }

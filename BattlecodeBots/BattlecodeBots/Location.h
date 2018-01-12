@@ -24,10 +24,11 @@ public:
 public:
 	Location(); // Create and set #self in Unit
 	~Location();
+	Location(const Location& other);
 	/*
 	@return this location is on a PlanetMap
 	*/
-	uint8_t OnMap();
+	uint8_t IsOnMap();
 	/*
 	@return Whether the unit is on the map and on #planet
 	*/

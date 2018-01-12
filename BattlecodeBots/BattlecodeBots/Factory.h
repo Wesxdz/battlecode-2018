@@ -35,7 +35,6 @@ namespace units {
 		*/
 		void Produce(bc_UnitType robot);
 
-
 	};
 
 }

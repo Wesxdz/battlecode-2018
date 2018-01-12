@@ -1,6 +1,7 @@
 #include "Unit.h"
 
 #include "GameController.h"
+#include "Log.h"
 
 namespace units {
 
@@ -8,16 +9,36 @@ namespace units {
 	{
 	}
 
-	void Unit::Init(bc_Unit* unit)
+	Unit::Unit(const Unit& other)
 	{
-		self = unit;
+		self = bc_Unit_clone(other.self);
 		id = bc_Unit_id(self);
 		type = bc_Unit_unit_type(self);
+	}
+
+	void Unit::Init(bc_Unit* unit)
+	{
+		Init(bc_Unit_id(unit));
+		delete_bc_Unit(unit);
+	}
+
+	void Unit::Init(uint32_t unitId)
+	{
+		self = bc_GameController_unit(GameController::gc, unitId);
+		id = unitId;
+		type = bc_Unit_unit_type(self);
+		CHECK_ERRORS();
 	}
 
 	Unit::~Unit()
 	{
 		delete_bc_Unit(self);
+	}
+
+	uint32_t Unit::Cost()
+	{
+		log_error(true, "Base unit class has no cost");
+		return uint32_t();
 	}
 
 	uint32_t Unit::Value()
@@ -39,6 +60,7 @@ namespace units {
 	{
 		Location location;
 		location.self = bc_Unit_location(self);
+		CHECK_ERRORS();
 		return location;
 	}
 

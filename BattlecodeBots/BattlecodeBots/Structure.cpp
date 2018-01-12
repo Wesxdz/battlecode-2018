@@ -33,7 +33,7 @@ namespace units {
 	{
 		auto garrison = std::vector<std::shared_ptr<units::Robot>>();
 		bc_VecUnitID* inside = bc_Unit_structure_garrison(self);
-		for (int i = 0; i < bc_VecUnitID_len(inside); i++) {
+		for (uintptr_t i = 0; i < bc_VecUnitID_len(inside); i++) {
 			// Use static_pointer_cast to make types more specific
 			garrison.push_back(std::static_pointer_cast<units::Robot>(GameController::Unit((GameController::gc, bc_VecUnitID_index(inside, i)))));
 		}
