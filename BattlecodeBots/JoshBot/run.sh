@@ -4,7 +4,8 @@
 LIBRARIES="-lutil -ldl -lrt -lpthread -lgcc_s -lc -lm -L/battlecode-c/lib/ -lbattlecode"
 INCLUDES="-I/battlecode-c/include"
 
-gcc main.c -o main $LIBRARIES $INCLUDES
+#gcc main.c -o main $LIBRARIES $INCLUDES
+gcc *.h *.cpp -o main $LIBRARIES $INCLUDES
 
 # run the program!
 ./main

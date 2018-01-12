@@ -6,8 +6,6 @@
 Wrap Method can initialize to the length to avoid multiple resizings...
 certain methods can take in the previous iteration? And that way we can we dont copy so many values..
 
-We NEED to keep track of our team on a planet. Call bc_GameController_my_team will get us Every Unit on the other planet
-
 Some methods do mutlipe things and by breaking them up or making them more generic we can reduce computation possibly.
 
 Could we define enums as ints?
@@ -37,4 +35,12 @@ Especially if used as group
 
 Should try to group entitys by type and have them perform at the same time.
 Entity decision should based off each other
+
+Is there a way to add calls at specific intervals without checking...
+Like for Research
+
+Utility Methods
+
+Worker 
+- CanBuild(Direction)
 
