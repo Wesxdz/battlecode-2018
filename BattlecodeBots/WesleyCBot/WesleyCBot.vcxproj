@@ -116,18 +116,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bc.cpp" />
+    <ClCompile Include="Info.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapUtil.cpp" />
     <ClCompile Include="Pathfind.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Policy.cpp" />
     <ClCompile Include="Section.cpp" />
+    <ClCompile Include="UnitPolicies.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bc.h" />
+    <ClInclude Include="Info.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="MapUtil.h" />
     <ClInclude Include="Pathfind.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Policy.h" />
     <ClInclude Include="Section.h" />
+    <ClInclude Include="UnitPolicies.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

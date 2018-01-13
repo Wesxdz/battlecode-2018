@@ -81,6 +81,9 @@ bc_MapLocation* Pathfind::PickGreedy(bc_MapLocation* origin, bc_MapLocation* des
 	for (size_t i = 1; i < neighbors.size(); i++) {
 		delete_bc_MapLocation(neighbors[i]);
 	}
+	if (bc_MapLocation_distance_squared_to(origin, destination) > 1 && bc_MapLocation_distance_squared_to(origin, destination) < 2) { // Knights
+		if (neighbors.size() > 0) return neighbors[1];
+	}
 	return neighbors[0];
 }
 
