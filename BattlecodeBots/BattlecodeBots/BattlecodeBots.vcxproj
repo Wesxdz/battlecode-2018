@@ -135,7 +135,9 @@
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="Structure.cpp" />
+    <ClCompile Include="TeamArray.cpp" />
     <ClCompile Include="Unit.cpp" />
+    <ClCompile Include="VecUnit.cpp" />
     <ClCompile Include="Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,7 +161,9 @@
     <ClInclude Include="Robot.h" />
     <ClInclude Include="Rocket.h" />
     <ClInclude Include="Structure.h" />
+    <ClInclude Include="TeamArray.h" />
     <ClInclude Include="Unit.h" />
+    <ClInclude Include="VecUnit.h" />
     <ClInclude Include="Worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
