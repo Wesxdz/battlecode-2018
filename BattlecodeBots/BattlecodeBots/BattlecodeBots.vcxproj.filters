@@ -87,6 +87,12 @@
     <ClCompile Include="VecUnit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TeamArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VecUnit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bc.h">
