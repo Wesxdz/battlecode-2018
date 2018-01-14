@@ -14,8 +14,8 @@ struct Upgrade
 	bc_UnitType branch;
 	uintptr_t level;
 	std::function<float(Upgrade*)> Evaluate;
-	float evaluationScore;
 
+	float evaluationScore;
 	uint32_t TurnsToResearch();
 	void Research();
 };
@@ -23,9 +23,9 @@ struct Upgrade
 class ResearchPolicies
 {
 public:
+	virtual void Init();
 	void Update();
 	std::list<Upgrade> paths;
-	void Init();
 private:
 	bool researchNextTurn = true;
 };
