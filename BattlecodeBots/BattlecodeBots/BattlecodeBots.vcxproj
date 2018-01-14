@@ -118,7 +118,6 @@
   <ItemGroup>
     <ClCompile Include="AsteroidPattern.cpp" />
     <ClCompile Include="AsteroidStrike.cpp" />
-    <ClCompile Include="bc.cpp" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameMap.cpp" />
@@ -137,6 +136,7 @@
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="TeamArray.cpp" />
     <ClCompile Include="Unit.cpp" />
+    <ClCompile Include="Utility.cpp" />
     <ClCompile Include="VecUnit.cpp" />
     <ClCompile Include="Worker.cpp" />
   </ItemGroup>
@@ -163,6 +163,7 @@
     <ClInclude Include="Structure.h" />
     <ClInclude Include="TeamArray.h" />
     <ClInclude Include="Unit.h" />
+    <ClInclude Include="Utility.h" />
     <ClInclude Include="VecUnit.h" />
     <ClInclude Include="Worker.h" />
   </ItemGroup>
