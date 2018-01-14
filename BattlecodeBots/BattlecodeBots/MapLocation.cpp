@@ -6,6 +6,11 @@
 #include "GameMap.h"
 #include "PlanetMap.h"
 
+MapLocation::MapLocation() 
+{
+
+}
+
 MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y)
 {
 	self = new_bc_MapLocation(planet, x, y);
@@ -24,6 +29,15 @@ MapLocation::MapLocation(const MapLocation& other)
 MapLocation::~MapLocation()
 {
 	delete_bc_MapLocation(self);
+}
+
+MapLocation MapLocation::operator=(const MapLocation& other) {
+	this->self = bc_MapLocation_clone(other.self);
+	return *this;
+}
+
+bool MapLocation::operator==(MapLocation& other) {
+	return this->X() == other.X() && this->Y() == other.Y() && this->Planet() == other.Planet();
 }
 
 bc_Planet MapLocation::Planet()

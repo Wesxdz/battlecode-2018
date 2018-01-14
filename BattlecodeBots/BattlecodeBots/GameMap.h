@@ -8,7 +8,7 @@
 class GameMap
 {
 public:
-	bc_GameMap* gm;
+	static bc_GameMap* gm;
 public:
 	GameMap();
 	~GameMap();
@@ -19,14 +19,14 @@ public:
 	At the start of round 750, Earth suffers a massive flood that destroys everything on the planet.
 	@return Earth map
 	*/
-	PlanetMap Earth();
+	static PlanetMap Earth();
 	/*
 	Mars consists of passable squares, passable Karbonite deposits, and impassable rocky outcrops.
 	Mars begins with no Karbonite deposits. However, it is frequently bombarded by asteroids, which leave behind comparatively rich Karbonite deposits.
 	Mars is the only planet that has a renewable amount of Karbonite.
 	@return Mars map
 	*/
-	PlanetMap Mars();
+	static PlanetMap Mars();
 
 };
 

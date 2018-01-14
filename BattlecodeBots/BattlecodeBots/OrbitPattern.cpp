@@ -2,6 +2,8 @@
 
 #include "GameController.h"
 
+bc_OrbitPattern* OrbitPattern::self = nullptr;
+
 OrbitPattern::OrbitPattern()
 {
 	self = bc_GameController_orbit_pattern(GameController::gc);

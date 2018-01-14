@@ -16,12 +16,18 @@ It has x and y coordinates, in addition to the planet itself, as attributes.
 class MapLocation
 {
 public:
-	bc_MapLocation* self;
+	bc_MapLocation* self = nullptr;
 public:
+	MapLocation();
 	MapLocation(bc_Planet planet, int32_t x, int32_t y);
 	MapLocation(bc_MapLocation* loc);
 	MapLocation(const MapLocation& other);
 	~MapLocation();
+
+	bool operator==(MapLocation& other);
+
+	MapLocation operator=(const MapLocation& m);
+
 	bc_Planet Planet();
 	/*
 	@return The x coordinate of the map location.

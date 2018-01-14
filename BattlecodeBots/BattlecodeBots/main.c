@@ -27,11 +27,11 @@ bool check_errors() {
 	}
 }
 
-#ifdef _DEBUG
-int main() {
-
-}
-#else
+//#ifdef _DEBUG
+//int main() {
+//
+//}
+//#else
 
 int main() {
 	printf("Player C bot starting\n");
@@ -103,4 +103,4 @@ int main() {
 	}
 	// Convinced you shouldn't use C yet?
 }
-#endif
+//#endif

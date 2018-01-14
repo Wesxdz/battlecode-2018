@@ -35,6 +35,8 @@ namespace units {
 	void Rocket::Launch(MapLocation location)
 	{
 		bc_GameController_launch_rocket(GameController::gc, id, location.self);
+		destination = location;
+		hasLaunched = 1;
 	}
 
 }
