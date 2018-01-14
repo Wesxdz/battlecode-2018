@@ -19,7 +19,6 @@ namespace units {
 	void Unit::Init(bc_Unit* unit)
 	{
 		Init(bc_Unit_id(unit));
-		delete_bc_Unit(unit);
 	}
 
 	void Unit::Init(uint32_t unitId)

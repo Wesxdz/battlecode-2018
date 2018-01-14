@@ -13,7 +13,7 @@ Policy::~Policy()
 
 void Policy::Command()
 {
-	std::cout << "Executing policy choice " << name << "\n";
+	//std::cout << "Executing policy choice " << name << "\n";
 	Execute(0);
-	CHECK_ERRORS();
+	//CHECK_ERRORS();
 }

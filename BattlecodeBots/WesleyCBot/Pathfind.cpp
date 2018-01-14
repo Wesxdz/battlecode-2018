@@ -3,6 +3,7 @@
 #include "Player.h"
 #include <stdlib.h>
 #include <algorithm>
+#include "MapUtil.h"
 
 std::vector<bc_MapLocation*> Pathfind::Neighbors(bc_MapLocation* start)
 {
@@ -52,22 +53,18 @@ bc_MapLocation* Pathfind::PickRandom(std::vector<bc_MapLocation*>& locGrid)
 
 void Pathfind::MoveRandom(bc_Unit* robot)
 {
-	bc_Location* location = bc_Unit_location(robot);
-	if (!bc_Location_is_on_map(location)) {
-		delete_bc_Location(location);
-		return;
+	for (auto direction : MapUtil::Adjacent) {
+		int attempts = 0;
+		for (int i = rand() % 8; attempts < 8; attempts++) {
+			if (i == 8) { i = 0; }
+			if (bc_GameController_can_move(Player::gc, bc_Unit_id(robot), static_cast<bc_Direction>(i))) {
+				bc_GameController_move_robot(Player::gc, bc_Unit_id(robot), static_cast<bc_Direction>(i));
+				return;
+			}
+		}
 	}
-	bc_MapLocation* mapLocation = bc_Location_map_location(location);
-	auto moveChoices = Pathfind::Moveable(mapLocation);
-	bc_MapLocation* move = Pathfind::PickRandom(moveChoices);
 	if (bc_GameController_is_move_ready(Player::gc, bc_Unit_id(robot))) {
-		bc_GameController_move_robot(Player::gc, bc_Unit_id(robot), bc_MapLocation_direction_to(mapLocation, move));
 	}
-	for (bc_MapLocation* loc : moveChoices) {
-		delete_bc_MapLocation(loc);
-	}
-	delete_bc_MapLocation(mapLocation);
-	delete_bc_Location(location);
 }
 
 bc_MapLocation* Pathfind::PickGreedy(bc_MapLocation* origin, bc_MapLocation* destination)

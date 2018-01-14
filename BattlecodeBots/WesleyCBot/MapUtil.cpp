@@ -1,5 +1,10 @@
 #include "MapUtil.h"
 
+const uint32_t MapUtil::MIN_MAP_SIZE = 400;
+const uint32_t MapUtil::MAX_MAP_SIZE = 2500;
+
+std::vector<bc_Direction> MapUtil::Adjacent = { North, Northeast, East, Southeast, South, Southwest, West, Northwest };
+
 std::vector<bc_MapLocation*> MapUtil::AllLocations(bc_PlanetMap* map)
 {
 	uintptr_t width = bc_PlanetMap_width_get(map);

@@ -8,6 +8,7 @@
 class Info
 {
 public:
+	static void Update();
 	static std::map<bc_UnitType, int> numTeamUnits;
 	static std::map<bc_UnitType, int> numEnemyUnits;
 };

@@ -122,6 +122,7 @@
     <ClCompile Include="Pathfind.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Policy.cpp" />
+    <ClCompile Include="ResearchPolicies.cpp" />
     <ClCompile Include="Section.cpp" />
     <ClCompile Include="UnitPolicies.cpp" />
   </ItemGroup>
@@ -133,6 +134,7 @@
     <ClInclude Include="Pathfind.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Policy.h" />
+    <ClInclude Include="ResearchPolicies.h" />
     <ClInclude Include="Section.h" />
     <ClInclude Include="UnitPolicies.h" />
   </ItemGroup>
