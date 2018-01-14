@@ -26,7 +26,7 @@ Structures cannot be blueprinted or built on Mars.
 	class Structure : public Unit 
 	{
 	public:
-		Structure();
+		Structure(bc_Unit* unit);
 		~Structure();
 		virtual uint32_t Cost() override;
 		/*
@@ -41,15 +41,15 @@ Structures cannot be blueprinted or built on Mars.
 		@note The bc function can only get unit ids, which is why you need to pass in #teamRobots
 		@return The robots in the structure's garrison.
 		*/
-		std::vector<std::shared_ptr<Robot>> Garrison();
+		std::vector<Robot> Garrison();
 		/*
 		@return Whether the robot can be loaded into the given structure's garrison. The robot must be ready to move and must be adjacent to the structure. The structure and the robot must be on the same team, and the structure must have space.
 		*/
-		uint8_t CanLoad(std::shared_ptr<Robot> robot);
+		uint8_t CanLoad(bc_Unit* robot);
 		/*
 		@execute Loads the robot into the garrison of the structure.
 		*/
-		void Load(std::shared_ptr<Robot> robot);
+		void Load(bc_Unit* robot);
 		/*
 		@return Whether the given structure is able to unload a unit in the given direction. There must be space in that direction, and the unit must be ready to move.
 		*/

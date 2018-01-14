@@ -12,6 +12,7 @@
 #include <chrono>
 #include <ctime>
 #include "ResearchPolicies.h"
+#include "MapUtil.h"
 
 int main()
 {
@@ -24,6 +25,9 @@ int main()
 	ResearchPolicies research;
 	if (bc_GameController_planet(gc) == Earth) {
 		research.Init();
+	}
+	for (auto location : MapUtil::marsPassableLocations) {
+		std::cout << "Is passable " << (bool)bc_PlanetMap_is_passable_terrain_at(Player::mars, location);
 	}
 	std::chrono::duration<double> totalTime;
 	while (true)

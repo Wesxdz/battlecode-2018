@@ -52,13 +52,12 @@ uint32_t PlanetMap::InitialKarbonite(MapLocation& location)
 	return deposit;
 }
 
-std::vector<std::shared_ptr<units::Worker>> PlanetMap::InitialWorkers()
+std::vector<units::Worker> PlanetMap::InitialWorkers()
 {
-	auto workers = std::vector<std::shared_ptr<units::Worker>>();
+	auto workers = std::vector<units::Worker>();
 	bc_VecUnit* bcWorkers = bc_PlanetMap_initial_units_get(self);
 	for (uintptr_t i = 0; i < bc_VecUnit_len(bcWorkers); i++) {
-		auto worker = std::make_shared<units::Worker>();
-		worker->Init(bc_VecUnit_index(bcWorkers, i));
+		units::Worker worker(bc_VecUnit_index(bcWorkers, i));
 		workers.push_back(worker);
 	}
 	return workers;

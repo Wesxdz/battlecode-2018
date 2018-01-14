@@ -5,7 +5,8 @@
 
 namespace units {
 
-	Ranger::Ranger()
+	Ranger::Ranger(bc_Unit* unit) :
+		Robot(unit)
 	{
 	}
 
@@ -40,12 +41,12 @@ namespace units {
 		return bc_GameController_is_begin_snipe_ready(GameController::gc, id);
 	}
 
-	uint8_t Ranger::CanBeginSnipe(MapLocation location)
+	uint8_t Ranger::CanBeginSnipe(MapLocation& location)
 	{
 		return bc_GameController_can_begin_snipe(GameController::gc, id, location.self);
 	}
 
-	void Ranger::BeginSnipe(MapLocation location)
+	void Ranger::BeginSnipe(MapLocation& location)
 	{
 		bc_GameController_begin_snipe(GameController::gc, id, location.self);
 		CHECK_ERRORS();

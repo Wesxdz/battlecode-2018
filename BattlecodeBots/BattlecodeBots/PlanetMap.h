@@ -55,7 +55,7 @@ public:
 	/*
 	@return The initial units on the map. Each team starts with 1 to 3 Workers on Earth.
 	*/
-	std::vector<std::shared_ptr<units::Worker>> InitialWorkers();
+	std::vector<units::Worker> InitialWorkers();
 
 	/*
 	@return All locations on planet

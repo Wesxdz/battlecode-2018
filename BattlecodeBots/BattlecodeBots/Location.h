@@ -46,7 +46,7 @@ public:
 	@error UnitNotInGarrison
 	@return The structure whose garrison the unit is in.
 	*/
-	std::shared_ptr<units::Structure> GarrisonStructure();
+	units::Structure GarrisonStructure();
 	/*
 	@return Whether the unit is in space.
 	*/

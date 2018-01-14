@@ -5,7 +5,8 @@
 
 namespace units {
 
-	Robot::Robot()
+	Robot::Robot(bc_Unit* unit) :
+		Unit(unit)
 	{
 	}
 
@@ -89,12 +90,12 @@ namespace units {
 		return bc_GameController_is_attack_ready(GameController::gc, id);
 	}
 
-	uint8_t Robot::CanAttack(units::Unit& target)
+	uint8_t Robot::CanAttack(Unit& target)
 	{
 		return bc_GameController_can_attack(GameController::gc, id, target.id);
 	}
 
-	void Robot::Attack(units::Unit& target)
+	void Robot::Attack(Unit& target)
 	{
 		bc_GameController_attack(GameController::gc, id, target.id);
 		CHECK_ERRORS();

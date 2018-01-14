@@ -8,7 +8,7 @@ namespace units {
 	class Factory : public Structure
 	{
 	public:
-		Factory();
+		Factory(bc_Unit* unit);
 		~Factory();
 		/*
 		@return Whether the factory is currently producing a unit.

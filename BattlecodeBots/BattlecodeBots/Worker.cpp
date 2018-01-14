@@ -6,7 +6,8 @@
 
 namespace units {
 
-	Worker::Worker()
+	Worker::Worker(bc_Unit* unit) :
+		Robot(unit)
 	{
 	}
 

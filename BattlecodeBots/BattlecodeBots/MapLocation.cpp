@@ -11,7 +11,7 @@ MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y)
 	self = new_bc_MapLocation(planet, x, y);
 }
 
-MapLocation::MapLocation(bc_MapLocation * loc)
+MapLocation::MapLocation(bc_MapLocation* loc)
 {
 	self = loc;
 }
@@ -88,11 +88,10 @@ uint8_t MapLocation::IsOccupiable()
 	return isOccupiable;
 }
 
-std::shared_ptr<units::Unit> MapLocation::Occupant()
+units::Unit MapLocation::Occupant()
 {
-	auto unit = GameController::Unit(bc_GameController_sense_unit_at_location(GameController::gc, self));
+	auto unit = units::Unit(bc_GameController_sense_unit_at_location(GameController::gc, self));
 	CHECK_ERRORS();
-	unit->Init(unit->self);
 	return unit;
 }
 

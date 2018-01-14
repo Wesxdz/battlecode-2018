@@ -60,27 +60,23 @@ uint32_t GameController::Karbonite()
 	return bc_GameController_karbonite(gc);
 }
 
-std::shared_ptr<units::Unit> GameController::Unit(uint16_t id)
+std::vector<units::Unit> GameController::Units(bc_Selection selection)
 {
-	auto lovely = std::make_shared<units::Unit>();
-	lovely->Init(id);
-	return lovely;
-}
-
-std::shared_ptr<units::Unit> GameController::Unit(bc_Unit* unit)
-{
-	auto lovely = std::make_shared<units::Unit>();
-	lovely->Init(bc_Unit_id(unit));
-	return lovely;
-}
-
-std::vector<std::shared_ptr<units::Unit>> GameController::Units(bc_Selection selection)
-{
+	std::vector<units::Unit> selected;
+	bc_VecUnit* units = nullptr;
 	switch (selection) {
 	case Visible:
-		return Wrap<units::Unit>(bc_GameController_units(gc));
+		units = bc_GameController_units(gc);
+		break;
 	case MyTeam:
-		return Wrap<units::Unit>(bc_GameController_my_units(gc));
+		units = bc_GameController_my_units(gc);
+		break;
+	default:
+		units = bc_GameController_units_in_space(gc);
 	}
-	return Wrap<units::Unit>(bc_GameController_units_in_space(gc));
+	for (uintptr_t i = 0; i < bc_VecUnit_len(units); i++) {
+		selected.push_back(bc_VecUnit_index(units, i));
+	}
+	delete_bc_VecUnit(units);
+	return selected;
 }

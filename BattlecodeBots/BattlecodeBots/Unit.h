@@ -15,10 +15,9 @@ namespace units {
 		uint16_t id;
 		bc_UnitType type;
 	public:
-		Unit();
+		// Use bc_Unit_clone if you don't want your #unit to be deleted
+		Unit(bc_Unit* unit);
 		Unit(const Unit& other);
-		void Init(bc_Unit* unit);
-		void Init(uint32_t unitId); // Must be initialized before use!
 		~Unit();
 		/*
 		@return The cost to blueprint or build in factory

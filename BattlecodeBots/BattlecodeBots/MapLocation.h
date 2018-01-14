@@ -71,7 +71,7 @@ public:
 	/*
 	@return The unit at the location
 	*/
-	std::shared_ptr<units::Unit> Occupant();
+	units::Unit Occupant();
 
 	/*
 	(You can get invalid map locations by using methods like Neighbor and Translate)

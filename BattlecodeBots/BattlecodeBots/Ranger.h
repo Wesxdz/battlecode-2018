@@ -10,7 +10,7 @@ namespace units {
 	class Ranger : public Robot
 	{
 	public:
-		Ranger();
+		Ranger(bc_Unit* unit);
 		~Ranger();
 		/*
 		@return The range within a ranger cannot attack.
@@ -36,11 +36,11 @@ namespace units {
 		/*
 		@return Whether the ranger can begin to snipe the given location, without taking into account the ranger's ability heat. Takes into account only the target location and the unit's type and unlocked abilities.
 		*/
-		uint8_t CanBeginSnipe(MapLocation location);
+		uint8_t CanBeginSnipe(MapLocation& location);
 		/*
 		@execute Begins the countdown to snipe a given location. Maximizes the units attack and movement heats until the ranger has sniped. The ranger may begin the countdown at any time, including resetting the countdown to snipe a different location.
 		*/
-		void BeginSnipe(MapLocation location);
+		void BeginSnipe(MapLocation& location);
 	};
 
 }

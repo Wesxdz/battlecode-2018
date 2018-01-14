@@ -5,6 +5,11 @@ AsteroidStrike::AsteroidStrike(bc_AsteroidStrike* strike)
 	self = strike;
 }
 
+AsteroidStrike::AsteroidStrike(const AsteroidStrike& strike)
+{
+	self = bc_AsteroidStrike_clone(strike.self);
+}
+
 AsteroidStrike::~AsteroidStrike()
 {
 	delete_bc_AsteroidStrike(self);

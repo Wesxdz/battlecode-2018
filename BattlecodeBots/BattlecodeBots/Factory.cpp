@@ -5,7 +5,8 @@
 
 namespace units {
 
-	Factory::Factory()
+	Factory::Factory(bc_Unit* unit) :
+		Structure(unit)
 	{
 	}
 

@@ -5,7 +5,8 @@
 
 namespace units {
 
-	Knight::Knight()
+	Knight::Knight(bc_Unit* unit) :
+		Robot(unit)
 	{
 	}
 
@@ -23,14 +24,14 @@ namespace units {
 		return bc_GameController_is_javelin_ready(GameController::gc, id);
 	}
 
-	uint8_t Knight::CanJavelin(std::shared_ptr<Unit> target)
+	uint8_t Knight::CanJavelin(Unit& target)
 	{
-		return bc_GameController_can_javelin(GameController::gc, id, target->id);
+		return bc_GameController_can_javelin(GameController::gc, id, target.id);
 	}
 
-	void Knight::Javelin(std::shared_ptr<Unit> target)
+	void Knight::Javelin(Unit& target)
 	{
-		bc_GameController_javelin(GameController::gc, id, target->id);
+		bc_GameController_javelin(GameController::gc, id, target.id);
 		CHECK_ERRORS();
 	}
 

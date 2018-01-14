@@ -5,8 +5,12 @@
 
 namespace units {
 
-	Unit::Unit()
+	Unit::Unit(bc_Unit* unit)
 	{
+		self = unit;
+		id = bc_Unit_id(unit);
+		type = bc_Unit_unit_type(self);
+		CHECK_ERRORS();
 	}
 
 	Unit::Unit(const Unit& other)
@@ -14,19 +18,6 @@ namespace units {
 		self = bc_Unit_clone(other.self);
 		id = bc_Unit_id(self);
 		type = bc_Unit_unit_type(self);
-	}
-
-	void Unit::Init(bc_Unit* unit)
-	{
-		Init(bc_Unit_id(unit));
-	}
-
-	void Unit::Init(uint32_t unitId)
-	{
-		self = bc_GameController_unit(GameController::gc, unitId);
-		id = unitId;
-		type = bc_Unit_unit_type(self);
-		CHECK_ERRORS();
 	}
 
 	Unit::~Unit()

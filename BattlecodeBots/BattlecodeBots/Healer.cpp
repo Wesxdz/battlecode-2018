@@ -5,7 +5,8 @@
 
 namespace units {
 
-	Healer::Healer()
+	Healer::Healer(bc_Unit* unit) :
+		Robot(unit)
 	{
 	}
 
@@ -23,14 +24,14 @@ namespace units {
 		return bc_GameController_is_heal_ready(GameController::gc, id);
 	}
 
-	uint8_t Healer::CanHeal(std::shared_ptr<Robot> target)
+	uint8_t Healer::CanHeal(Robot& target)
 	{
-		return bc_GameController_can_heal(GameController::gc, id, target->id);
+		return bc_GameController_can_heal(GameController::gc, id, target.id);
 	}
 
-	void Healer::Heal(std::shared_ptr<Robot> target)
+	void Healer::Heal(Robot& target)
 	{
-		bc_GameController_heal(GameController::gc, id, target->id);
+		bc_GameController_heal(GameController::gc, id, target.id);
 		CHECK_ERRORS();
 	}
 
@@ -39,14 +40,14 @@ namespace units {
 		return bc_GameController_is_overcharge_ready(GameController::gc, id);
 	}
 
-	uint8_t Healer::CanOvercharge(std::shared_ptr<Robot> target)
+	uint8_t Healer::CanOvercharge(bc_Unit* target)
 	{
-		return bc_GameController_can_overcharge(GameController::gc, id, target->id);
+		return bc_GameController_can_overcharge(GameController::gc, id, bc_Unit_id(target));
 	}
 
-	void Healer::Overcharge(std::shared_ptr<Robot> target)
+	void Healer::Overcharge(Robot& target)
 	{
-		bc_GameController_overcharge(GameController::gc, id, target->id);
+		bc_GameController_overcharge(GameController::gc, id, target.id);
 		CHECK_ERRORS();
 	}
 
