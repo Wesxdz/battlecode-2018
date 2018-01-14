@@ -4,7 +4,6 @@
 #include "bc.h"
 
 #include <vector>
-#include <memory>
 class PlanetMap;
 
 namespace units {

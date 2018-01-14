@@ -143,6 +143,7 @@
     <ClInclude Include="AsteroidPattern.h" />
     <ClInclude Include="AsteroidStrike.h" />
     <ClInclude Include="bc.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="GameController.h" />
     <ClInclude Include="GameMap.h" />
