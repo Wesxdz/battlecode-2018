@@ -1,10 +1,18 @@
 #include "MapLocation.h"
 
 #include "GameController.h"
-#include "Unit.h"
 #include "Log.h"
 #include "GameMap.h"
 #include "PlanetMap.h"
+
+#include "VecUnit.h"
+
+template<class T>
+inline std::vector<T> MapLocation::NearbyUnits(uint32_t radius_squared, bc_UnitType type)
+{
+	return VecUnit::Wrap<T>(bc_GameController_sense_nearby_units_by_type(GameController::gc, self, radius_squared, type));
+}
+
 
 MapLocation::MapLocation() 
 {
@@ -102,9 +110,9 @@ uint8_t MapLocation::IsOccupiable()
 	return isOccupiable;
 }
 
-units::Unit MapLocation::Occupant()
+bc_Unit* MapLocation::Occupant()
 {
-	auto unit = units::Unit(bc_GameController_sense_unit_at_location(GameController::gc, self));
+	auto unit = bc_GameController_sense_unit_at_location(GameController::gc, self);
 	CHECK_ERRORS();
 	return unit;
 }
@@ -133,4 +141,39 @@ uint8_t MapLocation::IsPassable()
 		planetMap = map.Mars();
 	}
 	return planetMap.IsPassableTerrain(*this);
+}
+
+std::vector<units::Unit> MapLocation::NearbyUnits(uint32_t radius_squared)
+{
+	std::vector<units::Unit> nearbyUnits;
+	bc_VecUnit * nearby = bc_GameController_sense_nearby_units(GameController::gc, self, radius_squared);
+	for (uintptr_t i = 0; i < bc_VecUnit_len(nearby); i++) {
+		nearbyUnits.push_back(bc_VecUnit_index(nearby, i));
+		
+	}
+	delete_bc_VecUnit(nearby);
+	return nearbyUnits;
+}
+
+std::vector<units::Unit> MapLocation::NearbyUnits(uint32_t radius_squared, bc_Team team)
+{
+	std::vector<units::Unit> nearbyUnits;
+	bc_VecUnit * nearby = bc_GameController_sense_nearby_units_by_team(GameController::gc, self, radius_squared, team);
+	for (uintptr_t i = 0; i < bc_VecUnit_len(nearby); i++) {
+		nearbyUnits.push_back(bc_VecUnit_index(nearby, i));
+	}
+	delete_bc_VecUnit(nearby);
+	return nearbyUnits;
+}
+
+std::vector<MapLocation> MapLocation::NearbyLocations(MapLocation& location, uint32_t radius_squared)
+{
+	std::vector<MapLocation> nearbyLocations;
+	bc_VecMapLocation * nearby = bc_GameController_all_locations_within(GameController::gc, location.self, radius_squared);
+	for (uintptr_t i = 0; i < bc_VecMapLocation_len(nearby); i++) {
+		nearbyLocations.push_back(bc_VecMapLocation_index(nearby, i));
+		
+	}
+	delete_bc_VecMapLocation(nearby);
+	return nearbyLocations;
 }

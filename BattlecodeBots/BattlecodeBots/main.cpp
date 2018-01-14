@@ -36,7 +36,7 @@ int main()
 	//MapLocation test = MapLocation(player.Planet(), map.Width() / 2, map.Height() / 2);
 	while (true)
 	{
-		uint32_t round = player.Round();
+		//uint32_t round = player.Round();
 		//std::cout << "Round: " << round << std::endl;
 		//auto units = player.Units(bc_Selection::MyTeam);
 		//for (auto unit : units) {
@@ -52,6 +52,6 @@ int main()
 		//		}
 		//	}
 		//}
-		player.EndTurn();
+		//player.EndTurn();
 	}
 }
