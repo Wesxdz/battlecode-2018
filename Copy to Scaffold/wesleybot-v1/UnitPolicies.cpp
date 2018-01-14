@@ -9,65 +9,16 @@
 #include <iostream>
 #include <algorithm>
 
-#include "Log.h"
-
 void UnitPolicies::Init()
 {
 
 	auto robot1 = std::make_shared<Policy>("avoid_damage");
 	auto robot2 = std::make_shared<Policy>("load_rocket");
-	robot2->Evaluate = [this]() {
-		//std::cout << "Considering loading rocket\n";
-		float score = 0.0f;
-		bc_Location* location = bc_Unit_location(activeUnit);
-		bool isOnMap = bc_Location_is_on_map(location);
-		if (!isOnMap) return 0.0f;
-		bc_MapLocation* mapLocation = bc_Location_map_location(location);
-		delete_bc_Location(location);
-		bc_VecUnit* nearbyRockets = bc_GameController_sense_nearby_units_by_type(Player::gc, mapLocation, 1, Rocket);
-		for (uintptr_t i = 0; i < bc_VecUnit_len(nearbyRockets); i++) {
-			auto rocket = bc_VecUnit_index(nearbyRockets, 0);
-			if (bc_Unit_team(rocket) == Player::team && bc_Unit_structure_is_built(rocket)) {
-				storeId = bc_Unit_id(storeUnit);
-				score += 40.0f;
-			}
-			delete_bc_Unit(rocket);
-		}
-		delete_bc_VecUnit(nearbyRockets);
-		delete_bc_MapLocation(mapLocation);
-		return score;
-	};
-	robot2->Execute = [this](float value) {
-		std::cout << "Loading unit into rocket\n";
-		if (bc_GameController_can_load(Player::gc, storeId, activeId)) {
-			bc_GameController_load(Player::gc, storeId, activeId);
-			return true;
-		}
-		return false;
-	};
-	policies[Knight].push_back(robot2);
-	policies[Ranger].push_back(robot2);
-	policies[Mage].push_back(robot2);
-	policies[Worker].push_back(robot2);
-
 	auto robot3 = std::make_shared<Policy>("wander");
 	robot3->Evaluate = [this]() {
-		float score = 0.0f;
-		bc_Location* location = bc_Unit_location(activeUnit);
-		bool isOnMap = bc_Location_is_on_map(location);
-		if (!isOnMap) return 0.0f;
-		bc_MapLocation* mapLocation = bc_Location_map_location(location);
-		delete_bc_Location(location);
-		bc_VecUnit* nearbyRockets = bc_GameController_sense_nearby_units_by_type(Player::gc, mapLocation, 1, Rocket);
-		if (bc_VecUnit_len(nearbyRockets) > 0) {
-			score += 40.0f;
-		}
-		delete_bc_VecUnit(nearbyRockets);
-		delete_bc_MapLocation(mapLocation);
-		return score;
+		return 0.1f;
 	};
-	robot3->Execute = [this](float value) 
-	{
+	robot3->Execute = [this](float value) {
 		Pathfind::MoveRandom(activeUnit);
 		return true;
 	};
@@ -128,12 +79,17 @@ void UnitPolicies::Init()
 	};
 	policies[bc_UnitType::Worker].push_back(worker2);
 
+
+	auto worker3 = std::make_shared<Policy>("blueprint_rocket");
+
+
 	auto worker4 = std::make_shared<Policy>("build");
+	bc_Unit* toBuild = nullptr;
 	worker4->Evaluate = [this]() {
 		float score = 0.0f;
 		if (!activeMapLocation) { return 0.0f; }
-		auto factories = bc_GameController_sense_nearby_units_by_type(Player::gc, activeMapLocation, 1, Factory);
-		auto rockets = bc_GameController_sense_nearby_units_by_type(Player::gc, activeMapLocation, 1, Rocket);
+		auto factories = bc_GameController_sense_nearby_units_by_type(Player::gc, activeMapLocation, 10, Factory);
+		auto rockets = bc_GameController_sense_nearby_units_by_type(Player::gc, activeMapLocation, 10, Rocket);
 		std::vector<bc_Unit*> nearbyBuilds;
 		for (uintptr_t i = 0; i < bc_VecUnit_len(factories); i++) {
 			nearbyBuilds.push_back(bc_VecUnit_index(factories, i));
@@ -147,10 +103,7 @@ void UnitPolicies::Init()
 			});
 			if (it != std::end(nearbyBuilds)) {
 				if (bc_GameController_can_build(Player::gc, activeId, bc_Unit_id(*it))) {
-					if (bc_Unit_unit_type(*it) == Rocket) {
-						std::cout << "Evaluated should build rocket\n";
-					}
-					storeId = bc_Unit_id(*it);
+					storeUnit = bc_GameController_unit(Player::gc, bc_Unit_id(*it));
 					score = 300.0f;
 				}
 			}
@@ -163,42 +116,13 @@ void UnitPolicies::Init()
 		return score;
 	};
 	worker4->Execute = [this](float value) {
-		if (bc_GameController_can_build(Player::gc, activeId, storeId)) {
-			bc_GameController_build(Player::gc, activeId, storeId);
+		if (bc_GameController_can_build(Player::gc, activeId, bc_Unit_id(storeUnit))) {
+			bc_GameController_build(Player::gc, activeId, bc_Unit_id(storeUnit));
 			return true;
 		}
 		return false;
 	};
 	policies[bc_UnitType::Worker].push_back(worker4);
-
-	auto worker3 = std::make_shared<Policy>("blueprint_rocket");
-	worker3->Evaluate = [this]() {
-		auto rockets = bc_GameController_sense_nearby_units_by_type(Player::gc, activeMapLocation, 1, Rocket);
-		if (bc_VecUnit_len(rockets) > 0) return 0.0f;
-		delete_bc_VecUnit(rockets);
-		float score = 0.0f;
-		auto info = bc_GameController_research_info(Player::gc);
-		if (bc_ResearchInfo_get_level(info, Rocket) > 0) {
-			score += 500.0f;
-		}
-		delete_bc_ResearchInfo(info);
-		bc_Location* location = bc_Unit_location(activeUnit);
-		bool isOnMap = bc_Location_is_on_map(location);
-		delete_bc_Location(location);
-		if (!isOnMap) return 0.0f;
-		return score;
-	};
-	worker3->Execute = [this](float value) {
-		if (bc_GameController_karbonite(Player::gc) < bc_UnitType_blueprint_cost(Rocket)) return false;
-		for (int i = 0; i < 8; i++) {
-			if (bc_GameController_can_blueprint(Player::gc, bc_Unit_id(activeUnit), Rocket, static_cast<bc_Direction>(i))) {
-				bc_GameController_blueprint(Player::gc, bc_Unit_id(activeUnit), Rocket, static_cast<bc_Direction>(i));
-				return true;
-			}
-		}
-		return true;
-	};
-	policies[bc_UnitType::Worker].push_back(worker3);
 
 
 	auto worker5 = std::make_shared<Policy>("repair");
@@ -224,8 +148,8 @@ void UnitPolicies::Init()
 	policies[bc_UnitType::Worker].push_back(worker6);
 
 	auto factory1 = std::make_shared<Policy>("produce_knight");
-	factory1->Evaluate = [this]() {
-		if (bc_GameController_karbonite(Player::gc) < bc_UnitType_factory_cost(Knight) || bc_Unit_is_factory_producing(activeUnit)) return 0.0f;
+	factory1->Evaluate = []() {
+		if (bc_GameController_karbonite(Player::gc) < bc_UnitType_factory_cost(Knight)) return 0.0f;
 		return 20.0f;
 	};
 	factory1->Execute = [this](float value) {
@@ -258,24 +182,19 @@ void UnitPolicies::Init()
 	//policies[Factory].push_back(factory3);
 
 	auto factory4 = std::make_shared<Policy>("produce_ranger");
-	factory4->Evaluate = [this]() {
-		if (bc_GameController_karbonite(Player::gc) < bc_UnitType_factory_cost(Ranger) || bc_Unit_is_factory_producing(activeUnit)) return 0.0f;
-		return 10.0f;
+	factory4->Evaluate = []() {
+		return 0.0f;
 	};
-	factory4->Execute = [this](float value) {
-		if (bc_GameController_can_produce_robot(Player::gc, activeId, Ranger)) {
-			bc_GameController_produce_robot(Player::gc, activeId, Ranger);
-			return true;
-		}
+	factory4->Execute = [](float value) {
 		return false;
 	};
-	policies[Factory].push_back(factory4);
+	//policies[Factory].push_back(factory4);
 
 
 	auto factory5 = std::make_shared<Policy>("produce_mage");
 	factory5->Evaluate = []() {
 		if (bc_GameController_karbonite(Player::gc) < bc_UnitType_factory_cost(Mage)) return 0.0f;
-		return (float)bc_GameController_round(Player::gc)/100;
+		return (float)bc_GameController_round(Player::gc)/20;
 	};
 	factory5->Execute = [this](float value) {
 		if (bc_GameController_can_produce_robot(Player::gc, activeId, Mage)) {
@@ -307,47 +226,12 @@ void UnitPolicies::Init()
 		return true;
 	};
 	policies[Factory].push_back(factory6);
-	if (Player::planet == Mars) {
-		policies[Rocket].push_back(factory6);
-	}
 
 
 	auto factory7 = std::make_shared<Policy>("avoid_production"); // Use to make building units a negative value if factory is damaged
-	factory7->Evaluate = [this]() {
-		auto round = bc_GameController_round(Player::gc);
-		if (round > 450) {
-			return 200.0f;
-		}
-		return 0.0f;
-	};
-	factory7->Execute = [this](float value) {
-		return true;
-	};
-	policies[Factory].push_back(factory7);
+
 
 	auto rocket1 = std::make_shared<Policy>("launch");
-	rocket1->Evaluate = [this]() {
-		if (!bc_Unit_structure_is_built(activeUnit)) return 0.0f;
-		float score = 0.0f;
-		auto round = bc_GameController_round(Player::gc);
-		if (round == 749) score += 1000.0f;
-		bc_VecUnitID* garrison = bc_Unit_structure_garrison(activeUnit);
-		float filled = bc_VecUnitID_len(garrison)/(float)bc_Unit_structure_max_capacity(activeUnit);
-		if (filled == 1.0f) score += 100;
-		float health = (float)bc_Unit_health(activeUnit) / bc_Unit_max_health(activeUnit);
-		if (health < 1.0f) score += (1.0f - health) * 10.0f;
-		delete_bc_VecUnitID(garrison);
-		return score;
-	};
-	rocket1->Execute = [this](float value) {
-		std::cout << "Attempting Launch!\n";
-		bc_GameController_launch_rocket(Player::gc, activeId, Pathfind::PickRandom(MapUtil::marsPassableLocations));
-		CHECK_ERRORS();
-		return true;
-	};
-	if (Player::planet == Earth) {
-		policies[Rocket].push_back(rocket1);
-	}
 
 	auto hunt = std::make_shared<Policy>("hunt");
 	hunt->Evaluate = [this]() {
@@ -355,16 +239,14 @@ void UnitPolicies::Init()
 		if (!activeMapLocation) return score;
 		bc_Team team = bc_GameController_team(Player::gc);
 		bc_Team otherTeam = team == bc_Team::Blue ? Red : Blue;
-		for (int i = 1; i <= 100; i = (i + 1) * (i + 1)) {
+		for (int i = 0; i < 10; i++) {
 			bc_VecUnit* nearbyEnemies = bc_GameController_sense_nearby_units_by_team(Player::gc, activeMapLocation, i*i, otherTeam);
 			if (bc_VecUnit_len(nearbyEnemies) > 0) {
 				storeUnit = bc_VecUnit_index(nearbyEnemies, 0);
 				storeId = bc_Unit_id(storeUnit);
 				score = 50.0f;
-				delete_bc_VecUnit(nearbyEnemies);
 				return score;
 			}
-			delete_bc_VecUnit(nearbyEnemies);
 		}
 		return score;
 	};
@@ -386,7 +268,6 @@ void UnitPolicies::Init()
 		return true;
 	};
 	policies[Knight].push_back(hunt);
-	policies[Ranger].push_back(hunt);
 
 }
 

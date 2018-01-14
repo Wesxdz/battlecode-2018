@@ -11,20 +11,14 @@
 #include "Info.h"
 #include <chrono>
 #include <ctime>
-#include "ResearchPolicies.h"
 
 int main()
 {
 	srand(0);
-	Player player;
+	Player::Init();
 	bc_GameController* gc = Player::gc;
-	Info info;
 	UnitPolicies actions;
 	actions.Init();
-	ResearchPolicies research;
-	if (bc_GameController_planet(gc) == Earth) {
-		research.Init();
-	}
 	std::chrono::duration<double> totalTime;
 	while (true)
 	{
@@ -32,10 +26,22 @@ int main()
 		uint32_t round = bc_GameController_round(gc);
 		//std::cout << "--Round: " << round << "\n";
 		//std::cout << "Karbonite: " << bc_GameController_karbonite(gc) << "\n";
-		info.Update();
-		if (bc_GameController_planet(gc) == Earth) {
-			research.Update();
+		Info::numEnemyUnits.clear();
+		Info::numTeamUnits.clear();
+		bc_VecUnit* allUnits = bc_GameController_units(gc);
+		for (uintptr_t i = 0; i < bc_VecUnit_len(allUnits); i++) {
+			bc_Unit* unit = bc_VecUnit_index(allUnits, i);
+			bc_UnitType type = bc_Unit_unit_type(unit);
+			bc_Team team = bc_Unit_team(unit);
+			if (team == Player::team) {
+				Info::numTeamUnits[type]++;
+			}
+			else {
+				Info::numEnemyUnits[type]++;
+			}
+			delete_bc_Unit(unit);
 		}
+		delete_bc_VecUnit(allUnits);
 		bc_VecUnit* units = bc_GameController_my_units(gc);
 		for (uintptr_t i = 0; i < bc_VecUnit_len(units); i++) {
 			bc_Unit* unit = bc_VecUnit_index(units, i);
@@ -47,7 +53,7 @@ int main()
 					return a->Evaluate() < b->Evaluate();
 				});
 				std::shared_ptr<Policy> chosenPolicy = *it;
-				if (chosenPolicy->Evaluate() > 0) { // TODO Store to increase performance
+				if (chosenPolicy->Evaluate() > 0) { // Store to increase performance
 					(*it)->Command();
 				}
 			}
@@ -60,4 +66,5 @@ int main()
 		//std::cout << "Total time used: " << totalTime.count() << "\nRound time used: " << roundTime.count() << "\n";
 		bc_GameController_next_turn(gc);
 	}
+	Player::Shutdown();
 }

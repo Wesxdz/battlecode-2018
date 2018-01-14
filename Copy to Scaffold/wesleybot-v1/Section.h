@@ -16,9 +16,7 @@ class Section
 public:
 	~Section();
 	std::vector<bc_MapLocation*> locations;
-	static std::list<std::shared_ptr<Section>> GenSections(std::vector<bc_MapLocation*>& passables);
-	static std::list<std::shared_ptr<Section>> marsSections;
-	static std::list<std::shared_ptr<Section>> earthSections;
+	static std::list<std::shared_ptr<Section>> GenSections(bc_PlanetMap* map);
 };
 
 #endif

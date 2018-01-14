@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ActionCoordinator.cpp" />
     <ClCompile Include="bc.cpp" />
     <ClCompile Include="Info.cpp" />
     <ClCompile Include="main.cpp" />
@@ -127,6 +128,7 @@
     <ClCompile Include="UnitPolicies.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActionCoordinator.h" />
     <ClInclude Include="bc.h" />
     <ClInclude Include="Info.h" />
     <ClInclude Include="Log.h" />

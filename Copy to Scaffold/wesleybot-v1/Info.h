@@ -3,13 +3,11 @@
 
 #include "bc.h"
 #include <map>
+#include "Section.h"
 
 class Info
 {
 public:
-	Info();
-	~Info();
-	void Update();
 	static std::map<bc_UnitType, int> numTeamUnits;
 	static std::map<bc_UnitType, int> numEnemyUnits;
 };

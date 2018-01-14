@@ -4,9 +4,6 @@
 #include "Player.h"
 #include <algorithm>
 
-std::list<std::shared_ptr<Section>> Section::marsSections;
-std::list<std::shared_ptr<Section>> Section::earthSections;
-
 Section::~Section()
 {
 	for (auto location : locations) {
@@ -14,9 +11,16 @@ Section::~Section()
 	}
 }
 
-std::list<std::shared_ptr<Section>> Section::GenSections(std::vector<bc_MapLocation*>& passables)
+std::list<std::shared_ptr<Section>> Section::GenSections(bc_PlanetMap* map)
 {
 	std::list<std::shared_ptr<Section>> sections;
+	auto all = MapUtil::AllLocations(map);
+	auto passables = MapUtil::FilteredLocations(all, [&map](bc_MapLocation* location) {
+		return bc_PlanetMap_is_passable_terrain_at(map, location);
+	});
+	for (auto location : all) {
+		delete_bc_MapLocation(location);
+	}
 	for (auto passsableLocation : passables) {
 		auto sectionToJoin = std::find_if(std::begin(sections), std::end(sections), [&passsableLocation](std::shared_ptr<Section> section) {
 			for (auto location : section->locations) {
