@@ -20,6 +20,7 @@ public:
 public:
 	MapLocation(bc_Planet planet, int32_t x, int32_t y);
 	MapLocation(bc_MapLocation* loc);
+	MapLocation(const MapLocation& other);
 	~MapLocation();
 	bc_Planet Planet();
 	/*
@@ -66,11 +67,23 @@ public:
 	@error LocationNotVisible - the location is outside the vision range.
 	@return Whether the location is clear for a unit to occupy, either by movement or by construction.
 	*/
-	uint8_t Occupiable();
+	uint8_t IsOccupiable();
 	/*
 	@return The unit at the location
 	*/
-	std::shared_ptr<units::Unit> Occupant();
+	units::Unit Occupant();
+
+	/*
+	(You can get invalid map locations by using methods like Neighbor and Translate)
+	@return Whether this map location is on the map
+	*/
+	uint8_t IsValid();
+
+	/*
+	Is only false when the square contains impassable terrain (distinct from containing a building, for instance).
+	@return Whether the location on the map contains passable terrain.
+	*/
+	uint8_t IsPassable();
 };
 
 #endif

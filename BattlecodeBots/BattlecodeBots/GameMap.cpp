@@ -2,7 +2,6 @@
 
 GameMap::GameMap()
 {
-	gm = new_bc_GameMap();
 }
 
 GameMap::~GameMap()

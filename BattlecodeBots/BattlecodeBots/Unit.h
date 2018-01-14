@@ -4,6 +4,7 @@
 #include "bc.h"
 
 #include "Location.h"
+#include "Log.h"
 
 namespace units {
 
@@ -14,13 +15,14 @@ namespace units {
 		uint16_t id;
 		bc_UnitType type;
 	public:
-		Unit();
-		void Init(bc_Unit* unit); // Must be initialized before use!
+		// Use bc_Unit_clone if you don't want your #unit to be deleted
+		Unit(bc_Unit* unit);
+		Unit(const Unit& other);
 		~Unit();
 		/*
 		@return The cost to blueprint or build in factory
 		*/
-		virtual uint32_t Cost() = 0;
+		virtual uint32_t Cost();
 		/*
 		@return The value of a unit, as relevant to tiebreakers.
 		*/
@@ -54,6 +56,7 @@ namespace units {
 		Disintegrates the unit and removes it from the map. If the unit is a factory or a rocket, also disintegrates any units garrisoned inside it.
 		*/
 		void Disintegrate();
+
 	};
 
 }

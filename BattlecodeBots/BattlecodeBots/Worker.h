@@ -1,5 +1,5 @@
 #ifndef WORKER_H 
-#define WORKER _H
+#define WORKER_H
 
 #include "Robot.h"
 
@@ -10,7 +10,7 @@ namespace units {
 	class Worker : public Robot
 	{
 	public:
-		Worker();
+		Worker(bc_Unit* unit);
 		~Worker();
 		uint32_t ReplicateCost();
 		/*

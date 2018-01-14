@@ -10,6 +10,7 @@ public:
 	bc_AsteroidStrike* self;
 public:
 	AsteroidStrike(bc_AsteroidStrike* strike);
+	AsteroidStrike(const AsteroidStrike& strike);
 	~AsteroidStrike();
 	/*
 	@return Karbonite contained in the asteroid

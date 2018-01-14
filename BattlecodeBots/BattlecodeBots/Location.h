@@ -24,10 +24,11 @@ public:
 public:
 	Location(); // Create and set #self in Unit
 	~Location();
+	Location(const Location& other);
 	/*
 	@return this location is on a PlanetMap
 	*/
-	uint8_t OnMap();
+	uint8_t IsOnMap();
 	/*
 	@return Whether the unit is on the map and on #planet
 	*/
@@ -45,7 +46,7 @@ public:
 	@error UnitNotInGarrison
 	@return The structure whose garrison the unit is in.
 	*/
-	std::shared_ptr<units::Structure> GarrisonStructure();
+	units::Structure GarrisonStructure();
 	/*
 	@return Whether the unit is in space.
 	*/

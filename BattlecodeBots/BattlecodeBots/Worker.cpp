@@ -6,7 +6,8 @@
 
 namespace units {
 
-	Worker::Worker()
+	Worker::Worker(bc_Unit* unit) :
+		Robot(unit)
 	{
 	}
 
@@ -46,7 +47,7 @@ namespace units {
 
 	void Worker::Harvest(bc_Direction direction)
 	{
-		return bc_GameController_harvest(GameController::gc, id, direction);
+		bc_GameController_harvest(GameController::gc, id, direction);
 		CHECK_ERRORS();
 	}
 

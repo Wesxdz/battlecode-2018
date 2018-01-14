@@ -128,29 +128,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FactoryBehavior.cpp" />
-    <ClCompile Include="HealerBehavior.cpp" />
-    <ClCompile Include="KnightBehavior.cpp" />
-    <ClCompile Include="MageBehavior.cpp" />
+    <ClCompile Include="Data.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="RangerBehavior.cpp" />
-    <ClCompile Include="RobotBehavior.cpp" />
-    <ClCompile Include="RocketBehavior.cpp" />
-    <ClCompile Include="StructureBehavior.cpp" />
-    <ClCompile Include="UnitBehavior.cpp" />
-    <ClCompile Include="WorkerBehavior.cpp" />
+    <ClCompile Include="Pathfinding.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FactoryBehavior.h" />
-    <ClInclude Include="HealerBehavior.h" />
-    <ClInclude Include="KnightBehavior.h" />
-    <ClInclude Include="MageBehavior.h" />
-    <ClInclude Include="RangerBehavior.h" />
-    <ClInclude Include="RobotBehavior.h" />
-    <ClInclude Include="RocketBehavior.h" />
-    <ClInclude Include="StructureBehavior.h" />
-    <ClInclude Include="UnitBehavior.h" />
-    <ClInclude Include="WorkerBehavior.h" />
+    <ClInclude Include="Data.h" />
+    <ClInclude Include="Pathfinding.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

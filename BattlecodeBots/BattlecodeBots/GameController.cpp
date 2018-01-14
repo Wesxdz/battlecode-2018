@@ -1,5 +1,7 @@
 #include "GameController.h"
 
+#include "GameMap.h"
+#include "PlanetMap.h"
 #include "Unit.h"
 #include "Knight.h"
 #include "Worker.h"
@@ -8,6 +10,7 @@
 #include "Healer.h"
 #include "Factory.h"
 #include "Rocket.h"
+
 
 bc_GameController* GameController::gc = nullptr;
 
@@ -36,6 +39,17 @@ bc_Planet GameController::Planet()
 	return bc_GameController_planet(gc);
 }
 
+bc_PlanetMap* GameController::PlanetMap()
+{
+	GameMap map;
+	if (Planet() == bc_Planet::Earth) {
+		return map.Earth().self;
+	}
+	else {
+		return map.Mars().self;
+	}
+}
+
 bc_Team GameController::Team()
 {
 	return bc_GameController_team(gc);
@@ -46,58 +60,23 @@ uint32_t GameController::Karbonite()
 	return bc_GameController_karbonite(gc);
 }
 
-std::shared_ptr<units::Unit> GameController::Unit(uint16_t id)
+std::vector<units::Unit> GameController::Units(bc_Selection selection)
 {
-	return Unit(bc_GameController_unit(gc, id));
-}
-
-std::shared_ptr<units::Unit> GameController::Unit(bc_Unit* unit)
-{
-	bc_UnitType type = bc_Unit_unit_type(unit);
-	if (type == Worker) {
-		auto worker = std::make_shared<units::Worker>();
-		worker->Init(unit);
-		return worker;
-	}
-	else if (type == Knight) {
-		auto knight = std::make_shared<units::Knight>();
-		knight->Init(unit);
-		return knight;
-	}
-	else if (type == Ranger) {
-		auto ranger = std::make_shared<units::Ranger>();
-		ranger->Init(unit);
-		return ranger;
-	}
-	else if (type == Mage) {
-		auto mage = std::make_shared<units::Mage>();
-		mage->Init(unit);
-		return mage;
-	}
-	else if (type == Healer) {
-		auto healer = std::make_shared<units::Healer>();
-		healer->Init(unit);
-		return healer;
-	}
-	else if (type == Factory) {
-		auto factory = std::make_shared<units::Factory>();
-		factory->Init(unit);
-		return factory;
-	}
-	else {
-		auto rocket = std::make_shared<units::Rocket>();
-		rocket->Init(unit);
-		return rocket;
-	}
-}
-
-std::vector<std::shared_ptr<units::Unit>> GameController::Units(bc_Selection selection)
-{
+	std::vector<units::Unit> selected;
+	bc_VecUnit* units = nullptr;
 	switch (selection) {
 	case Visible:
-		return Wrap<units::Unit>(bc_GameController_units(gc));
+		units = bc_GameController_units(gc);
+		break;
 	case MyTeam:
-		return Wrap<units::Unit>(bc_GameController_my_units(gc));
+		units = bc_GameController_my_units(gc);
+		break;
+	default:
+		units = bc_GameController_units_in_space(gc);
 	}
-	return Wrap<units::Unit>(bc_GameController_units_in_space(gc));
+	for (uintptr_t i = 0; i < bc_VecUnit_len(units); i++) {
+		selected.push_back(bc_VecUnit_index(units, i));
+	}
+	delete_bc_VecUnit(units);
+	return selected;
 }

@@ -6,7 +6,8 @@
 
 namespace units {
 
-	Structure::Structure()
+	Structure::Structure(bc_Unit* unit) :
+		Unit(unit)
 	{
 	}
 
@@ -29,26 +30,26 @@ namespace units {
 		return bc_Unit_structure_max_capacity(self);
 	}
 
-	std::vector<std::shared_ptr<Robot>> Structure::Garrison()
+	std::vector<Robot> Structure::Garrison()
 	{
-		auto garrison = std::vector<std::shared_ptr<units::Robot>>();
+		auto garrison = std::vector<Robot>();
 		bc_VecUnitID* inside = bc_Unit_structure_garrison(self);
-		for (int i = 0; i < bc_VecUnitID_len(inside); i++) {
+		for (uintptr_t i = 0; i < bc_VecUnitID_len(inside); i++) {
 			// Use static_pointer_cast to make types more specific
-			garrison.push_back(std::static_pointer_cast<units::Robot>(GameController::Unit((GameController::gc, bc_VecUnitID_index(inside, i)))));
+			garrison.push_back(Robot(bc_GameController_unit(GameController::gc, (inside, i))));
 		}
 		delete_bc_VecUnitID(inside);
 		return garrison;
 	}
 
-	uint8_t Structure::CanLoad(std::shared_ptr<Robot> robot)
+	uint8_t Structure::CanLoad(bc_Unit* robot)
 	{
-		return bc_GameController_can_load(GameController::gc, id, robot->id);
+		return bc_GameController_can_load(GameController::gc, id, bc_Unit_id(robot));
 	}
 
-	void Structure::Load(std::shared_ptr<Robot> robot)
+	void Structure::Load(bc_Unit* robot)
 	{
-		bc_GameController_load(GameController::gc, id, robot->id);
+		bc_GameController_load(GameController::gc, id, bc_Unit_id(robot));
 		CHECK_ERRORS();
 	}
 

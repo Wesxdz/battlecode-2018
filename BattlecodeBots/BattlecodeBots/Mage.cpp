@@ -5,7 +5,8 @@
 
 namespace units {
 
-	Mage::Mage()
+	Mage::Mage(bc_Unit* unit) :
+		Robot(unit)
 	{
 	}
 
@@ -18,12 +19,12 @@ namespace units {
 		return bc_GameController_is_blink_ready(GameController::gc, id);
 	}
 
-	uint8_t Mage::CanBlink(MapLocation location)
+	uint8_t Mage::CanBlink(MapLocation& location)
 	{
 		return bc_GameController_can_blink(GameController::gc, id, location.self);
 	}
 
-	void Mage::Blink(MapLocation location)
+	void Mage::Blink(MapLocation& location)
 	{
 		bc_GameController_blink(GameController::gc, id, location.self);
 		CHECK_ERRORS();

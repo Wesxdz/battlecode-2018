@@ -3,15 +3,22 @@
 #include "GameController.h"
 #include "Unit.h"
 #include "Log.h"
+#include "GameMap.h"
+#include "PlanetMap.h"
 
 MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y)
 {
 	self = new_bc_MapLocation(planet, x, y);
 }
 
-MapLocation::MapLocation(bc_MapLocation * loc)
+MapLocation::MapLocation(bc_MapLocation* loc)
 {
 	self = loc;
+}
+
+MapLocation::MapLocation(const MapLocation& other)
+{
+	self = bc_MapLocation_clone(other.self);
 }
 
 MapLocation::~MapLocation()
@@ -41,7 +48,7 @@ MapLocation MapLocation::Neighbor(MapLocation& origin, bc_Direction direction)
 
 MapLocation MapLocation::Translate(MapLocation& origin, int32_t dx, int32_t dy)
 {
-	return bc_MapLocation_translate(origin.self, dx, dy);
+	return MapLocation(bc_MapLocation_translate(origin.self, dx, dy));
 }
 
 uint32_t MapLocation::DistanceTo(MapLocation& location)
@@ -74,15 +81,42 @@ uint8_t MapLocation::IsVisible()
 	return bc_GameController_can_sense_location(GameController::gc, self);
 }
 
-uint8_t MapLocation::Occupiable()
+uint8_t MapLocation::IsOccupiable()
 {
-	return bc_GameController_is_occupiable(GameController::gc, self);
+	auto isOccupiable = bc_GameController_is_occupiable(GameController::gc, self);
+	CHECK_ERRORS();
+	return isOccupiable;
 }
 
-std::shared_ptr<units::Unit> MapLocation::Occupant()
+units::Unit MapLocation::Occupant()
 {
-	auto unit = GameController::Unit(bc_GameController_sense_unit_at_location(GameController::gc, self));
+	auto unit = units::Unit(bc_GameController_sense_unit_at_location(GameController::gc, self));
 	CHECK_ERRORS();
-	unit->Init(unit->self);
 	return unit;
+}
+
+uint8_t MapLocation::IsValid()
+{
+	GameMap map;
+	PlanetMap planetMap;
+	if (Planet() == bc_Planet::Earth) {
+		planetMap = map.Earth();;
+	}
+	else {
+		planetMap = map.Mars();
+	}
+	return planetMap.IsOnMap(*this);
+}
+
+uint8_t MapLocation::IsPassable()
+{
+	GameMap map;
+	PlanetMap planetMap;
+	if (Planet() == bc_Planet::Earth) {
+		planetMap = map.Earth();;
+	}
+	else {
+		planetMap = map.Mars();
+	}
+	return planetMap.IsPassableTerrain(*this);
 }

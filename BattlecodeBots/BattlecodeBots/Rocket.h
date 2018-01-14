@@ -10,7 +10,7 @@ namespace units {
 	class Rocket : public Structure
 	{
 	public:
-		Rocket();
+		Rocket(bc_Unit* unit);
 		~Rocket();
 		/*
 		@return Whether the rocket has already been used.
@@ -27,11 +27,11 @@ namespace units {
 		/*
 		@return Whether the rocket can launch into space to the given destination. The rocket can launch if the it has never been used before. The destination is valid if it contains passable terrain on the other planet.
 		*/
-		uint8_t CanLaunch(MapLocation location);
+		uint8_t CanLaunch(bc_MapLocation* location);
 		/*
 		@execute Launches the rocket into space, damaging the units adjacent to the takeoff location.
 		*/
-		void Launch(MapLocation location);
+		void Launch(bc_MapLocation* location);
 
 	};
 

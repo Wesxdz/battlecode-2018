@@ -8,7 +8,7 @@ namespace units {
 	class Knight : public Robot
 	{
 	public:
-		Knight();
+		Knight(bc_Unit* unit);
 		~Knight();
 		/*
 		@return The amount of damage resisted by a knight when attacked.
@@ -21,11 +21,11 @@ namespace units {
 		/*
 		@return Whether the knight can javelin the given robot, without taking into account the knight's ability heat. Takes into account only the knight's ability range, and the location of the robot.
 		*/
-		uint8_t CanJavelin(std::shared_ptr<Unit> target);
+		uint8_t CanJavelin(Unit& target);
 		/*
 		@execute Javelins the robot, dealing the knight's standard damage.
 		*/
-		void Javelin(std::shared_ptr<Unit> target);
+		void Javelin(Unit& target);
 	};
 
 }

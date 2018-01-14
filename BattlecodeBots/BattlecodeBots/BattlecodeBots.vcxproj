@@ -130,8 +130,8 @@
     <ClCompile Include="MapLocation.cpp" />
     <ClCompile Include="OrbitPattern.cpp" />
     <ClCompile Include="PlanetMap.cpp" />
-    <ClCompile Include="Policy.cpp" />
     <ClCompile Include="Ranger.cpp" />
+    <ClCompile Include="Research.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="Structure.cpp" />
@@ -153,8 +153,8 @@
     <ClInclude Include="MapLocation.h" />
     <ClInclude Include="OrbitPattern.h" />
     <ClInclude Include="PlanetMap.h" />
-    <ClInclude Include="Policy.h" />
     <ClInclude Include="Ranger.h" />
+    <ClInclude Include="Research.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="Rocket.h" />
     <ClInclude Include="Structure.h" />

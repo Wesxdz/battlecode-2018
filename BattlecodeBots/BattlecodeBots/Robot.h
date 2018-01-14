@@ -8,7 +8,7 @@ namespace units {
 	class Robot : public Unit
 	{
 	public:
-		Robot();
+		Robot(bc_Unit* unit);
 		~Robot();
 		virtual uint32_t Cost() override;
 		/*
@@ -70,11 +70,11 @@ namespace units {
 		/*
 		Whether the robot can attack the given unit, without taking into account the robot's attack heat. Takes into account only the robot's attack range, and the location of the robot and target.
 		*/
-		uint8_t CanAttack(units::Unit& target);
+		uint8_t CanAttack(Unit& target);
 		/*
 		Commands a robot to attack a unit, dealing the robot's standard amount of damage.
 		*/
-		virtual void Attack(units::Unit& target);
+		virtual void Attack(Unit& target);
 	};
 
 }

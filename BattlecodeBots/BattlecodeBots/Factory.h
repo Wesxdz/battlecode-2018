@@ -8,7 +8,7 @@ namespace units {
 	class Factory : public Structure
 	{
 	public:
-		Factory();
+		Factory(bc_Unit* unit);
 		~Factory();
 		/*
 		@return Whether the factory is currently producing a unit.
@@ -34,7 +34,6 @@ namespace units {
 		@execute Starts producing the robot of the given type.
 		*/
 		void Produce(bc_UnitType robot);
-
 
 	};
 
