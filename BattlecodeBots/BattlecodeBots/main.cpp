@@ -7,18 +7,26 @@
 #include "GameMap.h"
 #include "PlanetMap.h"
 #include "Research.h"
+#include "OrbitPattern.h"
+#include "AsteroidPattern.h"
+#include "TeamArray.h"
 
 #include "Unit.h"
 #include "Worker.h"
 #include "MapLocation.h"
 #include "Location.h"
 
-GameController gameController;
+GameController gc;
 GameMap gameMap;
-PlanetMap mars = GameMap::Mars();
-PlanetMap earth = GameMap::Earth();
 
 Research research;
+OrbitPattern orbitPattern;
+AsteroidPattern asteroidPattern;
+TeamArray teamArray;
+
+bc_Team thisTeam = gc.Team();
+bc_Planet thisPlanet = gc.Planet();
+PlanetMap* thisPlent = gameMap.OurPlanet();
 
 /*
 Instead of micromanaging individual unit behavior, prioritize goals based on available data and
@@ -36,7 +44,7 @@ int main()
 	//MapLocation test = MapLocation(player.Planet(), map.Width() / 2, map.Height() / 2);
 	while (true)
 	{
-		uint32_t round = player.Round();
+		uint32_t round = gc.Round();
 		//std::cout << "Round: " << round << std::endl;
 		//auto units = player.Units(bc_Selection::MyTeam);
 		//for (auto unit : units) {
@@ -52,6 +60,6 @@ int main()
 		//		}
 		//	}
 		//}
-		player.EndTurn();
+		gc.EndTurn();
 	}
 }

@@ -43,10 +43,6 @@ public:
 	*/
 	static bc_Planet Planet();
 	/*
-	@return The planet map of this player
-	*/
-	static bc_PlanetMap* PlanetMap();
-	/*
 	Research Engineering Division (Red)
 	The Branched Logistics Union of Electronicists (Blue)
 	Red takes the first turn

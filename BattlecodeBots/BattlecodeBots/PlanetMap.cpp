@@ -16,6 +16,17 @@ PlanetMap::~PlanetMap()
 PlanetMap::PlanetMap(const PlanetMap& other)
 {
 	self = bc_PlanetMap_clone(other.self);
+	planetType = bc_PlanetMap_planet_get(self);
+	width = bc_PlanetMap_width_get(self);
+	height = bc_PlanetMap_height_get(self);
+}
+
+PlanetMap::PlanetMap(bc_PlanetMap* self)
+{
+	this->self = self;
+	planetType = bc_PlanetMap_planet_get(self);
+	width = bc_PlanetMap_width_get(self);
+	height = bc_PlanetMap_height_get(self);
 }
 
 bc_Planet PlanetMap::Planet()

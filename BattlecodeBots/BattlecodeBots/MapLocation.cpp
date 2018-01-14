@@ -37,7 +37,7 @@ MapLocation MapLocation::operator=(const MapLocation& other) {
 }
 
 bool MapLocation::operator==(MapLocation& other) {
-	return this->X() == other.X() && this->Y() == other.Y() && this->Planet() == other.Planet();
+	return bc_MapLocation_eq(this->self, other.self);
 }
 
 bc_Planet MapLocation::Planet()

@@ -39,17 +39,6 @@ bc_Planet GameController::Planet()
 	return bc_GameController_planet(gc);
 }
 
-bc_PlanetMap* GameController::PlanetMap()
-{
-	GameMap map;
-	if (Planet() == bc_Planet::Earth) {
-		return map.Earth().self;
-	}
-	else {
-		return map.Mars().self;
-	}
-}
-
 bc_Team GameController::Team()
 {
 	return bc_GameController_team(gc);

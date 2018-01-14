@@ -119,7 +119,6 @@
     <ClCompile Include="AsteroidPattern.cpp" />
     <ClCompile Include="AsteroidStrike.cpp" />
     <ClCompile Include="bc.cpp" />
-    <ClCompile Include="main.c" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameMap.cpp" />

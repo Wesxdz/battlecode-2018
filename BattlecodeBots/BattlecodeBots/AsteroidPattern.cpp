@@ -3,6 +3,8 @@
 #include "GameController.h"
 #include "Log.h"
 
+bc_AsteroidPattern* AsteroidPattern::self = nullptr;
+
 AsteroidPattern::AsteroidPattern()
 {
 	self = bc_GameController_asteroid_pattern(GameController::gc);

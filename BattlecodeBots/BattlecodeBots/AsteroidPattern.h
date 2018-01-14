@@ -11,19 +11,19 @@ A Karbonite deposit forms at the location of the asteroid strike. If the locatio
 class AsteroidPattern
 {
 public:
-	bc_AsteroidPattern* self;
+	static bc_AsteroidPattern* self;
 public:
 	AsteroidPattern();
 	~AsteroidPattern();
 	/*
 	@return Whether there is an asteroid strike at the given round.
 	*/
-	uint8_t WillAsteroidStrike(uint32_t round);
+	static uint8_t WillAsteroidStrike(uint32_t round);
 	/*
 	@error NullValue - There is no asteroid strike at this round.
 	@return The asteroid strike at the given round.
 	*/
-	AsteroidStrike Strike(uint32_t round);
+	static AsteroidStrike Strike(uint32_t round);
 
 };
 
