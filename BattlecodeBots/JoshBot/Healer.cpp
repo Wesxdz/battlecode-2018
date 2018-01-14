@@ -47,9 +47,10 @@ namespace units {
 		bc_GameController_overcharge(GameController::gc, id, target->id);
 	}
 
-	void Healer::Attack(units::Unit& target)
+	void Healer::Attack(units::Unit&)
 	{
 		// Healer can't attack! D:
+		return;
 	}
 
 }

@@ -50,7 +50,7 @@ uint32_t PlanetMap::InitialKarbonite(MapLocation& location)
 std::vector<std::shared_ptr<units::Worker>> PlanetMap::InitialWorkers()
 {
 	auto workers = std::vector<std::shared_ptr<units::Worker>>();
-	bc_VecUnit* bcWorkers;
+	bc_VecUnit* bcWorkers = nullptr;
 	for (intptr_t i = 0; i < bc_VecUnit_len(bcWorkers); i++) {
 		auto worker = std::make_shared<units::Worker>();
 		worker->Init(bc_VecUnit_index(bcWorkers, i));

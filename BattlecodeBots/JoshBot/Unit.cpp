@@ -10,7 +10,7 @@ namespace units {
 
 	void Unit::Init(bc_Unit* unit)
 	{
-		self = unit;
+		self = bc_Unit_clone(unit);
 		id = bc_Unit_id(self);
 		type = bc_Unit_unit_type(self);
 	}
@@ -64,5 +64,18 @@ namespace units {
 		}
 	}
 
+	bool Unit::Exists() {
+		return bc_GameController_can_sense_unit(GameController::gc, id);
+	}
+
+	std::vector<std::shared_ptr<units::Unit>> Unit::GetUnitsWithinRange(uint32_t radius) {
+		MapLocation mapLoc = Loc().ToMapLocation();
+		return GameController::Wrap<units::Unit>(bc_GameController_sense_nearby_units(GameController::gc, mapLoc.self, radius));
+	}
+	std::vector<std::shared_ptr<units::Unit>> Unit::GetUnitsWithinRangeByTeam(uint32_t radius, bc_Team team) {
+		MapLocation mapLoc = Loc().ToMapLocation();
+		return GameController::Wrap<units::Unit>(
+			bc_GameController_sense_nearby_units_by_team(GameController::gc, mapLoc.self, radius, team));
+	}
 }
 

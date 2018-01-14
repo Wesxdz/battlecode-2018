@@ -17,26 +17,28 @@ class MapLocation
 {
 public:
 	bc_MapLocation* self = nullptr;
-	bc_Planet planet;
-	int x;
-	int y;
 public:
 	MapLocation();
 	MapLocation(bc_Planet planet, int32_t x, int32_t y);
 	MapLocation(bc_MapLocation* loc);
+	MapLocation(const MapLocation& other );
 	~MapLocation();
+
+	bool operator==(MapLocation& other);
+
+	MapLocation operator=(const MapLocation& m);
 	/*
 	@return The planet this MapLocation is on
 	*/
-	bc_Planet Planet() { return planet; }
+	bc_Planet Planet();
 	/*
 	@return The x coordinate of the map location.
 	*/
-	int32_t X() { return x; }
+	int32_t X();
 	/*
 	@return The y coordinate of the map location.
 	*/
-	int32_t Y() { return y; }
+	int32_t Y();
 	/*
 	@return The location one square from #origin in the given direction.
 	*/

@@ -94,7 +94,11 @@ namespace units {
 
 	void Robot::Attack(units::Unit& target)
 	{
-		return bc_GameController_attack(GameController::gc, id, target.id);
+		bc_GameController_attack(GameController::gc, id, target.id);
+	}
+
+	void Robot::Attack(uint16_t targetID) {
+		bc_GameController_attack(GameController::gc, id, targetID);
 	}
 
 }

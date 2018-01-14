@@ -75,6 +75,7 @@ namespace units {
 		Commands a robot to attack a unit, dealing the robot's standard amount of damage.
 		*/
 		virtual void Attack(units::Unit& target);
+		virtual void Attack(uint16_t id);
 	};
 
 }

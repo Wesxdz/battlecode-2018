@@ -1,20 +1,9 @@
-// Research Plan
-// Getting a Facotry up and running
-// Map Analysis, Best route, Enemies, Defense
-// Rocket and Ship planning
 
+Suggestions
 Wrap Method can initialize to the length to avoid multiple resizings...
 certain methods can take in the previous iteration? And that way we can we dont copy so many values..
 
 Some methods do mutlipe things and by breaking them up or making them more generic we can reduce computation possibly.
-
-Could we define enums as ints?
-
-Keep track of factories being built
-
-Modify shared pointers method to use int id as well.
-
-Have general Waypoints for Exploration
 
 Keep track of units through a map / dictionary.
 We map the id with some value and can get that value from the id.
@@ -22,25 +11,55 @@ We only ever work on valid team though
 After so long, we should check if a unit was used, and possibly remove it
 Map to a Struct...?
 
-Have some waay to delegate events?
-For example, Can't replicate? Harvest/ Build
+We should group things
+Factores will produce things and then they will join a group
+When a group has a purpose or enough member it will set out to perform an action
+ - Explore, Attack, Build, Defend, etc.
+the group will orient the memers correctly
 
-// Implement Direction Wrapper
+Group will take in ID and construct entity from it
+Hold entity in Vector
+Initialize Vector to some size, 5, 10, 20, etc
 
-Test if methods are faster by seperating their conditionals.
-I.e. Garrision then direction rather than canUnload
+// For example Vector<Group>
+//	Loop
+//	Group.Action()
 
-Will probaly be faster to iterate over enemy visible units rather than attack area for ranger
-Especially if used as group
+// Also Rangers
+// AttackVision = 50~
+// (GetEnemyPosition - RangerPosition) Squared < AttackVision = Attack
 
-Should try to group entitys by type and have them perform at the same time.
-Entity decision should based off each other
+// I need PathFinding
+// Workers should focus on structurs and Karb
+// I should persist data over frames - Check if Unit can be Seen?
+// Have Entities know of data relevant to them, Pathfinding, Destination, Priority/ Group
 
-Is there a way to add calls at specific intervals without checking...
-Like for Research
+Tactics
+Have Maximum Workers so replication doesn't overcome normal units ~50
+50 * 3 = 150 per turn or 200 if upgrade
+50 * 5 = 250 build or 500, aka 1 factory
+
+Designate Structures to load in a specific direction
 
 Utility Methods
+GetOtherTeam(Team)
+IsRobot(UnitType)
 
+- Finding enemy Starting spot
 Worker 
 - CanBuild(Direction)
 
+MapPlanet
+GameMap
+Methods that need to be fixed
+GameController::GetUnits(Selection)
+Location::Garrision()
+
+Lecture AI
+Finds enemy starting spot.
+Does an initial run through of units to count and keep track, then process
+sense_nearby_units(unit.location.map_location(), 2) will get all surrounding units
+// Need to check if unit is garrisioned, becasue we can not move then...
+
+Errors
+Segmentation Error, we are deleting a specific pointer multiple times

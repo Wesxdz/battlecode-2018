@@ -5,21 +5,33 @@
 
 MapLocation::MapLocation() { }
 
-MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y) : planet(planet), x(x), y(y)
+MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y)
 {
 	self = new_bc_MapLocation(planet, x, y);
 }
 
 MapLocation::MapLocation(bc_MapLocation * loc)
 {
-	self = loc;
+	self = bc_MapLocation_clone(loc);
+}
+MapLocation::MapLocation(const MapLocation& other)
+{
+	self = bc_MapLocation_clone(other.self);
 }
 
 MapLocation::~MapLocation()
 {
-	if (self != nullptr) {
-		delete_bc_MapLocation(self);
-	}
+	delete_bc_MapLocation(self);
+	//std::cout << "." << std::endl;
+}
+
+MapLocation MapLocation::operator=(const MapLocation& other) {
+	this->self = bc_MapLocation_clone(other.self);
+	return *this;
+}
+
+bool MapLocation::operator==(MapLocation& other) {
+	return this->X() == other.X() && this->Y() == other.Y() && this->Planet() == other.Planet();
 }
 
 MapLocation MapLocation::Neighbor(MapLocation & origin, bc_Direction direction)
@@ -65,6 +77,21 @@ uint8_t MapLocation::IsVisible()
 uint8_t MapLocation::Occupiable()
 {
 	return bc_GameController_is_occupiable(GameController::gc, self);
+}
+
+int32_t MapLocation::X()
+{
+	return bc_MapLocation_x_get(self);
+}
+
+int32_t MapLocation::Y()
+{
+	return bc_MapLocation_y_get(self);
+}
+
+bc_Planet MapLocation::Planet()
+{
+	return bc_MapLocation_planet_get(self);
 }
 
 std::shared_ptr<units::Unit> MapLocation::Occupant()

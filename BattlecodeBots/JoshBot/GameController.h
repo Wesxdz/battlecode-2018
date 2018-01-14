@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <memory>
+#include <iostream>
 
 namespace units {
 	class Unit;

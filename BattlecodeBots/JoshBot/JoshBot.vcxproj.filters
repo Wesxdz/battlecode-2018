@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\MyFiles">
+      <UniqueIdentifier>{a04b966e-135a-4c08-9ae2-eb254201322e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MyFiles">
+      <UniqueIdentifier>{c6cbdc05-a67e-49b4-8800-e96a79e11634}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt">
@@ -80,6 +86,15 @@
     <ClCompile Include="Research.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Group.cpp">
+      <Filter>Source Files\MyFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="GameInfo.h">
+      <Filter>Header Files\MyFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility.cpp">
+      <Filter>Source Files\MyFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -141,6 +156,12 @@
     </ClInclude>
     <ClInclude Include="Research.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Group.h">
+      <Filter>Header Files\MyFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>Header Files\MyFiles</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -3,20 +3,24 @@
 
 #include "bc.h"
 
+#include "GameController.h"
 #include "Location.h"
+#include <vector>
+#include <memory>
 
 namespace units {
 
 	class Unit
 	{
 	public:
-		bc_Unit * self;
+		bc_Unit* self = nullptr;
 		uint16_t id;
 		bc_UnitType type;
 	public:
 		Unit();
 		void Init(bc_Unit* unit); // Must be initialized before use!
 		~Unit();
+		
 		/*
 		@return The cost to blueprint or build in factory
 		*/
@@ -54,7 +58,23 @@ namespace units {
 		Disintegrates the unit and removes it from the map. If the unit is a factory or a rocket, also disintegrates any units garrisoned inside it.
 		*/
 		void Disintegrate();
+
+		bool Exists();
+	
+		std::vector<std::shared_ptr<units::Unit>> GetUnitsWithinRange(uint32_t radius);
+		std::vector<std::shared_ptr<units::Unit>> GetUnitsWithinRangeByTeam(uint32_t radius, bc_Team team);
+
+		template<class T>
+		std::vector<std::shared_ptr<T>> GetUnitsWithinRangeByType(uint32_t radius, bc_UnitType type);
+
 	};
+
+	template<class T>
+	inline std::vector<std::shared_ptr<T>> Unit::GetUnitsWithinRangeByType(uint32_t radius, bc_UnitType type) {
+		MapLocation mapLoc = Loc().ToMapLocation();
+		return GameController::Wrap<T>(
+			bc_GameController_sense_nearby_units_by_type(GameController::gc, mapLoc.self, radius, type));
+	}
 
 }
 

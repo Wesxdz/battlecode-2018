@@ -98,6 +98,10 @@ std::vector<std::shared_ptr<units::Unit>> GameController::Units(bc_Selection sel
 		return Wrap<units::Unit>(bc_GameController_units(gc));
 	case MyTeam:
 		return Wrap<units::Unit>(bc_GameController_my_units(gc));
+	case Space:
+		break;
+	default:
+		break;
 	}
 	return Wrap<units::Unit>(bc_GameController_units_in_space(gc));
 }
