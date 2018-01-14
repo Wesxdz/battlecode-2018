@@ -4,8 +4,6 @@
 #include "bc.h"
 #include "MapLocation.h"
 
-#include <memory>
-
 namespace units {
 	class Structure;
 }

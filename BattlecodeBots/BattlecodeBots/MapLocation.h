@@ -3,7 +3,7 @@
 
 #include "bc.h"
 
-#include <memory>
+#include <vector>
 
 namespace units {
 	class Unit;
@@ -77,7 +77,7 @@ public:
 	/*
 	@return The unit at the location
 	*/
-	units::Unit Occupant();
+	bc_Unit* Occupant();
 
 	/*
 	(You can get invalid map locations by using methods like Neighbor and Translate)
@@ -90,6 +90,22 @@ public:
 	@return Whether the location on the map contains passable terrain.
 	*/
 	uint8_t IsPassable();
+
+	/*
+	@return Units near the location within the given radius, inclusive, in distance squared. The units are within the vision range.
+	*/
+	std::vector<units::Unit> NearbyUnits(uint32_t radius_squared);
+	/*
+	@return Units near the location within the given radius, inclusive, in distance squared. The units are within the vision range. Additionally filters the units by team.
+	*/
+	std::vector<units::Unit> NearbyUnits(uint32_t radius_squared, bc_Team team);
+	/*
+	@return Units near the location within the given radius, inclusive, in distance squared. The units are within the vision range. Additionally filters the units by unit type.
+	*/
+	template<class T>
+	std::vector<T> NearbyUnits(uint32_t radius_squared, bc_UnitType type);
+
+	static std::vector<MapLocation> NearbyLocations(MapLocation& location, uint32_t radius_squared);
 };
 
 #endif

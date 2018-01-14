@@ -46,18 +46,22 @@ namespace units {
 		*/
 		void Blueprint(bc_UnitType structure, bc_Direction direction);
 		/*
+		@return Whether the worker can build a blueprint with the given ID. The worker and the blueprint must be adjacent to each other. The worker cannot already have performed an action this round.
+		*/
+		uint8_t CanBuild(Structure& structure);
+		/*
 		If raised to maximum health, the blueprint becomes a completed structure.
 		@execute Builds a given blueprint, increasing its health by the worker's build amount. 
 		*/
-		void Build(std::shared_ptr<Structure> blueprint);
+		void Build(Structure& blueprint);
 		/*
 		@return Whether the given worker can repair the given strucutre. Tests that the worker is able to execute a worker action, that the structure is built, and that the structure is within range.
 		*/
-		uint8_t CanRepair(std::shared_ptr<Structure> structure);
+		uint8_t CanRepair(Structure& structure);
 		/*
 		@execute Commands the worker to repair a structure, repleneshing health to it. This can only be done to structures which have been fully built.
 		*/
-		void Repair(std::shared_ptr<Structure> structure);
+		void Repair(Structure& structure);
 		/*
 		@return Whether the worker is ready to replicate. Tests that the worker's ability heat is sufficiently low, that the team has sufficient karbonite in its resource pool, and that the square in the given direction is empty.
 		*/

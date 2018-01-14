@@ -4,11 +4,9 @@
 #include "Unit.h"
 
 #include <vector>
-#include <memory>
+#include "Robot.h"
 
 namespace units {
-
-class Robot;
 
 /*
 To spawn a structure in the game, a Worker must blueprint the structure on an occupiable square adjacent to the Worker. 
@@ -45,11 +43,11 @@ Structures cannot be blueprinted or built on Mars.
 		/*
 		@return Whether the robot can be loaded into the given structure's garrison. The robot must be ready to move and must be adjacent to the structure. The structure and the robot must be on the same team, and the structure must have space.
 		*/
-		uint8_t CanLoad(bc_Unit* robot);
+		uint8_t CanLoad(Robot& robot);
 		/*
 		@execute Loads the robot into the garrison of the structure.
 		*/
-		void Load(bc_Unit* robot);
+		void Load(Robot& robot);
 		/*
 		@return Whether the given structure is able to unload a unit in the given direction. There must be space in that direction, and the unit must be ready to move.
 		*/
