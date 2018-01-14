@@ -72,10 +72,13 @@
     <ClCompile Include="GameMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bc.cpp">
+    <ClCompile Include="Research.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Research.cpp">
+    <ClCompile Include="..\WesleyCBot\bc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VecUnit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -144,6 +147,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VecUnit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

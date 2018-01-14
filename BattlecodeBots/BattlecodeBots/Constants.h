@@ -8,6 +8,7 @@ namespace constants
 {
 	const std::array<bc_Direction, 9> directions_all = { North, Northeast, East, Southeast, South, Southwest, West, Northwest, Center };
 	const std::array<bc_Direction, 8> directions_adjacent = { North, Northeast, East, Southeast, South, Southwest, West, Northwest };
+	const std::array<bc_Direction, 4> directions_knight_attack = { North, East, South, West };
 	const std::array<bc_UnitType, 7> types_units = { Factory, Rocket, Worker, Knight, Healer, Mage, Ranger };
 	const std::array<bc_UnitType, 2> types_structures = { Factory, Rocket };
 	const std::array<bc_UnitType, 5> types_robots = { Worker, Knight, Healer, Mage, Ranger };

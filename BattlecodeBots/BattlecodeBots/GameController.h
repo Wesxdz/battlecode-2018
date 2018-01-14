@@ -4,8 +4,6 @@
 #include "bc.h"
 
 #include <vector>
-#include <memory>
-class PlanetMap;
 
 namespace units {
 	class Unit;
@@ -62,26 +60,7 @@ public:
 	@return Units within selection criteria
 	*/
 	static std::vector<units::Unit> Units(bc_Selection selection);
-	/*
-	Functions you may wish to use with this
-	@note deletes @bcUnits
-	*/
-	template <class T>
-	static std::vector<T> Wrap(bc_VecUnit* bcUnits);
 
 };
-
-#include "Unit.h"
-
-template<>
-inline std::vector<units::Unit> GameController::Wrap(bc_VecUnit* bcUnits)
-{
-	auto units = std::vector<units::Unit>();
-	for (uintptr_t i = 0; i < bc_VecUnit_len(bcUnits); i++) {
-		units.push_back(units::Unit(bc_VecUnit_index(bcUnits, i)));
-	}
-	delete_bc_VecUnit(bcUnits);
-	return units;
-}
 
 #endif

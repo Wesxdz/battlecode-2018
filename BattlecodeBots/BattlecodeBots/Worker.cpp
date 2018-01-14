@@ -62,20 +62,25 @@ namespace units {
 		CHECK_ERRORS();
 	}
 
-	void Worker::Build(std::shared_ptr<Structure> blueprint)
+	uint8_t Worker::CanBuild(Structure & structure)
 	{
-		bc_GameController_build(GameController::gc, id, blueprint->id);
+		return bc_GameController_can_build(GameController::gc, id, structure.id);
+	}
+
+	void Worker::Build(Structure& blueprint)
+	{
+		bc_GameController_build(GameController::gc, id, blueprint.id);
 		CHECK_ERRORS();
 	}
 
-	uint8_t Worker::CanRepair(std::shared_ptr<Structure> structure)
+	uint8_t Worker::CanRepair(Structure& structure)
 	{
-		return bc_GameController_can_repair(GameController::gc, id, structure->id);
+		return bc_GameController_can_repair(GameController::gc, id, structure.id);
 	}
 
-	void Worker::Repair(std::shared_ptr<Structure> structure)
+	void Worker::Repair(Structure& structure)
 	{
-		bc_GameController_repair(GameController::gc, id, structure->id);
+		bc_GameController_repair(GameController::gc, id, structure.id);
 		CHECK_ERRORS();
 	}
 

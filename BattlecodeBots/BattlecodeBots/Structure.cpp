@@ -36,20 +36,20 @@ namespace units {
 		bc_VecUnitID* inside = bc_Unit_structure_garrison(self);
 		for (uintptr_t i = 0; i < bc_VecUnitID_len(inside); i++) {
 			// Use static_pointer_cast to make types more specific
-			garrison.push_back(Robot(bc_GameController_unit(GameController::gc, (inside, i))));
+			garrison.push_back(Robot{ bc_GameController_unit(GameController::gc, (inside, i)) });
 		}
 		delete_bc_VecUnitID(inside);
 		return garrison;
 	}
 
-	uint8_t Structure::CanLoad(bc_Unit* robot)
+	uint8_t Structure::CanLoad(Robot& robot)
 	{
-		return bc_GameController_can_load(GameController::gc, id, bc_Unit_id(robot));
+		return bc_GameController_can_load(GameController::gc, id, robot.id);
 	}
 
-	void Structure::Load(bc_Unit* robot)
+	void Structure::Load(Robot& robot)
 	{
-		bc_GameController_load(GameController::gc, id, bc_Unit_id(robot));
+		bc_GameController_load(GameController::gc, id, robot.id);
 		CHECK_ERRORS();
 	}
 

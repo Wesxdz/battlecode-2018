@@ -52,7 +52,6 @@ namespace units {
 		*/
 		uint32_t VisionRange();
 		/*
-		;)
 		Disintegrates the unit and removes it from the map. If the unit is a factory or a rocket, also disintegrates any units garrisoned inside it.
 		*/
 		void Disintegrate();
