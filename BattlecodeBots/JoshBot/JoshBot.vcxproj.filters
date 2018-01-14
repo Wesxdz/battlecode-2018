@@ -95,6 +95,9 @@
     <ClCompile Include="Utility.cpp">
       <Filter>Source Files\MyFiles</Filter>
     </ClCompile>
+    <ClCompile Include="TeamArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -162,6 +165,9 @@
     </ClInclude>
     <ClInclude Include="Utility.h">
       <Filter>Header Files\MyFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="TeamArray.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

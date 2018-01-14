@@ -1,15 +1,18 @@
 
 Suggestions
-Wrap Method can initialize to the length to avoid multiple resizings...
-certain methods can take in the previous iteration? And that way we can we dont copy so many values..
 
-Some methods do mutlipe things and by breaking them up or making them more generic we can reduce computation possibly.
+OPTIMIZATION
+Wrap() can initialize to length to avoid resize
+Recieve previous iteration.
+Persist Data
+	- Dictionary and Struct
+	- can_sense_unit() persist
+Break up Calls
 
-Keep track of units through a map / dictionary.
-We map the id with some value and can get that value from the id.
-We only ever work on valid team though
-After so long, we should check if a unit was used, and possibly remove it
-Map to a Struct...?
+TACTICS
+Group
+Manager
+Policies/ Behvaiours 
 
 We should group things
 Factores will produce things and then they will join a group
@@ -32,7 +35,7 @@ Initialize Vector to some size, 5, 10, 20, etc
 // I need PathFinding
 // Workers should focus on structurs and Karb
 // I should persist data over frames - Check if Unit can be Seen?
-// Have Entities know of data relevant to them, Pathfinding, Destination, Priority/ Group
+// Have Entities know of data relevant to them, Pathfinding, Destination, Priority/ Group                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 
 Tactics
 Have Maximum Workers so replication doesn't overcome normal units ~50

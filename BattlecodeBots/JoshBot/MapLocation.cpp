@@ -22,7 +22,6 @@ MapLocation::MapLocation(const MapLocation& other)
 MapLocation::~MapLocation()
 {
 	delete_bc_MapLocation(self);
-	//std::cout << "." << std::endl;
 }
 
 MapLocation MapLocation::operator=(const MapLocation& other) {

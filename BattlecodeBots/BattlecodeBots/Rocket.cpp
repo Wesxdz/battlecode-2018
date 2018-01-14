@@ -1,12 +1,10 @@
 #include "Rocket.h"
 
 #include "GameController.h"
-#include "Log.h"
 
 namespace units {
 
-	Rocket::Rocket(bc_Unit* unit) :
-		Structure(unit)
+	Rocket::Rocket(bc_Unit* unit) : Structure(unit)
 	{
 	}
 
@@ -29,15 +27,16 @@ namespace units {
 		return bc_Unit_rocket_travel_time_decrease(self);
 	}
 
-	uint8_t Rocket::CanLaunch(MapLocation& location)
+	uint8_t Rocket::CanLaunch(MapLocation location)
 	{
 		return bc_GameController_can_launch_rocket(GameController::gc, id, location.self);
 	}
 
-	void Rocket::Launch(MapLocation& location)
+	void Rocket::Launch(MapLocation location)
 	{
 		bc_GameController_launch_rocket(GameController::gc, id, location.self);
-		CHECK_ERRORS();
+		destination = location;
+		hasLaunched = 1;
 	}
 
 }

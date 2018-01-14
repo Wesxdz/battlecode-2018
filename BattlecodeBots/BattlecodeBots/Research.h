@@ -6,23 +6,23 @@
 class Research
 {
 public:
-	bc_ResearchInfo* self;
+	static bc_ResearchInfo* self;
 public:
 	Research();
 	~Research();
 	/*
 	@return Resets the research queue to be empty. Returns true if the queue was not empty before, and false otherwise.
 	*/
-	uint8_t Reset();
+	static uint8_t Reset();
 	/*
 	Adds a branch to the back of the queue, if it is a valid upgrade, and starts research if it is the first in the queue.
 	@return Whether the branch was successfully added.
 	*/
-	uint8_t Queue(bc_UnitType branch);
+	static uint8_t Queue(bc_UnitType branch);
 	/*
 	@return Returns the number of rounds left until the upgrade at the front of the research queue is applied.
 	*/
-	uint32_t RoundsLeft();
+	static uint32_t RoundsLeft();
 	/*
 	@return The max level of a unit branch
 	*/
@@ -33,5 +33,5 @@ public:
 	static uint32_t TimeToResearch(bc_UnitType branch, uintptr_t level);
 };
 
-#endif
+#endif // !RESEARCH_H
 

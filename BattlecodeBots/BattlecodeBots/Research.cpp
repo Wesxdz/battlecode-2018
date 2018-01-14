@@ -2,6 +2,8 @@
 
 #include "GameController.h"
 
+bc_ResearchInfo* Research::self = nullptr;
+
 Research::Research()
 {
 	bc_GameController_research_info(GameController::gc);

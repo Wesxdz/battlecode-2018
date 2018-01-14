@@ -10,6 +10,10 @@ namespace units {
 	class Rocket : public Structure
 	{
 	public:
+		MapLocation destination;
+		uint8_t hasLaunched = 0;
+
+	public:
 		Rocket();
 		~Rocket();
 		/*

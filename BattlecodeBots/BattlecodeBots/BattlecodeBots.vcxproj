@@ -116,10 +116,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\WesleyCBot\bc.cpp" />
     <ClCompile Include="AsteroidPattern.cpp" />
     <ClCompile Include="AsteroidStrike.cpp" />
-    <ClCompile Include="examplefuncsplayer.c" />
+    <ClCompile Include="bc.cpp" />
+    <ClCompile Include="main.c" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameMap.cpp" />
@@ -127,6 +127,7 @@
     <ClCompile Include="Knight.cpp" />
     <ClCompile Include="Location.cpp" />
     <ClCompile Include="Mage.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="MapLocation.cpp" />
     <ClCompile Include="OrbitPattern.cpp" />
     <ClCompile Include="PlanetMap.cpp" />
@@ -136,7 +137,6 @@
     <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="Unit.cpp" />
-    <ClCompile Include="VecUnit.cpp" />
     <ClCompile Include="Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,7 +161,6 @@
     <ClInclude Include="Rocket.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="Unit.h" />
-    <ClInclude Include="VecUnit.h" />
     <ClInclude Include="Worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
