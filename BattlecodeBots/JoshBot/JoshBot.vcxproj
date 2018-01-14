@@ -72,9 +72,11 @@
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -99,11 +101,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -112,6 +116,60 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AsteroidPattern.cpp" />
+    <ClCompile Include="AsteroidStrike.cpp" />
+    <ClCompile Include="Factory.cpp" />
+    <ClCompile Include="GameController.cpp" />
+    <ClCompile Include="GameInfo.h" />
+    <ClCompile Include="GameMap.cpp" />
+    <ClCompile Include="Group.cpp" />
+    <ClCompile Include="Healer.cpp" />
+    <ClCompile Include="Knight.cpp" />
+    <ClCompile Include="Location.cpp" />
+    <ClCompile Include="Mage.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapLocation.cpp" />
+    <ClCompile Include="OrbitPattern.cpp" />
+    <ClCompile Include="PlanetMap.cpp" />
+    <ClCompile Include="Ranger.cpp" />
+    <ClCompile Include="Research.cpp" />
+    <ClCompile Include="Robot.cpp" />
+    <ClCompile Include="Rocket.cpp" />
+    <ClCompile Include="Structure.cpp" />
+    <ClCompile Include="Unit.cpp" />
+    <ClCompile Include="Utility.cpp" />
+    <ClCompile Include="Worker.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AsteroidPattern.h" />
+    <ClInclude Include="AsteroidStrike.h" />
+    <ClInclude Include="bc.h" />
+    <ClInclude Include="Factory.h" />
+    <ClInclude Include="GameController.h" />
+    <ClInclude Include="GameMap.h" />
+    <ClInclude Include="Group.h" />
+    <ClInclude Include="Healer.h" />
+    <ClInclude Include="Knight.h" />
+    <ClInclude Include="Location.h" />
+    <ClInclude Include="Mage.h" />
+    <ClInclude Include="MapLocation.h" />
+    <ClInclude Include="OrbitPattern.h" />
+    <ClInclude Include="PlanetMap.h" />
+    <ClInclude Include="Ranger.h" />
+    <ClInclude Include="Research.h" />
+    <ClInclude Include="Robot.h" />
+    <ClInclude Include="Rocket.h" />
+    <ClInclude Include="Structure.h" />
+    <ClInclude Include="Unit.h" />
+    <ClInclude Include="Utility.h" />
+    <ClInclude Include="Worker.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BattlecodeBots\BattlecodeBots.vcxproj">
+      <Project>{deb90eac-03b8-4084-907f-88a9a1bafdd3}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
