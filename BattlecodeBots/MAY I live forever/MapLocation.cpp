@@ -104,6 +104,11 @@ uint8_t MapLocation::IsOccupiable()
 	return isOccupiable;
 }
 
+uint8_t MapLocation::IsOccupied()
+{
+	return bc_GameController_has_unit_at_location(GameController::gc, self);
+}
+
 bc_Unit* MapLocation::Occupant()
 {
 	return bc_GameController_sense_unit_at_location(GameController::gc, self);

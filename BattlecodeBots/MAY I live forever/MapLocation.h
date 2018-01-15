@@ -74,6 +74,11 @@ public:
 	@return Whether the location is clear for a unit to occupy, either by movement or by construction.
 	*/
 	uint8_t IsOccupiable();
+
+	/*
+	Whether there is a visible unit at a location.
+	*/
+	uint8_t IsOccupied();
 	/*
 	@return The unit at the location
 	*/
