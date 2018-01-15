@@ -3,6 +3,12 @@
 #include "MapLocation.h"
 #include "Constants.h"
 #include "Knight.h"
+#include "Worker.h"
+
+std::map<uint16_t, std::vector<DamageInstance>> AttackCoordinator::damageCombinations;
+std::map<bc_UnitType, float> AttackCoordinator::multipliers = {
+	{Factory, 1.2f}, {Healer, 1.1f}, {Worker, 1.0f}, {Knight, 1.0f}, {Mage, 1.0f}, {Ranger, 1.0f }, {Rocket, 1.0f}
+};
 
 void AttackCoordinator::Consider(units::Robot& fighter)
 {
@@ -38,9 +44,17 @@ float AttackCoordinator::Value(uint32_t damage, units::Unit& enemy)
 		actualDamage -= knight.Defense();
 	}
 	if (actualDamage > enemy.Health()) {
-		score += 100;
+		if (enemy.type == Worker) {
+			units::Worker worker = units::Worker(bc_Unit_clone(enemy.self));
+			score += worker.ReplicateCost() / 2.0f;
+		}
+		else {
+			score += enemy.Cost() / 2.0f;
+		}
 		uint32_t overkill = actualDamage - enemy.Health();
-		score -= overkill;
+		score -= overkill/5.0f;
 	}
+	float percentDamage = enemy.MaxHealth() / actualDamage;
+	score += enemy.Cost() * percentDamage;
 	return score;
 }

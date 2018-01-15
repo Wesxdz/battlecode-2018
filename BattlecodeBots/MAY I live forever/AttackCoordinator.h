@@ -15,6 +15,7 @@ struct DamageInstance {
 class AttackCoordinator
 {
 public:
+	static std::map<bc_UnitType, float> multipliers;
 	static std::map<uint16_t, std::vector<DamageInstance>> damageCombinations;
 	/*
 	Add damageCombinations of particular robot
