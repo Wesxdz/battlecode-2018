@@ -1,5 +1,6 @@
 #include "AStar.h"
 #include <queue>
+#include <string>
 #include "Node.h"
 #include "GameController.h"
 

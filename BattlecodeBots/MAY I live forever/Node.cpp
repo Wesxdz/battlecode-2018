@@ -20,7 +20,7 @@ void Node::NextLevel(const int & direction)
 	m_level += (direction % 2 == 0 ? 10 : 14);
 }
 
-const int & Node::Estimate(const int & xDest, const int & yDest) const
+const int Node::Estimate(const int & xDest, const int & yDest) const
 {
 	int xd, yd, d;
 	xd = xDest - m_xPos;

@@ -119,28 +119,39 @@ int main()
 
 	std::cout << "A* test initialize" << std::endl;
 	AStar aStar = AStar();
+	bool pathed = false;
 
-	SetupInitalGlobalData();
-	CHECK_ERRORS();
+	if (GameController::Planet() == Mars)
+	{
+		pathed = true;
+	}
 
+	int pathNum = 0;
 	while (true)
 	{
 		uint32_t round = GameController::Round();
 		std::cout << "Round: " << round << std::endl;
-		//auto units = player.Units(bc_Selection::MyTeam);
-		//for (auto unit : units) {
-		//	if (unit.type == bc_UnitType::Worker) {
-		//		auto worker = std::make_shared<units::Worker>();
-		//		worker.Init(unit.id);
-		//		Location workerLocation = worker->Loc();
-		//		MapLocation onMap = workerLocation.ToMapLocation();
-		//		//bc_Direction directionToMove = Southwest;
-		//		bc_Direction directionToMove = Pathfinding::PickGreedy(onMap, test);
-		//		if (directionToMove != bc_Direction::Center && worker->IsMoveReady()) {
-		//			worker->Move(directionToMove);
-		//		}
-		//	}
-		//}
+		auto units = player.Units(bc_Selection::MyTeam);
+		for (auto unit : units)
+		{
+			if (!pathed)
+			{
+				int x = unit.Loc().ToMapLocation().X();
+				int y = unit.Loc().ToMapLocation().Y();
+				aStar.PathFind(x, y, GameMap::Earth().Width() - x, GameMap::Earth().Height() - y, true);
+				pathed = true;
+			}
+			if (unit.type == bc_UnitType::Worker) {
+				units::Worker worker{ bc_Unit_clone(unit.self) };
+				if (worker.IsMoveReady() && worker.CanMove(aStar.m_pathDirections[pathNum]))
+				{
+					worker.Move(aStar.m_pathDirections[pathNum]);
+					if (pathNum < aStar.m_pathDirections.size())
+						pathNum++;
+				}
+
+			}
+		}
 		GameController::EndTurn();
 	}
 }
