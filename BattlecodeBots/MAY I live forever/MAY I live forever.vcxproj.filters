@@ -84,7 +84,6 @@
     <ClCompile Include="Section.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="GlobalData.cpp">
       <Filter>Util</Filter>
     </ClCompile>
@@ -103,6 +102,10 @@
     <ClCompile Include="Utility.cpp">
       <Filter>Wrapper</Filter>
     </ClCompile>
+    <ClCompile Include="Pegboard.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -198,6 +201,9 @@
     </ClInclude>
     <ClInclude Include="Utility.h">
       <Filter>Wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="Pegboard.h">
+      <Filter>Controller</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

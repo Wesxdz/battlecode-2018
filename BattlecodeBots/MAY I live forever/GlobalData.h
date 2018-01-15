@@ -42,6 +42,7 @@ public:
 	std::vector<units::Healer> currEnemyHealers;
 
 	std::vector<units::Unit> currUnits;
+	static std::vector<units::Robot> currRobots;
 
 	std::vector<units::Worker> currWorkers;
 	std::vector<units::Knight> currKnights;

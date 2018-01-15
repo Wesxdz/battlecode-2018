@@ -8,13 +8,14 @@
 #include "Utility.h"
 
 std::map<units::Unit, std::vector<DamageInstance>> AttackCoordinator::damageCombinations;
+std::map<units::Unit, std::vector<DamageInstance>> AttackCoordinator::enemyDamageCombinations;
 std::map<bc_UnitType, float> AttackCoordinator::multipliers = {
 	{Factory, 1.5f}, {Healer, 1.1f}, {Worker, 1.0f}, {Knight, 1.0f}, {Mage, 1.0f}, {Ranger, 1.0f }, {Rocket, 1.0f}
 };
 
 void AttackCoordinator::Consider(units::Robot& fighter)
 {
-	if (std::find(constants::types_fighters.begin(), constants::types_fighters.end(), fighter.type) == std::end(constants::types_fighters)) return;
+	//if (std::find(constants::types_fighters.begin(), constants::types_fighters.end(), fighter.type) == constants::types_fighters.end()) return;
 	std::vector<units::Unit> targets = fighter.Loc().ToMapLocation().NearbyUnits(fighter.AttackRange(), Utility::GetOtherTeam(fighter.Team()));
 	if (fighter.type == Mage) {
 		for (units::Unit& enemy : targets) {
@@ -56,7 +57,7 @@ float AttackCoordinator::Value(uint32_t damage, units::Unit& enemy)
 		uint32_t overkill = actualDamage - enemy.Health();
 		score -= overkill/5.0f;
 	}
-	float percentDamage = enemy.MaxHealth() / actualDamage;
+	float percentDamage = (float)enemy.MaxHealth() / actualDamage;
 	score += enemy.Cost() * percentDamage * multipliers[enemy.type];
 	// TODO: If the attacking unit is in danger of death prioritize attacking fighter units
 	return score;
