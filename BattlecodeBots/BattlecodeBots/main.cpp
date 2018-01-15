@@ -10,6 +10,7 @@
 #include "OrbitPattern.h"
 #include "AsteroidPattern.h"
 #include "TeamArray.h"
+#include "Log.h"
 
 #include "Unit.h"
 #include "Worker.h"
@@ -24,9 +25,12 @@ OrbitPattern orbitPattern;
 AsteroidPattern asteroidPattern;
 TeamArray teamArray;
 
+
 bc_Team thisTeam = gc.Team();
 bc_Planet thisPlanet = gc.Planet();
-PlanetMap* thisPlent = gameMap.OurPlanet();
+PlanetMap* thisPlanetMap = gameMap.OurPlanet();
+
+// Everything Static should be in GameController?
 
 /*
 Instead of micromanaging individual unit behavior, prioritize goals based on available data and
@@ -37,7 +41,7 @@ int main()
 
 	srand(0);
 
-	std::cout << "WesleyBot initialize" << std::endl;
+	std::cout << "C++ Bot initialize" << std::endl;
 	//GameController player;
 	//PlanetMap map;
 	//map.self = player.PlanetMap();
@@ -45,7 +49,8 @@ int main()
 	while (true)
 	{
 		uint32_t round = gc.Round();
-		//std::cout << "Round: " << round << std::endl;
+		std::cout << "Round: " << round << std::endl;
+		CHECK_ERRORS();
 		//auto units = player.Units(bc_Selection::MyTeam);
 		//for (auto unit : units) {
 		//	if (unit.type == bc_UnitType::Worker) {

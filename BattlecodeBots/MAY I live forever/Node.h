@@ -13,7 +13,7 @@ public:
 	Node(int x, int y, int level, int priority);
 	void UpdatePriority(const int& xDest, const int& yDest);
 	void NextLevel(const int& direction);
-	const int& Estimate(const int& xDest, const int& yDest) const;
+	const int Estimate(const int& xDest, const int& yDest) const;
 };
 
 bool operator<(const Node& a, const Node& b);

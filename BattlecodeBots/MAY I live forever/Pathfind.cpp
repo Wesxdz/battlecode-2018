@@ -55,7 +55,7 @@ bool Pathfind::MoveRandom(units::Robot& robot)
 			return true;
 		}
 	}
-	false;
+	return false;
 }
 
 MapLocation Pathfind::PickGreedy(MapLocation& origin, MapLocation& destination)

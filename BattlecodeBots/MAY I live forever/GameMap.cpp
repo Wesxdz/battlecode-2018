@@ -23,18 +23,16 @@ PlanetMap* GameMap::OurPlanet() {
 	return (GameController::Planet() == bc_Planet::Earth ? &earth : &mars);
 }
 
+PlanetMap* GameMap::OtherPlanet() {
+	return (GameController::Planet() == bc_Planet::Earth ? &mars : &earth);
+}
+
 PlanetMap GameMap::Earth()
 {
-	//auto planetID = bc_GameMap_earth_map_get(gm);
-	//PlanetMap earth(planetID);
-	//PlanetMap p(;
-	//return PlanetMap(bc_GameMap_earth_map_get(gm));
 	return earth;
 }
 
 PlanetMap GameMap::Mars()
 {
-	//auto planetID = bc_GameMap_mars_map_get(gm);
-	//PlanetMap mars(planetID);
 	return mars;
 }

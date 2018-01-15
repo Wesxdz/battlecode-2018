@@ -18,6 +18,9 @@ public:
 	@return The planet map of this player
 	*/
 	static PlanetMap* OurPlanet();
+
+	static PlanetMap* OtherPlanet();
+
 	/*
 	Earth consists of passable squares, passable Karbonite deposits, and impassable water squares.
 	The number of Karbonite deposits on Earth is limited, and Earth will never replenish Karbonite over the course of the game.
