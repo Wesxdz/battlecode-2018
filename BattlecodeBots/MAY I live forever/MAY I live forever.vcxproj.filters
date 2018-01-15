@@ -1,159 +1,173 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Wrapper">
+      <UniqueIdentifier>{cc057539-d5e7-4409-b409-29c6ce41521e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Util">
+      <UniqueIdentifier>{db4018d4-5cd1-4aa7-8a0a-9e929f9718f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AsteroidPattern.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="AsteroidStrike.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Factory.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="GameController.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="GameMap.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Healer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Knight.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Location.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Mage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="MapLocation.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="OrbitPattern.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="PlanetMap.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Ranger.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Research.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Robot.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Rocket.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Structure.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="TeamArray.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Unit.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="VecUnit.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Worker.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Wrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfind.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Science.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Section.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="GlobalData.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="AsteroidStrike.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bc.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Constants.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Factory.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="GameController.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="GameMap.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Healer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Knight.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Location.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Mage.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="MapLocation.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="OrbitPattern.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="PlanetMap.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Ranger.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Research.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Robot.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Rocket.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Structure.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="TeamArray.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Unit.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="VecUnit.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Worker.h">
-      <Filter>Header Files</Filter>
+      <Filter>Wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfind.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Science.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Section.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="bc.h" />
+    <ClInclude Include="GlobalData.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

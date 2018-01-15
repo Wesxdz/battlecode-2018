@@ -1,12 +1,12 @@
-#include "ResearchPolicies.h"
+#include "Science.h"
 
 #include <iostream>
 #include <algorithm>
-#include "Player.h"
+#include "GameController.h"
 
-void ResearchPolicies::Update()
+void Science::Update()
 {
-	bc_ResearchInfo* info = bc_GameController_research_info(Player::gc);
+	bc_ResearchInfo* info = bc_GameController_research_info(GameController::gc);
 	if (researchNextTurn) { // Determine what upgrade to research
 		// Upgrades are removed from paths once they are researched
 		paths.erase(std::remove_if(std::begin(paths), std::end(paths), [&info](Upgrade& upgrade) {
@@ -40,7 +40,7 @@ void ResearchPolicies::Update()
 	delete_bc_ResearchInfo(info);
 }
 
-void ResearchPolicies::Init()
+void Science::Init()
 {
 	/*
 	25
@@ -217,7 +217,7 @@ void ResearchPolicies::Init()
 	100
 	Allows rockets to garrison 4 more units per rocket.
 	*/
-	paths.push_back({ "Increased Capacity", Rocket, [](Upgrade* upgrade) {
+	paths.push_back({ "Increased Capacity", Rocket, 3, [](Upgrade* upgrade) {
 		float score = 0.1f;
 		return score;
 	} });
@@ -226,7 +226,7 @@ void ResearchPolicies::Init()
 
 uint32_t Upgrade::TurnsToResearch()
 {
-	bc_ResearchInfo* info = bc_GameController_research_info(Player::gc);
+	bc_ResearchInfo* info = bc_GameController_research_info(GameController::gc);
 	uintptr_t startLevel = bc_ResearchInfo_get_level(info, branch);
 	uint32_t turnsToResearch = 0;
 	for (uintptr_t i = startLevel; i <= level; i++) {
@@ -239,6 +239,6 @@ uint32_t Upgrade::TurnsToResearch()
 void Upgrade::Research()
 {
 	std::cout << "Researching " << name << "\n";
-	bc_GameController_reset_research(Player::gc);
-	bc_GameController_queue_research(Player::gc, branch);
+	bc_GameController_reset_research(GameController::gc);
+	bc_GameController_queue_research(GameController::gc, branch);
 }

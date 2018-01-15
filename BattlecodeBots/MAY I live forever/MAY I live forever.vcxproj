@@ -120,6 +120,7 @@
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameMap.cpp" />
+    <ClCompile Include="GlobalData.cpp" />
     <ClCompile Include="Healer.cpp" />
     <ClCompile Include="Knight.cpp" />
     <ClCompile Include="Location.cpp" />
@@ -127,11 +128,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapLocation.cpp" />
     <ClCompile Include="OrbitPattern.cpp" />
+    <ClCompile Include="Pathfind.cpp" />
     <ClCompile Include="PlanetMap.cpp" />
     <ClCompile Include="Ranger.cpp" />
     <ClCompile Include="Research.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Rocket.cpp" />
+    <ClCompile Include="Science.cpp" />
+    <ClCompile Include="Section.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="TeamArray.cpp" />
     <ClCompile Include="Unit.cpp" />
@@ -146,6 +150,7 @@
     <ClInclude Include="Factory.h" />
     <ClInclude Include="GameController.h" />
     <ClInclude Include="GameMap.h" />
+    <ClInclude Include="GlobalData.h" />
     <ClInclude Include="Healer.h" />
     <ClInclude Include="Knight.h" />
     <ClInclude Include="Location.h" />
@@ -153,11 +158,14 @@
     <ClInclude Include="Mage.h" />
     <ClInclude Include="MapLocation.h" />
     <ClInclude Include="OrbitPattern.h" />
+    <ClInclude Include="Pathfind.h" />
     <ClInclude Include="PlanetMap.h" />
     <ClInclude Include="Ranger.h" />
     <ClInclude Include="Research.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="Rocket.h" />
+    <ClInclude Include="Science.h" />
+    <ClInclude Include="Section.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="TeamArray.h" />
     <ClInclude Include="Unit.h" />
