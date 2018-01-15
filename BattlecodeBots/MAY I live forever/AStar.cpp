@@ -37,12 +37,26 @@ std::vector<bc_Direction> AStar::PathFind(const int & xStart, const int & yStart
 		m_maxBY = m_mapVSize;
 	}
 
-
-
 	int* map = new int[m_mapHSize * m_mapVSize];
 	int* closedNodesMap = new int[m_mapHSize * m_mapVSize];
 	int* openNodesMap = new int[m_mapHSize * m_mapVSize];
 	int* directionMap = new int[m_mapHSize * m_mapVSize];
+
+
+	//////////////////////////////////////////////////////////////
+	for (int gmY = m_minBY; gmY < m_minBY; gmY++)
+	{
+		for (int gmX = m_minBX; gmX < m_maxBX; gmX++)
+		{
+			MapLocation ml = MapLocation(GameController::Planet(), gmX, gmY);
+			map[gmX * m_mapVSize + gmY] = gameMap->IsPassableTerrain(ml);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////
+
+
+
 
 	std::priority_queue<Node> pq[2];
 	int pqIndex = 0;
@@ -93,7 +107,7 @@ std::vector<bc_Direction> AStar::PathFind(const int & xStart, const int & yStart
 			{
 				pq[pqIndex].pop();
 			}
-			
+
 			std::vector<bc_Direction> returnPath;
 			for (int plen = 0; plen < path.length(); plen++)
 			{
@@ -151,7 +165,7 @@ std::vector<bc_Direction> AStar::PathFind(const int & xStart, const int & yStart
 					}
 					pq[pqIndex].pop();
 
-					if (pq[pqIndex].size()>pq[1 - pqIndex].size()) pqIndex = 1 - pqIndex;
+					if (pq[pqIndex].size() > pq[1 - pqIndex].size()) pqIndex = 1 - pqIndex;
 					while (!pq[pqIndex].empty())
 					{
 						pq[1 - pqIndex].push(pq[pqIndex].top());
@@ -171,11 +185,11 @@ std::vector<bc_Direction> AStar::PathFind(const int & xStart, const int & yStart
 
 
 	}
-	delete [] directionMap;
-	delete [] openNodesMap;
-	delete [] closedNodesMap;
-	delete [] map;
-	delete [] gameMap;
+	delete[] directionMap;
+	delete[] openNodesMap;
+	delete[] closedNodesMap;
+	delete[] map;
+	delete[] gameMap;
 	//No route found
 	return std::vector<bc_Direction>();
 }
