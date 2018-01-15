@@ -7,7 +7,7 @@
 #include <map>
 
 struct DamageInstance {
-	uint16_t sourceId;
+	units::Robot source;
 	uint32_t damage;
 	bool isSplash = false;
 };
@@ -16,9 +16,11 @@ class AttackCoordinator
 {
 public:
 	static std::map<bc_UnitType, float> multipliers;
-	static std::map<uint16_t, std::vector<DamageInstance>> damageCombinations;
+	static std::map<units::Unit, std::vector<DamageInstance>> damageCombinations;
+	static std::map<units::Unit, std::vector<DamageInstance>> enemyDamageCombinations;
 	/*
 	Add damageCombinations of particular robot
+	TODO Also consider MapLocation parameter to estimate value after movement?
 	*/
 	static void Consider(units::Robot& fighter);
 	/*
