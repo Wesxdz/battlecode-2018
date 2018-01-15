@@ -131,7 +131,7 @@ int main()
 	{
 		uint32_t round = GameController::Round();
 		std::cout << "Round: " << round << std::endl;
-		auto units = player.Units(bc_Selection::MyTeam);
+		auto units = GameController::Units(bc_Selection::MyTeam);
 		for (auto unit : units)
 		{
 			if (!pathed)
