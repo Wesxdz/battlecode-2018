@@ -20,7 +20,7 @@ struct Upgrade
 	void Research();
 };
 
-class ResearchPolicies
+class Science
 {
 public:
 	virtual void Init();

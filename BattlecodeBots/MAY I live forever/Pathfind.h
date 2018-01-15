@@ -5,17 +5,18 @@
 #include <vector>
 #include <functional>
 #include "MapLocation.h"
+#include "Robot.h"
 
 class Pathfind
 {
 public:
-	static std::vector<bc_MapLocation> Neighbors(MapLocation& start);
-	static std::vector<bc_MapLocation*> Moveable(bc_MapLocation* start);
-	static bc_MapLocation* PickRandom(std::vector<bc_MapLocation*>& locGrid);
-	static bool MoveRandom(bc_Unit* robot);
-	static bc_MapLocation* PickGreedy(bc_MapLocation* origin, bc_MapLocation* destination);
-	static bool MoveGreedy(bc_Unit* robot, bc_MapLocation* destination);
-	static std::vector<bc_MapLocation*> AStarPath(bc_MapLocation* origin, bc_MapLocation* destination, std::function<int(bc_MapLocation*)> cost);
+	static std::vector<MapLocation> Neighbors(MapLocation& start);
+	static std::vector<MapLocation> Moveable(MapLocation& start);
+	static MapLocation PickRandom(std::vector<MapLocation>& locations);
+	static bool MoveRandom(units::Robot& robot);
+	static MapLocation PickGreedy(MapLocation& origin, MapLocation& destination);
+	static bool MoveGreedy(units::Robot& robot, MapLocation& destination);
+	static std::vector<bc_Direction> AStarPath(bc_MapLocation* origin, bc_MapLocation* destination);
 };
 
 #endif

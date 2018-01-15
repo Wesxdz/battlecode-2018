@@ -102,6 +102,8 @@ void SetupInitalGlobalData() {
 		std::cout << "There is " << data.totalInitialKarb << " total karb available." << std::endl;
 		CHECK_ERRORS();
 	}
+#include "AStar.h"
+
 
 }
 
@@ -117,14 +119,12 @@ int main()
 {
 	srand(0);
 
-	std::cout << "WesleyBot initialize" << std::endl;
+	std::cout << "A* test initialize" << std::endl;
+	AStar aStar = AStar();
+
 	SetupInitalGlobalData();
 	CHECK_ERRORS();
 
-	//GameController player;
-	//PlanetMap map;
-	//map.self = player.PlanetMap();
-	//MapLocation test = MapLocation(player.Planet(), map.Width() / 2, map.Height() / 2);
 	while (true)
 	{
 		uint32_t round = GameController::Round();

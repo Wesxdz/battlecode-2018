@@ -18,10 +18,9 @@ class MapLocation
 public:
 	bc_MapLocation* self = nullptr;
 public:
-	MapLocation();
 	MapLocation(bc_Planet planet, int32_t x, int32_t y);
-	MapLocation(bc_MapLocation* loc);
 	MapLocation(const MapLocation& other);
+	MapLocation(bc_MapLocation* loc);
 	~MapLocation();
 
 	bool operator==(MapLocation& other);

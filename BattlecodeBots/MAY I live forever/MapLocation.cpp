@@ -13,12 +13,6 @@ inline std::vector<T> MapLocation::NearbyUnits(uint32_t radius_squared, bc_UnitT
 	return VecUnit::Wrap<T>(bc_GameController_sense_nearby_units_by_type(GameController::gc, self, radius_squared, type));
 }
 
-
-MapLocation::MapLocation() 
-{
-
-}
-
 MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y)
 {
 	self = new_bc_MapLocation(planet, x, y);
