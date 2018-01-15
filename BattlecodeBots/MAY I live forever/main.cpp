@@ -23,7 +23,7 @@ GlobalData data;
 void SetupInitalGlobalData() {
 	std::cout << "Here" << std::endl;
 	// Setting Up the Initial Enemy Spawn Points
-	/*
+	///*
 	{
 		std::cout << "Getting the Initial Units" << std::endl;
 		std::cout << "The current PlanetMap Ptr is " << data.thisPlanetMap->self << std::endl;
@@ -47,25 +47,34 @@ void SetupInitalGlobalData() {
 		}
 		CHECK_ERRORS();
 	}
-	*/
+	//*/
 
 	std::cout << "Here1" << std::endl;
 	// Finding Optimal Launch Times
-	///*
 	{
-		auto amp = OrbitPattern::Amplitude();
-		auto center = OrbitPattern::Center();
-		auto frequency = OrbitPattern::Period();
-		auto period = 1.0f / frequency;
-		data.launchFrequency = frequency * 2; // This is how often the launch time is at lowest
-		data.launchStart = frequency * 4.7123889f; // 3 pi / 2
-		data.minLaunchTurns = amp * sin(static_cast<long>(period * data.launchStart)) + center;
-		
-		std::cout << "The frequency is " << frequency << std::endl;
-		std::cout << "The Sine function has A = " << amp << ", B = " << period << ", C = " << center << ". The minimum turn is " << data.minLaunchTurns << " at Round " << data.launchStart << " repeateding every " << data.launchFrequency << " rounds." << std::endl;
+		int lowest = 999;
+		int curr = 0;
+		int next = 0;
+		for (int i = 0; i < 749; i++) {
+			auto launchTime = bc_OrbitPattern_duration(OrbitPattern::self, i);
+			if (launchTime < lowest) {
+				lowest = launchTime;
+				curr = i;
+				next = 0;
+			}
+			if (launchTime == lowest && next == 0) {
+				next = i;
+				break;
+			}
+		}
+		data.launchFrequency = next - curr;
+		data.launchStart = curr;
+		data.minLaunchTurns = lowest;
+		// The period is actually the .157
+		std::cout << "The launch time is " << lowest << " at " << curr << " and " << next << std::endl;
 		CHECK_ERRORS();
 	}
-	//*/
+
 	std::cout << "Here2" << std::endl;
 	// Getting Passable Terrain for this Map
 	/*
@@ -81,36 +90,47 @@ void SetupInitalGlobalData() {
 		auto allLocationsEarth = bc_GameController_all_locations_within(GameController::gc, centerPointEarth.self, playAreaSqr);
 		auto allLocationsMars = bc_GameController_all_locations_within(GameController::gc, centerPointMars.self, playAreaSqr);
 		auto actualAmo = bc_VecMapLocation_len(allLocationsEarth);
-		if(actualAmo != allLocationsSize){
+		//if(actualAmo != allLocationsSize){
 			std::cout << "We expected " << allLocationsSize << " Locations but got " << actualAmo << std::endl;
 			std::cout << "The center point on earth is at " << centerPoint << ", " << centerPoint << std::endl;
 			std::cout << "Planet Height: " << data.thisPlanetMap->height << ", Width: " << data.thisPlanetMap->width << std::endl;
 			std::cout << "We are searching all areas with " << playAreaSqr << "radius squared" << std::endl;
 			CHECK_ERRORS();
-		}
+		//}
 		
 		auto planetEarthPtr = GameMap::earth.self;
 		auto planetMarsPtr = GameMap::mars.self;
+		std::cout << "The pointers are " << planetEarthPtr << " " << planetMarsPtr << std::endl;
 		for (int i = 0; i < allLocationsSize; i++) {
 			auto earthLocPtr = bc_VecMapLocation_index(allLocationsEarth, i);
 			auto marsLocPtr = bc_VecMapLocation_index(allLocationsMars, i);
+			std::cout << "The pointers are " << earthLocPtr << " " << marsLocPtr << std::endl;
 			auto thisPlanetLocPtr = data.thisPlanetMap->planetType == bc_Planet::Earth ? earthLocPtr : marsLocPtr;
 			
 			auto canPass = bc_PlanetMap_is_passable_terrain_at(planetEarthPtr, earthLocPtr);
+			MapLocation earthLoc(earthLocPtr);
 			if (canPass) {
-				data.passableEarthTerrain.push_back(MapLocation(earthLocPtr));
+				data.passableEarthTerrain.push_back(earthLoc);
 			}
+			CHECK_ERRORS();
+			std::cout << "Earth " << earthLoc.X() << ", " << earthLoc.Y() << ". Type " << earthLoc.Planet() << std::endl;
 
 			canPass = bc_PlanetMap_is_passable_terrain_at(planetMarsPtr, marsLocPtr);
+			MapLocation marsLoc(marsLocPtr);
 			if (canPass) {
-				data.passableMarsTerrain.push_back(MapLocation(marsLocPtr));
+				data.passableMarsTerrain.push_back(marsLoc);
 			}
+			CHECK_ERRORS();
+			std::cout << "Mars " << marsLoc.X() << ", " << marsLoc.Y() << ". Type " << marsLoc.Planet() << std::endl;
 
 			auto initialKarb = bc_PlanetMap_initial_karbonite_at(data.thisPlanetMap->self, thisPlanetLocPtr);
+			MapLocation karbLoc(bc_MapLocation_clone(thisPlanetLocPtr));
 			if (initialKarb) {
-				data.initialKarbLocations.push_back(MapLocation(bc_MapLocation_clone(thisPlanetLocPtr)));
+				data.initialKarbLocations.push_back(karbLoc);
 				data.totalInitialKarb += initialKarb;
 			}
+			CHECK_ERRORS();
+			std::cout << "Karb " << karbLoc.X() << ", " << karbLoc.Y() << ". Type " << karbLoc.Planet() << std::endl;
 		}
 		delete_bc_VecMapLocation(allLocationsEarth);
 		delete_bc_VecMapLocation(allLocationsMars);
@@ -137,8 +157,8 @@ int main()
 	srand(0);
 
 	std::cout << "A* test initialize" << std::endl;
-	//SetupInitalGlobalData();
-	//CHECK_ERRORS();
+	SetupInitalGlobalData();
+	CHECK_ERRORS();
 	std::cout << "Here4" << std::endl;
 	//AStar aStar = AStar();
 	//bool pathed = false;
