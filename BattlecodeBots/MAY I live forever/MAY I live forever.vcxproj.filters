@@ -88,9 +88,6 @@
     <ClCompile Include="GlobalData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Pathfind.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -100,6 +97,10 @@
     <ClCompile Include="Section.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Utility.cpp" />
+    <ClCompile Include="AStar.cpp" />
+    <ClCompile Include="AttackCoordinator.cpp" />
+    <ClCompile Include="Node.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -187,9 +188,6 @@
     <ClInclude Include="GlobalData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Pathfind.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -199,5 +197,9 @@
     <ClInclude Include="Section.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utility.h" />
+    <ClInclude Include="AStar.h" />
+    <ClInclude Include="AttackCoordinator.h" />
+    <ClInclude Include="Node.h" />
   </ItemGroup>
 </Project>

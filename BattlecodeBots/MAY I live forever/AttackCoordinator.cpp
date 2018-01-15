@@ -42,4 +42,5 @@ float AttackCoordinator::Value(uint32_t damage, units::Unit& enemy)
 		uint32_t overkill = actualDamage - enemy.Health();
 		score -= overkill;
 	}
+	
 }

@@ -11,6 +11,7 @@
 #include "MapLocation.h"
 #include "Location.h"
 
+#include "AStar.h"
 #include "Utility.h"
 
 GlobalData data;
@@ -42,7 +43,7 @@ void SetupInitalGlobalData() {
 		auto period = OrbitPattern::Period();
 		auto frequency = 1.0f / period;
 		data.launchFrequency = frequency * 2; // This is how often the launch time is at lowest
-		data.launchStart = frequency * 4.7123889; // 3 pi / 2
+		data.launchStart = frequency * 4.7123889f; // 3 pi / 2
 		data.minLaunchTurns = amp * sin(period * data.launchStart) + center;
 		
 
@@ -102,9 +103,6 @@ void SetupInitalGlobalData() {
 		std::cout << "There is " << data.totalInitialKarb << " total karb available." << std::endl;
 		CHECK_ERRORS();
 	}
-#include "AStar.h"
-
-
 }
 
 void SetupTurnGlobalData() {
