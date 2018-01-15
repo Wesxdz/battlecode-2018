@@ -14,9 +14,9 @@ void AttackCoordinator::Consider(units::Robot& fighter)
 			MapLocation enemyLocation = enemy.Loc().ToMapLocation();
 			for (bc_Direction direction : constants::directions_adjacent) {
 				MapLocation adjacent = MapLocation::Neighbor(enemyLocation, direction);
-				if (adjacent.IsValid() && adjacent.IsVisible()) {
-					adjacent.Occupant();
-					// Occupant
+				if (adjacent.IsValid() && adjacent.IsVisible() && adjacent.IsOccupied()) {
+					units::Unit hit = adjacent.Occupant();
+					damageCombinations[hit.id].push_back(DamageInstance{ fighter.id, fighter.Damage(), true });
 				}
 			}
 			damageCombinations[enemy.id].push_back(DamageInstance{ fighter.id, fighter.Damage() });
@@ -42,4 +42,5 @@ float AttackCoordinator::Value(uint32_t damage, units::Unit& enemy)
 		uint32_t overkill = actualDamage - enemy.Health();
 		score -= overkill;
 	}
+	return score;
 }
