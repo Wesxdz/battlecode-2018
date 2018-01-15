@@ -10,6 +10,7 @@
 
 class AStar
 {
+public:
 	//Initializes a new AStar object, leaving this blank will select the entire map, passing in boundaries will limit pathing to those coordinates.
 	AStar(const int& xMinBounds = -1, const int& yMinBounds = -1, const int& xMaxBounds = -1, const int& yMaxBounds = -1);
 	

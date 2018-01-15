@@ -16,6 +16,8 @@
 #include "MapLocation.h"
 #include "Location.h"
 
+#include "AStar.h"
+
 GameController gc;
 GameMap gameMap;
 
@@ -37,29 +39,28 @@ int main()
 
 	srand(0);
 
-	std::cout << "WesleyBot initialize" << std::endl;
-	//GameController player;
-	//PlanetMap map;
-	//map.self = player.PlanetMap();
-	//MapLocation test = MapLocation(player.Planet(), map.Width() / 2, map.Height() / 2);
+	std::cout << "A* test initialize" << std::endl;
+	GameController player;
+	AStar aStar = AStar();
+	
 	while (true)
 	{
 		uint32_t round = gc.Round();
-		//std::cout << "Round: " << round << std::endl;
-		//auto units = player.Units(bc_Selection::MyTeam);
-		//for (auto unit : units) {
-		//	if (unit.type == bc_UnitType::Worker) {
-		//		auto worker = std::make_shared<units::Worker>();
-		//		worker.Init(unit.id);
-		//		Location workerLocation = worker->Loc();
-		//		MapLocation onMap = workerLocation.ToMapLocation();
-		//		//bc_Direction directionToMove = Southwest;
-		//		bc_Direction directionToMove = Pathfinding::PickGreedy(onMap, test);
-		//		if (directionToMove != bc_Direction::Center && worker->IsMoveReady()) {
-		//			worker->Move(directionToMove);
-		//		}
-		//	}
-		//}
+		std::cout << "Round: " << round << std::endl;
+		auto units = player.Units(bc_Selection::MyTeam);
+		for (auto unit : units) {
+			if (unit.type == bc_UnitType::Worker) {
+				auto worker = std::make_shared<units::Worker>();
+				worker.Init(unit.id);
+				Location workerLocation = worker->Loc();
+				MapLocation onMap = workerLocation.ToMapLocation();
+				//bc_Direction directionToMove = Southwest;
+				bc_Direction directionToMove = Pathfinding::PickGreedy(onMap, test);
+				if (directionToMove != bc_Direction::Center && worker->IsMoveReady()) {
+					worker->Move(directionToMove);
+				}
+			}
+		}
 		gc.EndTurn();
 	}
 }
