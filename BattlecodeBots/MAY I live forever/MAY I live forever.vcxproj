@@ -135,6 +135,8 @@
     <ClCompile Include="Research.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Rocket.cpp" />
+    <ClCompile Include="RocketLanding.cpp" />
+    <ClCompile Include="RocketLandingInfo.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="TeamArray.cpp" />
     <ClCompile Include="Unit.cpp" />
@@ -165,6 +167,8 @@
     <ClInclude Include="Research.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="Rocket.h" />
+    <ClInclude Include="RocketLanding.h" />
+    <ClInclude Include="RocketLandingInfo.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="TeamArray.h" />
     <ClInclude Include="Unit.h" />

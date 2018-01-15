@@ -21,14 +21,13 @@ GlobalData data;
 //PlanetMap* thisPlent = data.gameMap.OurPlanet();
 
 void SetupInitalGlobalData() {
-	std::cout << "Here" << std::endl;
 	// Setting Up the Initial Enemy Spawn Points
 	///*
 	{
-		std::cout << "Getting the Initial Units" << std::endl;
-		std::cout << "The current PlanetMap Ptr is " << data.thisPlanetMap->self << std::endl;
-		auto initialUnitPtr = bc_PlanetMap_initial_units_get(data.thisPlanetMap->self);
-		std::cout << "Got the initial Unit Ptrs." << std::endl;
+		//std::cout << "Getting the Initial Units" << std::endl;
+		//std::cout << "The current PlanetMap Ptr is " << data.thisPlanetMap->self << std::endl;
+		//auto initialUnitPtr = bc_PlanetMap_initial_units_get(data.thisPlanetMap->self);
+		/*std::cout << "Got the initial Unit Ptrs." << std::endl;
 		std::vector<units::Unit> initialUnits = GameController::Wrap<units::Unit>(initialUnitPtr);
 		std::cout << "There are " << initialUnits.size() << " initial Units" << std::endl;
 		data.enemySpawnAmo = initialUnits.size()/2;
@@ -44,12 +43,11 @@ void SetupInitalGlobalData() {
 			}
 			data.enemySpawns[i] = initialUnits[i].Loc().ToMapLocation();
 			std::cout << "Enemy at " << data.enemySpawns[i].X() << ", " << data.enemySpawns[i].Y() << std::endl;
-		}
+		}*/
 		CHECK_ERRORS();
 	}
 	//*/
 
-	std::cout << "Here1" << std::endl;
 	// Finding Optimal Launch Times
 	{
 		int lowest = 999;
@@ -75,9 +73,7 @@ void SetupInitalGlobalData() {
 		CHECK_ERRORS();
 	}
 
-	std::cout << "Here2" << std::endl;
-	// Getting Passable Terrain for this Map
-	/*
+	// Getting Passable Terrain and Karb for this Map
 	{
 		int centerPoint = data.thisPlanetMap->height / 2;
 
@@ -90,13 +86,13 @@ void SetupInitalGlobalData() {
 		auto allLocationsEarth = bc_GameController_all_locations_within(GameController::gc, centerPointEarth.self, playAreaSqr);
 		auto allLocationsMars = bc_GameController_all_locations_within(GameController::gc, centerPointMars.self, playAreaSqr);
 		auto actualAmo = bc_VecMapLocation_len(allLocationsEarth);
-		//if(actualAmo != allLocationsSize){
+		if(actualAmo != allLocationsSize){
 			std::cout << "We expected " << allLocationsSize << " Locations but got " << actualAmo << std::endl;
 			std::cout << "The center point on earth is at " << centerPoint << ", " << centerPoint << std::endl;
 			std::cout << "Planet Height: " << data.thisPlanetMap->height << ", Width: " << data.thisPlanetMap->width << std::endl;
 			std::cout << "We are searching all areas with " << playAreaSqr << "radius squared" << std::endl;
 			CHECK_ERRORS();
-		//}
+		}
 		
 		auto planetEarthPtr = GameMap::earth.self;
 		auto planetMarsPtr = GameMap::mars.self;
@@ -140,8 +136,7 @@ void SetupInitalGlobalData() {
 		std::cout << "There is " << data.totalInitialKarb << " total karb available." << std::endl;
 		CHECK_ERRORS();
 	}
-	*/
-	std::cout << "Here3" << std::endl;
+
 }
 
 void SetupTurnGlobalData() {
@@ -154,6 +149,7 @@ then determine best execution strategy
 */
 int main()
 {
+	//bc_GameController_get_time_left_ms();
 	srand(0);
 
 	std::cout << "A* test initialize" << std::endl;
