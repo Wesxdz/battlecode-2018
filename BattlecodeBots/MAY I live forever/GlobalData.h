@@ -1,4 +1,4 @@
-#ifdef GLOBAL_DATA_H
+#ifndef GLOBAL_DATA_H
 #define GLOBAL_DATA_H
 
 class GlobalData
