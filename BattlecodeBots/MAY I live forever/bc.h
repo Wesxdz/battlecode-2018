@@ -46,23 +46,23 @@ typedef enum bc_Direction {
     Northwest = 7,
     Center = 8,
 } bc_Direction;
-/// Returns the x displacement of this direction.
+/// Returns the x displacement of self direction.
 int32_t bc_Direction_dx(bc_Direction self);
 
-/// Returns the y displacement of this direction.
+/// Returns the y displacement of self direction.
 int32_t bc_Direction_dy(bc_Direction self);
 
-/// Whether this direction is a diagonal one.
+/// Whether self direction is a diagonal one.
 uint8_t bc_Direction_is_diagonal(bc_Direction self);
 
-/// Returns the direction opposite this one, or Center if it's Center.
+/// Returns the direction opposite self one, or Center if it's Center.
 bc_Direction bc_Direction_opposite(bc_Direction self);
 
 /// Returns the direction 45 degrees to the left (counter-clockwise) of
-/// this one, or Center if it's Center.
+/// self one, or Center if it's Center.
 bc_Direction bc_Direction_rotate_left(bc_Direction self);
 
-/// Returns the direction 45 degrees to the right (clockwise) of this one,
+/// Returns the direction 45 degrees to the right (clockwise) of self one,
 /// or Center if it's Center.
 bc_Direction bc_Direction_rotate_right(bc_Direction self);
 
@@ -90,31 +90,31 @@ void bc_MapLocation_planet_set(bc_MapLocation* self, bc_Planet planet);
 void bc_MapLocation_x_set(bc_MapLocation* self, int32_t x);
 /// The y coordinate of the map location.
 void bc_MapLocation_y_set(bc_MapLocation* self, int32_t y);
-/// Returns the location one square from this one in the given direction.
+/// Returns the location one square from self one in the given direction.
 bc_MapLocation* bc_MapLocation_add(bc_MapLocation* self, bc_Direction direction);
-/// Returns the location one square from this one in the opposite direction.
+/// Returns the location one square from self one in the opposite direction.
 bc_MapLocation* bc_MapLocation_subtract(bc_MapLocation* self, bc_Direction direction);
-/// Returns the location `multiple` squares from this one in the given
+/// Returns the location `multiple` squares from self one in the given
 /// direction.
 bc_MapLocation* bc_MapLocation_add_multiple(bc_MapLocation* self, bc_Direction direction, int32_t multiple);
-/// Returns the location translated from this location by `dx` in the x
+/// Returns the location translated from self location by `dx` in the x
 /// direction and `dy` in the y direction.
 bc_MapLocation* bc_MapLocation_translate(bc_MapLocation* self, int32_t dx, int32_t dy);
-/// Computes the square of the distance from this location to the specified
+/// Computes the square of the distance from self location to the specified
 /// location. If on different planets, returns the maximum integer.
 uint32_t bc_MapLocation_distance_squared_to(bc_MapLocation* self, bc_MapLocation* o);
-/// Returns the Direction from this location to the specified location.
-/// If the locations are equal this method returns Center.
+/// Returns the Direction from self location to the specified location.
+/// If the locations are equal self method returns Center.
 /// 
 ///  * DifferentPlanet - The locations are on different planets.
 bc_Direction bc_MapLocation_direction_to(bc_MapLocation* self, bc_MapLocation* o);
 /// 
-/// Determines whether this location is adjacent to the specified location,
+/// Determines whether self location is adjacent to the specified location,
 /// including diagonally. Note that squares are not adjacent to themselves,
 /// and squares on different planets are not adjacent to each other.
 uint8_t bc_MapLocation_is_adjacent_to(bc_MapLocation* self, bc_MapLocation* o);
 /// 
-/// Whether this location is within the distance squared range of the
+/// Whether self location is within the distance squared range of the
 /// specified location, inclusive. False for locations on different planets.
 uint8_t bc_MapLocation_is_within_range(bc_MapLocation* self, uint32_t range, bc_MapLocation* o);
 /// Create a human-readable representation of a MapLocation
@@ -169,7 +169,7 @@ bc_Location* bc_Location_new_in_garrison(uint16_t id);
 bc_Location* bc_Location_new_in_space();
 /// Whether the unit is on a map.
 uint8_t bc_Location_is_on_map(bc_Location* self);
-/// True if and only if the location is on the map and on this planet.
+/// True if and only if the location is on the map and on self planet.
 uint8_t bc_Location_is_on_planet(bc_Location* self, bc_Planet planet);
 /// The map location of the unit.
 /// 
@@ -184,12 +184,12 @@ uint8_t bc_Location_is_in_garrison(bc_Location* self);
 uint16_t bc_Location_structure(bc_Location* self);
 /// Whether the unit is in space.
 uint8_t bc_Location_is_in_space(bc_Location* self);
-/// Determines whether this location is adjacent to the specified location,
+/// Determines whether self location is adjacent to the specified location,
 /// including diagonally. Note that squares are not adjacent to themselves,
 /// and squares on different planets are not adjacent to each other. Also,
 /// nothing is adjacent to something not on a map.
 uint8_t bc_Location_is_adjacent_to(bc_Location* self, bc_Location* o);
-/// Whether this location is within the distance squared range of the
+/// Whether self location is within the distance squared range of the
 /// specified location, inclusive. False for locations on different planets.
 /// Note that nothing is within the range of something not on the map.
 uint8_t bc_Location_is_within_range(bc_Location* self, uint32_t range, bc_Location* o);
@@ -366,11 +366,11 @@ uint32_t bc_Unit_ability_heat(bc_Unit* self);
 /// 
 ///  * InappropriateUnitType - the unit is not a robot.
 uint32_t bc_Unit_ability_cooldown(bc_Unit* self);
-/// The active ability range. This is the range in which: workers can replicate, knights can javelin, rangers can snipe, mages can blink, and healers can overcharge.
+/// The active ability range. self is the range in which: workers can replicate, knights can javelin, rangers can snipe, mages can blink, and healers can overcharge.
 /// 
 ///  * InappropriateUnitType - the unit is not a robot.
 uint32_t bc_Unit_ability_range(bc_Unit* self);
-/// Whether the worker has already acted (harveted, blueprinted, built, or repaired) this round.
+/// Whether the worker has already acted (harveted, blueprinted, built, or repaired) self round.
 /// 
 ///  * InappropriateUnitType - the unit is not a worker.
 uint8_t bc_Unit_worker_has_acted(bc_Unit* self);
@@ -416,7 +416,7 @@ uint32_t bc_Unit_ranger_countdown(bc_Unit* self);
 /// 
 ///  * InappropriateUnitType - the unit is not a healer.
 uint32_t bc_Unit_healer_self_heal_amount(bc_Unit* self);
-/// Whether this structure has been built.
+/// Whether self structure has been built.
 /// 
 ///  * InappropriateUnitType - the unit is not a structure.
 uint8_t bc_Unit_structure_is_built(bc_Unit* self);
@@ -437,12 +437,12 @@ uint8_t bc_Unit_is_factory_producing(bc_Unit* self);
 ///  * InappropriateUnitType - the unit is not a factory.
 /// * NullValue - the factory is not producing.
 bc_UnitType bc_Unit_factory_unit_type(bc_Unit* self);
-/// The number of rounds left to produce a robot in this factory.
+/// The number of rounds left to produce a robot in self factory.
 /// 
 ///  * InappropriateUnitType - the unit is not a factory.
 ///  * NullValue - the factory is not producing.
 uint32_t bc_Unit_factory_rounds_left(bc_Unit* self);
-/// The maximum number of rounds left to produce a robot in this factory.
+/// The maximum number of rounds left to produce a robot in self factory.
 /// 
 ///  * InappropriateUnitType - the unit is not a factory.
 uint32_t bc_Unit_factory_max_rounds_left(bc_Unit* self);
@@ -472,25 +472,25 @@ bc_VecUnit* bc_VecUnit_clone(bc_VecUnit* self);
 uintptr_t bc_VecUnit_len(bc_VecUnit* self);
 /// Copy an element out of the vector.
 bc_Unit* bc_VecUnit_index(bc_VecUnit* self, uintptr_t index);
-/// The map for one of the planets in the Battlecode world. This information defines the terrain, dimensions, and initial units of the planet.
+/// The map for one of the planets in the Battlecode world. self information defines the terrain, dimensions, and initial units of the planet.
 typedef struct bc_PlanetMap bc_PlanetMap;
-/// The map for one of the planets in the Battlecode world. This information defines the terrain, dimensions, and initial units of the planet.
+/// The map for one of the planets in the Battlecode world. self information defines the terrain, dimensions, and initial units of the planet.
 bc_PlanetMap* new_bc_PlanetMap();
 /// 
 void delete_bc_PlanetMap(bc_PlanetMap* self);
 /// The planet of the map.
 bc_Planet bc_PlanetMap_planet_get(bc_PlanetMap* self);
-/// The height of this map, in squares. Must be in the range [MAP_HEIGHT_MIN, MAP_HEIGHT_MAX], inclusive.
+/// The height of self map, in squares. Must be in the range [MAP_HEIGHT_MIN, MAP_HEIGHT_MAX], inclusive.
 uintptr_t bc_PlanetMap_height_get(bc_PlanetMap* self);
-/// The height of this map, in squares. Must be in the range [MAP_WIDTH_MIN, MAP_WIDTH_MAX], inclusive.
+/// The height of self map, in squares. Must be in the range [MAP_WIDTH_MIN, MAP_WIDTH_MAX], inclusive.
 uintptr_t bc_PlanetMap_width_get(bc_PlanetMap* self);
 /// The initial units on the map. Each team starts with 1 to 3 Workers on Earth.
 bc_VecUnit* bc_PlanetMap_initial_units_get(bc_PlanetMap* self);
 /// The planet of the map.
 void bc_PlanetMap_planet_set(bc_PlanetMap* self, bc_Planet planet);
-/// The height of this map, in squares. Must be in the range [MAP_HEIGHT_MIN, MAP_HEIGHT_MAX], inclusive.
+/// The height of self map, in squares. Must be in the range [MAP_HEIGHT_MIN, MAP_HEIGHT_MAX], inclusive.
 void bc_PlanetMap_height_set(bc_PlanetMap* self, uintptr_t height);
-/// The height of this map, in squares. Must be in the range [MAP_WIDTH_MIN, MAP_WIDTH_MAX], inclusive.
+/// The height of self map, in squares. Must be in the range [MAP_WIDTH_MIN, MAP_WIDTH_MAX], inclusive.
 void bc_PlanetMap_width_set(bc_PlanetMap* self, uintptr_t width);
 /// The initial units on the map. Each team starts with 1 to 3 Workers on Earth.
 void bc_PlanetMap_initial_units_set(bc_PlanetMap* self, bc_VecUnit* initial_units);
@@ -552,7 +552,11 @@ bc_StartTurnMessage* new_bc_StartTurnMessage();
 /// 
 void delete_bc_StartTurnMessage(bc_StartTurnMessage* self);
 /// 
+int32_t bc_StartTurnMessage_time_left_ms_get(bc_StartTurnMessage* self);
+/// 
 uint32_t bc_StartTurnMessage_round_get(bc_StartTurnMessage* self);
+/// 
+void bc_StartTurnMessage_time_left_ms_set(bc_StartTurnMessage* self, int32_t time_left_ms);
 /// 
 void bc_StartTurnMessage_round_set(bc_StartTurnMessage* self, uint32_t round);
 /// Deserialize a StartTurnMessage from a JSON string
@@ -595,6 +599,38 @@ bc_ErrorMessage* bc_ErrorMessage_from_json(char* s);
 char* bc_ErrorMessage_to_json(bc_ErrorMessage* self);
 /// Create a human-readable representation of a ErrorMessage
 char* bc_ErrorMessage_debug(bc_ErrorMessage* self);
+/// 
+typedef struct bc_ReceivedMessaTurnMessage bc_ReceivedMessaTurnMessage;
+/// 
+bc_ReceivedMessaTurnMessage* new_bc_ReceivedMessaTurnMessage();
+/// 
+void delete_bc_ReceivedMessaTurnMessage(bc_ReceivedMessaTurnMessage* self);
+/// Deserialize a ReceivedMessaTurnMessage from a JSON string
+bc_ReceivedMessaTurnMessage* bc_ReceivedMessaTurnMessage_from_json(char* s);
+/// Serialize a ReceivedMessaTurnMessage to a JSON string
+char* bc_ReceivedMessaTurnMessage_to_json(bc_ReceivedMessaTurnMessage* self);
+/// Create a human-readable representation of a ReceivedMessaTurnMessage
+char* bc_ReceivedMessaTurnMessage_debug(bc_ReceivedMessaTurnMessage* self);
+/// 
+typedef struct bc_SentMessage bc_SentMessage;
+/// 
+bc_SentMessage* new_bc_SentMessage();
+/// 
+void delete_bc_SentMessage(bc_SentMessage* self);
+/// 
+char* bc_SentMessage_client_id_get(bc_SentMessage* self);
+/// 
+bc_TurnMessage* bc_SentMessage_turn_message_get(bc_SentMessage* self);
+/// 
+void bc_SentMessage_client_id_set(bc_SentMessage* self, char* client_id);
+/// 
+void bc_SentMessage_turn_message_set(bc_SentMessage* self, bc_TurnMessage* turn_message);
+/// Deserialize a SentMessage from a JSON string
+bc_SentMessage* bc_SentMessage_from_json(char* s);
+/// Serialize a SentMessage to a JSON string
+char* bc_SentMessage_to_json(bc_SentMessage* self);
+/// Create a human-readable representation of a SentMessage
+char* bc_SentMessage_debug(bc_SentMessage* self);
 /// 
 typedef struct bc_TurnApplication bc_TurnApplication;
 /// 
@@ -661,7 +697,7 @@ void bc_AsteroidPattern_validate(bc_AsteroidPattern* self);
 uint8_t bc_AsteroidPattern_has_asteroid(bc_AsteroidPattern* self, uint32_t round);
 /// Get the asteroid strike at the given round.
 /// 
-///  * NullValue - There is no asteroid strike at this round.
+///  * NullValue - There is no asteroid strike at self round.
 bc_AsteroidStrike* bc_AsteroidPattern_asteroid(bc_AsteroidPattern* self, uint32_t round);
 /// Deep-copy a AsteroidPattern
 bc_AsteroidPattern* bc_AsteroidPattern_clone(bc_AsteroidPattern* self);
@@ -671,9 +707,9 @@ char* bc_AsteroidPattern_debug(bc_AsteroidPattern* self);
 bc_AsteroidPattern* bc_AsteroidPattern_from_json(char* s);
 /// Serialize a AsteroidPattern to a JSON string
 char* bc_AsteroidPattern_to_json(bc_AsteroidPattern* self);
-/// The orbit pattern that determines a rocket's flight duration. This pattern is a sinusoidal function y=a*sin(bx)+c.
+/// The orbit pattern that determines a rocket's flight duration. self pattern is a sinusoidal function y=a*sin(bx)+c.
 typedef struct bc_OrbitPattern bc_OrbitPattern;
-/// Construct a new orbit pattern. This pattern is a sinusoidal function y=a*sin(bx)+c, where the x-axis is the round number of takeoff and the the y-axis is the duration of flight to the nearest integer.
+/// Construct a new orbit pattern. self pattern is a sinusoidal function y=a*sin(bx)+c, where the x-axis is the round number of takeoff and the the y-axis is the duration of flight to the nearest integer.
 /// 
 /// The amplitude, period, and center are measured in rounds.
 bc_OrbitPattern* new_bc_OrbitPattern(uint32_t amplitude, uint32_t period, uint32_t center);
@@ -733,6 +769,8 @@ void bc_GameMap_orbit_set(bc_GameMap* self, bc_OrbitPattern* orbit);
 void bc_GameMap_validate(bc_GameMap* self);
 /// 
 bc_GameMap* bc_GameMap_test_map();
+/// parse a .bc18t map file
+bc_GameMap* bc_GameMap_parse_text_map(char* map);
 /// Deep-copy a GameMap
 bc_GameMap* bc_GameMap_clone(bc_GameMap* self);
 /// Deserialize a GameMap from a JSON string
@@ -811,7 +849,7 @@ typedef struct bc_RocketLandingInfo bc_RocketLandingInfo;
 bc_RocketLandingInfo* new_bc_RocketLandingInfo();
 /// 
 void delete_bc_RocketLandingInfo(bc_RocketLandingInfo* self);
-/// Get the rocket landings on this round.
+/// Get the rocket landings on self round.
 bc_VecRocketLanding* bc_RocketLandingInfo_landings_on(bc_RocketLandingInfo* self, uint32_t round);
 /// Deep-copy a RocketLandingInfo
 bc_RocketLandingInfo* bc_RocketLandingInfo_clone(bc_RocketLandingInfo* self);
@@ -831,6 +869,8 @@ bc_GameController* new_bc_GameController();
 void delete_bc_GameController(bc_GameController* self);
 /// Send the moves from the current turn and wait for the next turn.
 void bc_GameController_next_turn(bc_GameController* self);
+/// Get the time left at the start of self player's turn, in milliseconds.
+int32_t bc_GameController_get_time_left_ms(bc_GameController* self);
 /// The current round, starting at round 1 and up to ROUND_LIMIT rounds. A round consists of a turn from each team on each planet.
 uint32_t bc_GameController_round(bc_GameController* self);
 /// The current planet.
@@ -841,7 +881,7 @@ bc_Team bc_GameController_team(bc_GameController* self);
 bc_PlanetMap* bc_GameController_starting_map(bc_GameController* self, bc_Planet planet);
 /// The karbonite in the team's resource pool.
 uint32_t bc_GameController_karbonite(bc_GameController* self);
-/// The single unit with this ID. Use this method to get detailed statistics on a unit - heat, cooldowns, and properties of special abilities like units garrisoned in a rocket.
+/// The single unit with self ID. Use self method to get detailed statistics on a unit - heat, cooldowns, and properties of special abilities like units garrisoned in a rocket.
 /// 
 /// * NoSuchUnit - the unit does not exist (inside the vision range).
 bc_Unit* bc_GameController_unit(bc_GameController* self, uint16_t id);
@@ -849,20 +889,20 @@ bc_Unit* bc_GameController_unit(bc_GameController* self, uint16_t id);
 bc_VecUnit* bc_GameController_units(bc_GameController* self);
 /// All the units on your team. Does not include units in space.
 bc_VecUnit* bc_GameController_my_units(bc_GameController* self);
-/// All the units of this team that are in space. You cannot see units on the other team that are in space.
+/// All the units of self team that are in space. You cannot see units on the other team that are in space.
 bc_VecUnit* bc_GameController_units_in_space(bc_GameController* self);
 /// The karbonite at the given location.
 /// 
 /// * LocationOffMap - the location is off the map.
 /// * LocationNotVisible - the location is outside the vision range.
 uint32_t bc_GameController_karbonite_at(bc_GameController* self, bc_MapLocation* location);
-/// Returns an array of all locations within a certain radius squared of this location that are on the map.
+/// Returns an array of all locations within a certain radius squared of self location that are on the map.
 /// 
 /// The locations are ordered first by the x-coordinate, then the y-coordinate. The radius squared is inclusive.
 bc_VecMapLocation* bc_GameController_all_locations_within(bc_GameController* self, bc_MapLocation* location, uint32_t radius_squared);
 /// Whether the location is on the map and within the vision range.
 uint8_t bc_GameController_can_sense_location(bc_GameController* self, bc_MapLocation* location);
-/// Whether there is a unit with this ID within the vision range.
+/// Whether there is a unit with self ID within the vision range.
 uint8_t bc_GameController_can_sense_unit(bc_GameController* self, uint16_t id);
 /// Sense units near the location within the given radius, inclusive, in distance squared. The units are within the vision range.
 bc_VecUnit* bc_GameController_sense_nearby_units(bc_GameController* self, bc_MapLocation* location, uint32_t radius);
@@ -881,11 +921,11 @@ bc_Unit* bc_GameController_sense_unit_at_location(bc_GameController* self, bc_Ma
 bc_AsteroidPattern* bc_GameController_asteroid_pattern(bc_GameController* self);
 /// The orbit pattern that determines a rocket's flight duration.
 bc_OrbitPattern* bc_GameController_orbit_pattern(bc_GameController* self);
-/// The current duration of flight if a rocket were to be launched this round. Does not take into account any research done on rockets.
+/// The current duration of flight if a rocket were to be launched self round. Does not take into account any research done on rockets.
 uint32_t bc_GameController_current_duration_of_flight(bc_GameController* self);
-/// Gets a read-only version of this planet's team array. If the given planet is different from the planet of the player, reads the version of the planet's team array from COMMUNICATION_DELAY rounds prior.
+/// Gets a read-only version of self planet's team array. If the given planet is different from the planet of the player, reads the version of the planet's team array from COMMUNICATION_DELAY rounds prior.
 bc_Veci32* bc_GameController_get_team_array(bc_GameController* self, bc_Planet planet);
-/// Writes the value at the index of this planet's team array.
+/// Writes the value at the index of self planet's team array.
 /// 
 /// * ArrayOutOfBounds - the index of the array is out of bounds. It must be within [0, COMMUNICATION_ARRAY_LENGTH).
 void bc_GameController_write_team_array(bc_GameController* self, uintptr_t index, int32_t value);
@@ -940,27 +980,27 @@ uint8_t bc_GameController_reset_research(bc_GameController* self);
 /// 
 /// Returns whether the branch was successfully added.
 uint8_t bc_GameController_queue_research(bc_GameController* self, bc_UnitType branch);
-/// Whether the worker is ready to harvest, and the given direction contains karbonite to harvest. The worker cannot already have performed an action this round.
+/// Whether the worker is ready to harvest, and the given direction contains karbonite to harvest. The worker cannot already have performed an action self round.
 uint8_t bc_GameController_can_harvest(bc_GameController* self, uint16_t worker_id, bc_Direction direction);
 /// Harvests up to the worker's harvest amount of karbonite from the given location, adding it to the team's resource pool.
 /// 
 /// * NoSuchUnit - the worker does not exist (within the vision range).
 /// * TeamNotAllowed - the worker is not on the current player's team.
 /// * InappropriateUnitType - the unit is not a worker.
-/// * Overheated - the worker has already performed an action this turn.
+/// * Overheated - the worker has already performed an action self turn.
 /// * UnitNotOnMap - the worker is not on the map.
 /// * LocationOffMap - the location in the target direction is off the map.
 /// * LocationNotVisible - the location is not in the vision range.
 /// * KarboniteDepositEmpty - the location described contains no Karbonite.
 void bc_GameController_harvest(bc_GameController* self, uint16_t worker_id, bc_Direction direction);
-/// Whether the worker can blueprint a unit of the given type. The worker can only blueprint factories, and rockets if Rocketry has been researched. The team must have sufficient karbonite in its resource pool. The worker cannot already have performed an action this round.
+/// Whether the worker can blueprint a unit of the given type. The worker can only blueprint factories, and rockets if Rocketry has been researched. The team must have sufficient karbonite in its resource pool. The worker cannot already have performed an action self round.
 uint8_t bc_GameController_can_blueprint(bc_GameController* self, uint16_t worker_id, bc_UnitType unit_type, bc_Direction direction);
 /// Blueprints a unit of the given type in the given direction. Subtract cost of that unit from the team's resource pool.
 /// 
 /// * NoSuchUnit - the worker does not exist (within the vision range).
 /// * TeamNotAllowed - the worker is not on the current player's team.
 /// * InappropriateUnitType - the unit is not a worker, or the unit type is not a structure.
-/// * Overheated - the worker has already performed an action this turn.
+/// * Overheated - the worker has already performed an action self turn.
 /// * UnitNotOnMap - the unit is not on the map.
 /// * LocationOffMap - the location in the target direction is off the map.
 /// * LocationNotVisible - the location is outside the vision range.
@@ -969,7 +1009,7 @@ uint8_t bc_GameController_can_blueprint(bc_GameController* self, uint16_t worker
 /// * ResearchNotUnlocked - you do not have the needed research to blueprint rockets.
 /// * InsufficientKarbonite - your team does not have enough Karbonite to build the requested structure.
 void bc_GameController_blueprint(bc_GameController* self, uint16_t worker_id, bc_UnitType structure_type, bc_Direction direction);
-/// Whether the worker can build a blueprint with the given ID. The worker and the blueprint must be adjacent to each other. The worker cannot already have performed an action this round.
+/// Whether the worker can build a blueprint with the given ID. The worker and the blueprint must be adjacent to each other. The worker cannot already have performed an action self round.
 uint8_t bc_GameController_can_build(bc_GameController* self, uint16_t worker_id, uint16_t blueprint_id);
 /// Builds a given blueprint, increasing its health by the worker's build amount. If raised to maximum health, the blueprint becomes a completed structure.
 /// 
@@ -977,19 +1017,19 @@ uint8_t bc_GameController_can_build(bc_GameController* self, uint16_t worker_id,
 /// * TeamNotAllowed - either unit is not on the current player's team.
 /// * UnitNotOnMap - the worker is not on the map.
 /// * InappropriateUnitType - the unit is not a worker, or the blueprint is not a structure.
-/// * Overheated - the worker has already performed an action this turn.
+/// * Overheated - the worker has already performed an action self turn.
 /// * OutOfRange - the worker is not adjacent to the blueprint.
 /// * StructureAlreadyBuilt - the blueprint has already been completed.
 void bc_GameController_build(bc_GameController* self, uint16_t worker_id, uint16_t blueprint_id);
 /// Whether the given worker can repair the given strucutre. Tests that the worker is able to execute a worker action, that the structure is built, and that the structure is within range.
 uint8_t bc_GameController_can_repair(bc_GameController* self, uint16_t worker_id, uint16_t structure_id);
-/// Commands the worker to repair a structure, repleneshing health to it. This can only be done to structures which have been fully built.
+/// Commands the worker to repair a structure, repleneshing health to it. self can only be done to structures which have been fully built.
 /// 
 /// * NoSuchUnit - either unit does not exist (within the vision range).
 /// * TeamNotAllowed - either unit is not on the current player's team.
 /// * UnitNotOnMap - the worker is not on the map.
 /// * InappropriateUnitType - the unit is not a worker, or the target is not a structure.
-/// * Overheated - the worker has already performed an action this turn.
+/// * Overheated - the worker has already performed an action self turn.
 /// * OutOfRange - the worker is not adjacent to the structure.
 /// * StructureNotYetBuilt - the structure has not been completed.
 void bc_GameController_repair(bc_GameController* self, uint16_t worker_id, uint16_t structure_id);
@@ -1046,7 +1086,7 @@ uint8_t bc_GameController_is_blink_ready(bc_GameController* self, uint16_t mage_
 /// * InappropriateUnitType - the unit is not a mage.
 /// * ResearchNotUnlocked - you do not have the needed research to use blink.
 /// * OutOfRange - the target does not lie within ability range of the mage.
-/// * LocationOffMap - the target location is not on this planet's map.
+/// * LocationOffMap - the target location is not on self planet's map.
 /// * LocationNotVisible - the target location is outside the vision range.
 /// * LocationNotEmpty - the target location is already occupied.
 /// * Overheated - the mage is not ready to use blink again.
@@ -1136,13 +1176,19 @@ bc_GameController* bc_GameController_new_manager(bc_GameMap* map);
 /// 
 bc_StartGameMessage* bc_GameController_start_game(bc_GameController* self, bc_Player* player);
 /// 
-bc_TurnApplication* bc_GameController_apply_turn(bc_GameController* self, bc_TurnMessage* turn);
+bc_TurnApplication* bc_GameController_apply_turn(bc_GameController* self, bc_TurnMessage* turn, int32_t time_left_ms);
 /// 
-bc_InitialTurnApplication* bc_GameController_initial_start_turn_message(bc_GameController* self);
+bc_InitialTurnApplication* bc_GameController_initial_start_turn_message(bc_GameController* self, int32_t time_left_ms);
 /// 
 uint8_t bc_GameController_is_over(bc_GameController* self);
 /// 
 bc_Team bc_GameController_winning_team(bc_GameController* self);
+/// 
+char* bc_GameController_manager_viewer_message(bc_GameController* self);
+/// 
+void bc_GameController_print_game_ansi(bc_GameController* self);
+/// 
+uint32_t bc_GameController_manager_karbonite(bc_GameController* self, bc_Team team);
 #ifdef __cplusplus
 }
 #endif

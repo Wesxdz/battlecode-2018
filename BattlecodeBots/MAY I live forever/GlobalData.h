@@ -27,6 +27,7 @@
 class GlobalData
 {
 public:
+// Static Variables. Should only be created once
 	GameController gc;
 	GameMap gameMap;
 
@@ -36,12 +37,14 @@ public:
 	RocketLandingInfo rocketLandingInfo;
 	TeamArray teamArray;
 
+// Variables that will be updated every frame
 	std::vector<units::Unit> currEnemys;
 
 	std::vector<units::Knight> currEnemyKnights;
 	std::vector<units::Ranger> currEnemyRangers;
 	std::vector<units::Mage> currEnemyMages;
 	std::vector<units::Healer> currEnemyHealers;
+	std::vector<units::Unit> currEnemyOthers;
 
 	std::vector<units::Unit> currUnits;
 	static std::vector<units::Robot> currRobots;
@@ -57,6 +60,7 @@ public:
 	std::vector<units::Factory> unBuiltFactorys;
 	std::vector<units::Rocket> unBuiltRockets;
 
+// Initia; variables set when the game begins
 	std::vector<MapLocation> passableEarthTerrain;
 	std::vector<MapLocation> passableMarsTerrain;
 
@@ -70,8 +74,19 @@ public:
 	MapLocation* enemySpawns;
 	int enemySpawnAmo;
 
-	PlanetMap* thisPlanetMap = gameMap.OurPlanet();
-	bc_Team thisTeam = gc.Team();
+// Useful variables
+	PlanetMap* thisPlanetMap;
+	bc_Team thisTeam;
+	int currKarbonite;
+	int currRound;
+
+	static GlobalData* data;
+public:
+	GlobalData();
+	~GlobalData();
+
+	void Init();
+	void Update();
 };
 
 #endif
