@@ -17,8 +17,11 @@ namespace units {
 	public:
 		// Use bc_Unit_clone if you don't want your #unit to be deleted
 		Unit(bc_Unit* unit);
+		Unit();
 		Unit(const Unit& other);
 		~Unit();
+		bool operator<(const Unit& other) const;
+		bool operator==(const Unit& other) const;
 		/*
 		@return The cost to blueprint or build in factory
 		*/

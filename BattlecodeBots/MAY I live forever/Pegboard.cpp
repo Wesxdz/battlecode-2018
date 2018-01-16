@@ -2,42 +2,76 @@
 
 #include <algorithm>
 #include <iterator>
+#include "Utility.h"
+#include <iostream>
+#include <math.h>
 
-std::map<units::Robot, Force> Pegboard::forces;
-std::vector<units::Robot> Pegboard::pegs;
+#include "GameController.h"
+
+std::map<uint16_t, Force> Pegboard::forces;
+std::vector<uint16_t> Pegboard::pegs;
 std::map<MapLocation, ForceMove> Pegboard::reserved;
-std::vector<units::Robot> Pegboard::hasPushed;
+std::vector<uint16_t> Pegboard::hasPushed;
 
-void Pegboard::ApplyForce(units::Robot& robot, bc_Direction direction, float power)
+void Pegboard::ApplyForce(uint16_t id, bc_Direction direction, float power)
 {
-	forces[robot] += Force(bc_Direction_dx(direction) * power, bc_Direction_dy(direction) * power);
+	Force f{ (float)bc_Direction_dx(direction) * power, (float)bc_Direction_dy(direction) * power};
+	//std::cout << "Create force " << f.x << ", " << f.y << "\n";
+	auto alreadyForce = forces.find(id);
+	if (alreadyForce != forces.end()) {
+		//std::cout << "Already has force!\n";
+		Force f2 = f + forces[id];
+		forces[id] = f2;
+	}
+	else {
+		forces[id] = f;
+	}
+	//std::cout << "Updated force " << forces[id].x << ", " << forces[id].y << "\n";
+	//units::Robot robot(bc_GameController_unit(GameController::gc, id));
 }
 
 void Pegboard::SolveMovement()
 {
 	// Get all moveable robots on team
-	std::copy_if(std::begin(GlobalData::currRobots), std::end(GlobalData::currRobots), std::back_inserter(pegs), [](units::Robot& robot) {
-		return robot.IsMoveReady() && robot.Loc().IsOnMap();
-	});
+	// TODO Use GlobalData::currRobots
+	auto currRobots = GameController::Wrap<units::Robot>(bc_GameController_my_units(GameController::gc));
+	for (auto& robot : currRobots) {
+		if (Utility::IsRobot(robot.type) && robot.IsMoveReady() && robot.Loc().IsOnMap()) {
+			pegs.push_back(robot.id);
+		}
+	}
+	bool actionTaken = false;
 	do {
+		actionTaken = false;
 		// Execute reserved movements
-		for (auto& pair : reserved) {
-			MapLocation moveTo = pair.first;
-			bc_Direction moveDir = pair.second.source.Loc().ToMapLocation().DirectionTo(moveTo);
-			if (pair.second.source.CanMove(moveDir)) {
-				pair.second.source.Move(moveDir);
-				std::remove(pegs.begin(), pegs.end(), pair.second.source);
-				std::remove(forces.begin(), forces.end(), pair.second.source);
+		for (auto& move : reserved) {
+			uint16_t id = move.second.source;
+			MapLocation moveTo = move.first;
+			units::Robot moving{ bc_GameController_unit(GameController::gc, id) };
+			CHECK_ERRORS()
+			bc_Direction moveDir = moving.Loc().ToMapLocation().DirectionTo(moveTo);
+			if (moving.CanMove(moveDir)) {
+				//std::cout << "Moving with force " << move.second.force.x << ", " << move.second.force.y << "\n";
+				moving.Move(moveDir);
+				pegs.erase(std::remove(pegs.begin(), pegs.end(), id)); // The robot being moved MUST be a peg
+				forces.erase(forces.find(id));
 			}
 		}
 		reserved.clear();
 		for (auto& pair : forces) {
-			units::Robot robot = pair.first;
+			units::Robot robot{ bc_GameController_unit(GameController::gc, pair.first) };
+			CHECK_ERRORS()
+			//std::cout << "Considering Force " << pair.second.x << ", " << pair.second.y << "\n";
 			Force force = pair.second;
-			ForceMove move = { robot, force };
-			CalculateMovement(move);
+			ForceMove move = { robot.id, force };
+			CHECK_ERRORS()
+			//std::cout << "Considering ForceMove " << move.force.x << ", " << move.force.y << "\n";
+			if (CalculateMovement(move)) {
+				CHECK_ERRORS()
+				actionTaken = true;
+			}
 		}
-	} while (reserved.size() > 0);
+	} while (actionTaken);
 	forces.clear();
 	pegs.clear();
 	hasPushed.clear();
@@ -45,85 +79,106 @@ void Pegboard::SolveMovement()
 
 bool Pegboard::CalculateMovement(ForceMove& move)
 {
+	units::Robot moving{ bc_GameController_unit(GameController::gc, move.source) };
+	CHECK_ERRORS()
 	// First check the three directions around the ideal movement
 	// If the unit can move there, reserve the move (it might be overriden by another move though)
-	MapLocation location = move.source.Loc().ToMapLocation();
+	MapLocation location = moving.Loc().ToMapLocation();
+	CHECK_ERRORS()
 	bc_Direction ideal = move.force.Direction();
 	MapLocation idealLocation = MapLocation::Neighbor(location, ideal);
-	if (move.source.CanMove(ideal)) {
-		auto reservation = std::find(reserved.begin(), reserved.end(), idealLocation);
-		if (reservation == reserved.end() || reservation->second.force.Power() < move.force.Power()) {
+	//std::cout << (bool)idealLocation.IsValid() << "is ideal location valid\n";
+	bc_Direction right1 = bc_Direction_rotate_right(ideal);
+	MapLocation right1Location = MapLocation::Neighbor(location, right1);
+	bc_Direction left1 = bc_Direction_rotate_left(ideal);
+	MapLocation left1Location = MapLocation::Neighbor(location, left1);
+	 // None of those three locations were available for moves :(
+	 // Let's see if there are units in them and we can push them out of the way in our idealDirection
+	CHECK_ERRORS()
+	// We don't want to try to push a peg out of the way if we've already done so!
+	auto test = std::find(hasPushed.begin(), hasPushed.end(), moving.id);
+	if (test == hasPushed.end()) {
+		if (idealLocation.IsValid() && idealLocation.IsOccupied()) {
+			std::cout << "OCCUPIED\n";
+			units::Unit occupant{ idealLocation.Occupant() };
+			auto peg = std::find(pegs.begin(), pegs.end(), occupant.id);
+			if (peg != pegs.end()) {
+				std::cout << "TRYING TO PUSH\n";
+				hasPushed.push_back(moving.id);
+				forces[*peg] = forces[*peg] + move.force; // AHA, let's add our force to this guy
+				return true;
+			}
+		}
+		else if (right1Location.IsValid() && right1Location.IsOccupied()) {
+			bc_Unit* occupant = right1Location.Occupant();
+			auto peg = std::find(pegs.begin(), pegs.end(), bc_Unit_id(occupant));
+			if (peg != pegs.end()) {
+				hasPushed.push_back(moving.id);
+				Force pushForce = forces[*peg] + move.force;
+				return true;
+
+			}
+		}
+		else if (left1Location.IsValid() && left1Location.IsOccupied()) {
+			bc_Unit* occupant = left1Location.Occupant();
+			auto peg = std::find(pegs.begin(), pegs.end(), bc_Unit_id(occupant));
+			delete_bc_Unit(occupant);
+			if (peg != pegs.end()) {
+				hasPushed.push_back(moving.id);
+				forces[*peg] = forces[*peg] + move.force; 
+				return true;
+
+			}
+		}
+	}
+	CHECK_ERRORS()
+	if (moving.CanMove(ideal)) {
+		auto reservation = reserved.find(bc_MapLocation_clone(idealLocation.self));
+		if (reservation == reserved.end()) {
 			reserved[idealLocation] = move;
 			return true;
 		}
 	}
-	bc_Direction right1 = bc_Direction_rotate_right(ideal);
-	MapLocation right1Location = MapLocation::Neighbor(location, right1);
-	if (move.source.CanMove(right1)) {
-		auto reservation = std::find(reserved.begin(), reserved.end(), right1Location);
-		if (reservation == reserved.end() || reservation->second.force.Power() < move.force.Power()) {
-			reserved[right1Location] = move;
-			return true;
-		}
-	}
-	bc_Direction left1 = bc_Direction_rotate_left(ideal);
-	MapLocation left1Location = MapLocation::Neighbor(location, left1);
-	if (move.source.CanMove(left1)) {
-		auto reservation = std::find(reserved.begin(), reserved.end(), left1Location);
-		if (reservation == reserved.end() || reservation->second.force.Power() < move.force.Power()) {
-			reserved[left1Location] = move;
-			return true;
-		}
-	}
-	// None of those three locations were available for moves :(
-	// Let's see if there are units in them and we can push them out of the way in our idealDirection
+	CHECK_ERRORS()
+	//if (moving.CanMove(left1)) {
+	//	auto reservation = reserved.find(bc_MapLocation_clone(left1Location.self));
+	//	if (reservation == reserved.end()) {
+	//		reserved[left1Location] = move;
+	//		return true;
+	//	}
+	//}
+	//if (moving.CanMove(right1)) {
+	//	auto reservation = reserved.find(bc_MapLocation_clone(right1Location.self));
+	//	if (reservation == reserved.end()) {
+	//		reserved[right1Location] = move;
+	//		return true;
+	//	}
+	//}
+	//CHECK_ERRORS()
 
-	auto tired = std::find(hasPushed.begin(), hasPushed.end(), move.source);
-	// We don't want to try to push a peg out of the way if we've already done so!
-	if (tired != hasPushed.end()) {
+	//// Oh dear, we have nothing to do!
+	//// We're probably trying to move into a bunch of impassable terrain or enemy units
+	//// Maybe we can move to the side?
+	//bc_Direction right2 = bc_Direction_rotate_right(right1);
+	//MapLocation right2Location = MapLocation::Neighbor(location, right2);
+	//if (moving.CanMove(right2)) {
+	//	auto reservation = reserved.find(bc_MapLocation_clone(right2Location.self));
+	//	if (reservation == reserved.end()) {
+	//		reserved[right2Location] = move;
+	//		return true;
+	//	}
+	//}
 
-		bc_Unit* occupant;
-		if (idealLocation.IsValid() && idealLocation.IsOccupied()) {
-			occupant = idealLocation.Occupant();
-		}
-		else if (right1Location.IsValid() && right1Location.IsOccupied()) {
-			occupant = right1Location.Occupant();
-		}
-		else if (left1Location.IsValid() && left1Location.IsOccupied()) {
-			occupant = left1Location.Occupant();
-		}
-		auto peg = std::find(pegs.begin(), pegs.end(), units::Robot(bc_Unit_clone(occupant)));
-		delete_bc_Unit(occupant);
-		if (peg != pegs.end()) {
-			hasPushed.push_back(move.source);
-			forces[*peg] += move.force; // AHA, let's add our force to this guy
-			return true;
-		}
-	}
-
-	// Oh dear, we have nothing to do!
-	// We're probably trying to move into a bunch of impassable terrain or enemy units
-	// Maybe we can move to the side?
-	bc_Direction right2 = bc_Direction_rotate_right(right1);
-	MapLocation right2Location = MapLocation::Neighbor(location, right2);
-	if (move.source.CanMove(right2)) {
-		auto reservation = std::find(reserved.begin(), reserved.end(), right2Location);
-		if (reservation == reserved.end() || reservation->second.force.Power() < move.force.Power()) {
-			reserved[right2Location] = move;
-			return true;
-		}
-	}
-
-	bc_Direction left2 = bc_Direction_rotate_left(left1);
-	MapLocation left2Location = MapLocation::Neighbor(location, left2);
-	if (move.source.CanMove(left2)) {
-		auto reservation = std::find(reserved.begin(), reserved.end(), left2Location);
-		if (reservation == reserved.end() || reservation->second.force.Power() < move.force.Power()) {
-			reserved[left2Location] = move;
-			return true;
-		}
-	}
-
+	//bc_Direction left2 = bc_Direction_rotate_left(left1);
+	//MapLocation left2Location = MapLocation::Neighbor(location, left2);
+	//if (moving.CanMove(left2)) {
+	//	auto reservation = reserved.find(bc_MapLocation_clone(left2Location.self));
+	//	if (reservation == reserved.end()) {
+	//		reserved[left2Location] = move;
+	//		return true;
+	//	}
+	//}
+	return false;
 }
 
 Force::Force()
@@ -140,7 +195,7 @@ Force::~Force()
 {
 }
 
-Force Force::operator+=(const Force & other)
+Force Force::operator+(const Force& other)
 {
 	return Force(x + other.x, y + other.y);
 }
@@ -148,11 +203,22 @@ Force Force::operator+=(const Force & other)
 bc_Direction Force::Direction()
 {
 	MapLocation origin{ new_bc_MapLocation(Earth, 0, 0) };
-	MapLocation end{ new_bc_MapLocation(Earth, static_cast<uint32_t>(x), static_cast<uint32_t>(y)) };
+	MapLocation end{ new_bc_MapLocation(Earth, static_cast<int32_t>(std::round(x)), static_cast<int32_t>(std::round(y))) };
+	CHECK_ERRORS()
 	return origin.DirectionTo(end);
 }
 
 float Force::Power()
 {
 	return x + y;
+}
+
+ForceMove::ForceMove()
+{
+}
+
+ForceMove::ForceMove(uint16_t id, Force & pForce)
+{
+	source = id;
+	force = pForce;
 }

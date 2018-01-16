@@ -1,5 +1,6 @@
 #include "AttackCoordinator.h"
 
+#include <algorithm>
 #include "MapLocation.h"
 #include "Constants.h"
 #include "Knight.h"
@@ -15,7 +16,7 @@ std::map<bc_UnitType, float> AttackCoordinator::multipliers = {
 
 void AttackCoordinator::Consider(units::Robot& fighter)
 {
-	//if (std::find(constants::types_fighters.begin(), constants::types_fighters.end(), fighter.type) == constants::types_fighters.end()) return;
+	if (std::find(constants::types_fighters.begin(), constants::types_fighters.end(), fighter.type) == constants::types_fighters.end()) return;
 	std::vector<units::Unit> targets = fighter.Loc().ToMapLocation().NearbyUnits(fighter.AttackRange(), Utility::GetOtherTeam(fighter.Team()));
 	if (fighter.type == Mage) {
 		for (units::Unit& enemy : targets) {

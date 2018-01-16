@@ -46,7 +46,7 @@ uintptr_t PlanetMap::Height()
 
 uint8_t PlanetMap::IsOnMap(MapLocation& location)
 {
-	return bc_PlanetMap_on_map(self, location.self);
+	 return location.X() >= 0 && location.X() < Width() && location.Y() >= 0 && location.Y() < Height();
 }
 
 uint8_t PlanetMap::IsPassableTerrain(MapLocation& location)

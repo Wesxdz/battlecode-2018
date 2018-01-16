@@ -8,6 +8,7 @@ namespace units {
 	class Robot : public Unit
 	{
 	public:
+		Robot();
 		Robot(bc_Unit* unit);
 		~Robot();
 		virtual uint32_t Cost() override;
