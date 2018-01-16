@@ -158,6 +158,8 @@ int main()
 	std::cout << "Here4" << std::endl;
 	//AStar aStar = AStar();
 	//bool pathed = false;
+	AStar aStar = AStar();
+	bool pathed = false;
 
 	if (GameController::Planet() == Mars)
 	{
