@@ -76,6 +76,7 @@
       <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Worker.cpp">
+<<<<<<< Updated upstream
       <Filter>Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="Science.cpp">
@@ -83,11 +84,21 @@
     </ClCompile>
     <ClCompile Include="Section.cpp">
       <Filter>Util</Filter>
+=======
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>AStar Pathing</Filter>
+    </ClCompile>
+    <ClCompile Include="AStar.cpp">
+      <Filter>AStar Pathing</Filter>
+>>>>>>> Stashed changes
     </ClCompile>
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="AStar.cpp" />
     <ClCompile Include="AttackCoordinator.cpp" />
     <ClCompile Include="Node.cpp" />
+<<<<<<< Updated upstream
     <ClCompile Include="RocketLandingInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -110,6 +121,15 @@
       <Filter>Controller</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+=======
+    <ClCompile Include="BuilderOverlord.cpp" />
+    <ClCompile Include="TestMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -191,6 +211,7 @@
     <ClInclude Include="AStar.h" />
     <ClInclude Include="AttackCoordinator.h" />
     <ClInclude Include="Node.h" />
+<<<<<<< Updated upstream
     <ClInclude Include="RocketLanding.h">
     <ClInclude Include="bc.h" />
     <ClInclude Include="GlobalData.h">
@@ -214,6 +235,10 @@
     <ClInclude Include="Pegboard.h">
       <Filter>Controller</Filter>
     <ClInclude Include="RocketLandingInfo.h">
+=======
+    <ClInclude Include="BuilderOverlord.h" />
+    <ClInclude Include="PlayerData.h">
+>>>>>>> Stashed changes
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
