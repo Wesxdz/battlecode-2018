@@ -13,9 +13,8 @@ inline std::vector<T> MapLocation::NearbyUnits(uint32_t radius_squared, bc_UnitT
 	return VecUnit::Wrap<T>(bc_GameController_sense_nearby_units_by_type(GameController::gc, self, radius_squared, type));
 }
 
-MapLocation::MapLocation() 
+MapLocation::MapLocation()
 {
-
 }
 
 MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y)
@@ -26,6 +25,14 @@ MapLocation::MapLocation(bc_Planet planet, int32_t x, int32_t y)
 MapLocation::MapLocation(bc_MapLocation* loc)
 {
 	self = loc;
+}
+
+bool MapLocation::operator<(const MapLocation & other) const
+{
+	if (bc_MapLocation_y_get(self) < bc_MapLocation_y_get(other.self)) {
+		return true;
+	}
+	return bc_MapLocation_x_get(self) < bc_MapLocation_x_get(other.self);
 }
 
 MapLocation::MapLocation(const MapLocation& other)
@@ -121,28 +128,18 @@ bc_Unit* MapLocation::Occupant()
 
 uint8_t MapLocation::IsValid()
 {
-	GameMap map;
-	PlanetMap planetMap;
-	if (Planet() == bc_Planet::Earth) {
-		planetMap = map.Earth();;
+	if (Planet() == Earth) {
+		return GameMap::Earth().IsOnMap(*this);
 	}
-	else {
-		planetMap = map.Mars();
-	}
-	return planetMap.IsOnMap(*this);
+	return GameMap::Mars().IsOnMap(*this);
 }
 
 uint8_t MapLocation::IsPassable()
 {
-	GameMap map;
-	PlanetMap planetMap;
-	if (Planet() == bc_Planet::Earth) {
-		planetMap = map.Earth();;
+	if (Planet() == Earth) {
+		return GameMap::earth.IsPassableTerrain(*this);
 	}
-	else {
-		planetMap = map.Mars();
-	}
-	return planetMap.IsPassableTerrain(*this);
+	return GameMap::mars.IsPassableTerrain(*this);
 }
 
 std::vector<units::Unit> MapLocation::NearbyUnits(uint32_t radius_squared)

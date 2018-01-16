@@ -25,6 +25,16 @@ namespace units {
 		delete_bc_Unit(self);
 	}
 
+	bool Unit::operator<(const Unit & other) const
+	{
+		return id < other.id;
+	}
+
+	bool Unit::operator==(const Unit & other) const
+	{
+		return id == other.id;
+	}
+
 	uint32_t Unit::Cost()
 	{
 		log_error(true, "Base unit class has no cost");
