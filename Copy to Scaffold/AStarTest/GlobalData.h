@@ -10,7 +10,6 @@
 #include "OrbitPattern.h"
 #include "AsteroidPattern.h"
 #include "TeamArray.h"
-#include "RocketLandingInfo.h"
 
 #include "Unit.h"
 #include "Worker.h"
@@ -33,7 +32,6 @@ public:
 	Research research;
 	OrbitPattern orbitPattern;
 	AsteroidPattern asteroidPattern;
-	RocketLandingInfo rocketLandingInfo;
 	TeamArray teamArray;
 
 	std::vector<units::Unit> currEnemys;
@@ -44,7 +42,6 @@ public:
 	std::vector<units::Healer> currEnemyHealers;
 
 	std::vector<units::Unit> currUnits;
-	static std::vector<units::Robot> currRobots;
 
 	std::vector<units::Worker> currWorkers;
 	std::vector<units::Knight> currKnights;
