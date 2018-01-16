@@ -1,0 +1,40 @@
+#ifndef RESEARCH_H
+#define RESEARCH_H
+
+#include "bc.h"
+
+class Research
+{
+public:
+	static bc_ResearchInfo* self;
+	int id;
+public:
+	Research();
+	~Research();
+	/*
+	@return Resets the research queue to be empty. Returns true if the queue was not empty before, and false otherwise.
+	*/
+	static uint8_t Reset();
+	/*
+	Adds a branch to the back of the queue, if it is a valid upgrade, and starts research if it is the first in the queue.
+	@return Whether the branch was successfully added.
+	*/
+	static uint8_t Queue(bc_UnitType branch);
+	/*
+	@return Returns the number of rounds left until the upgrade at the front of the research queue is applied.
+	*/
+	static uint32_t RoundsLeft();
+	/*
+	@return The max level of a unit branch
+	*/
+	static uintptr_t MaxLevel(bc_UnitType branch);
+	/*
+	@return The rounds required to research a level of a unit branch
+	*/
+	static uint32_t TimeToResearch(bc_UnitType branch, uintptr_t level);
+
+	static uint32_t GetLevel(bc_UnitType type);
+};
+
+#endif // !RESEARCH_H
+
