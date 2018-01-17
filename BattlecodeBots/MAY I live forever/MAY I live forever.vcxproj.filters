@@ -84,12 +84,8 @@
     <ClCompile Include="Section.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="AStar.cpp" />
-    <ClCompile Include="AttackCoordinator.cpp" />
-    <ClCompile Include="Node.cpp" />
-    <ClCompile Include="RocketLandingInfo.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GlobalData.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="Pathfind.cpp">
       <Filter>Pathfinding</Filter>
@@ -110,6 +106,9 @@
       <Filter>Controller</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="CombatOverlord.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -187,11 +186,6 @@
     <ClInclude Include="Section.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="Utility.h" />
-    <ClInclude Include="AStar.h" />
-    <ClInclude Include="AttackCoordinator.h" />
-    <ClInclude Include="Node.h" />
-    <ClInclude Include="RocketLanding.h">
     <ClInclude Include="bc.h" />
     <ClInclude Include="GlobalData.h">
       <Filter>Util</Filter>
@@ -213,8 +207,9 @@
     </ClInclude>
     <ClInclude Include="Pegboard.h">
       <Filter>Controller</Filter>
-    <ClInclude Include="RocketLandingInfo.h">
-      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CombatOverlord.h">
+      <Filter>Controller</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
