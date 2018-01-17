@@ -137,7 +137,6 @@
     <ClCompile Include="PlanetMap.cpp" />
     <ClCompile Include="PlayerData.cpp" />
     <ClCompile Include="Ranger.cpp" />
-    <ClCompile Include="Research.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="Science.cpp" />
@@ -175,7 +174,6 @@
     <ClInclude Include="PlanetMap.h" />
     <ClInclude Include="PlayerData.h" />
     <ClInclude Include="Ranger.h" />
-    <ClInclude Include="Research.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="Rocket.h" />
     <ClInclude Include="Science.h" />
