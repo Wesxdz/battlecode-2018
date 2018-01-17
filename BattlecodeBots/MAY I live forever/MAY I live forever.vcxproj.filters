@@ -112,6 +112,7 @@
     <ClCompile Include="PlayerData.cpp">
       <Filter>Util</Filter>
     </ClCompile>
+    <ClCompile Include="tempSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">

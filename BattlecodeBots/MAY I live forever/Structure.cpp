@@ -6,6 +6,7 @@
 
 namespace units {
 
+
 	Structure::Structure(bc_Unit* unit) :
 		Unit(unit)
 	{

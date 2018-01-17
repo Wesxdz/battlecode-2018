@@ -1,31 +1,59 @@
 #include "BuilderOverlord.h"
 #include "GameController.h"
-#include "GameController.h"
+#include "Worker.h"
+#include "Unit.h"
+#include "Structure.h"
+#include "Factory.h"
+#include "Rocket.h"
+#include <iostream>
 
 std::array<int, 5> tryRotate = { 0, -1, 1, -2, 2 };
 
 
 void BuilderOverlord::Update(uint32_t round)
 {
+	m_workerCount = 0;
+	m_factoryCount = 0;
+	m_rocketCount = 0;
 	//round specifics and triggers
 	switch (round)
 	{
-	case 0:
+	case 1:
 		m_desiredWorkers = 4;
 		m_desiredFactories = 1;
 		break;
 
 	case 15:
-		m_desiredWorkers = 10;
+		m_desiredWorkers = 8;
 		break;
 
-	case 25:
-		m_desiredFactories = 3;
-		break;
+	
 	}
 
-	bc_VecUnit* units = bc_GameController_my_units(GameController::gc);
-	for (int i = 0; i < m_workerIDs.size(); ++i)
+	std::vector<units::Unit> units = GameController::Units(bc_Selection::MyTeam);
+
+	std::vector<int> workerIndexes;
+	std::vector<int> factoryIndexes;
+	std::vector<int> rocketIndexes;
+
+	for (int i = 0; i < units.size(); i++)
+	{
+		switch (units[i].type)
+		{
+		case bc_UnitType::Worker: workerIndexes.push_back(i); m_workerCount++; break;
+		case bc_UnitType::Factory: factoryIndexes.push_back(i); m_factoryCount++; break;
+		case bc_UnitType::Rocket: rocketIndexes.push_back(i); m_rocketCount++; break;
+
+		}
+	}
+
+	std::cout << m_workerCount << " / " << m_desiredWorkers << " workers." << std::endl;
+	std::cout << m_factoryCount << " / " << m_desiredFactories << " factories." << std::endl;
+	std::cout << m_rocketCount << " / " << m_desiredRockets << " rockets." << std::endl;
+
+
+
+	for (int i = 0; i < workerIndexes.size(); ++i)
 	{
 		bool replicate;
 		bool build;
@@ -33,20 +61,25 @@ void BuilderOverlord::Update(uint32_t round)
 		m_workerCount < m_desiredWorkers ? replicate = true : replicate = false;
 		m_factoryCount < m_desiredFactories || m_rocketCount < m_desiredRockets ? build = true : build = false;
 
-		bc_Unit* worker = bc_VecUnit_index(units, m_workerIDs[i]);
+
+		units::Worker worker = bc_Unit_clone(units[workerIndexes[i]].self);
 		//Check that worker is not in space
-		if (!bc_Location_is_in_space(bc_Unit_location(worker)))
+
+		if (!worker.Loc().IsInSpace() && !worker.Loc().IsInGarrison())
 		{
 			//If we want to replicate, check that we have enough resources and then find a spot to replicate to.
 			if (replicate && GameController::Karbonite() >= 15)
 			{
+				std::cout << "Replicating!" << std::endl;
 				for (int dir : tryRotate)
 				{
 					bc_Direction replicateDirection = static_cast<bc_Direction>(South + dir);
-					if (bc_GameController_can_replicate(GameController::gc, m_workerIDs[i], replicateDirection))
+					if (worker.CanReplicate(replicateDirection))
 					{
-						bc_GameController_replicate(GameController::gc, m_workerIDs[i], replicateDirection); //TODO: command this worker
-						
+						worker.Replicate(replicateDirection);
+						m_workerCount++;
+						std::cout << "Done replicating." << std::endl;
+
 						break;
 					}
 
@@ -59,136 +92,148 @@ void BuilderOverlord::Update(uint32_t round)
 
 			if (m_unfinishedFactories || m_unfinishedRockets)
 			{
+				std::cout << "Working on a project!" << std::endl;
+
 				build = false;
 				acted = true;
-				bc_Location* locationOfStructure = nullptr;
-				int structureID;
-				bool factory = false;
+				std::cout << "0" << std::endl;
+
+				MapLocation locationOfStructure = worker.Loc().ToMapLocation();
+				int structureIndex;
+				bool isFactory = false;
 				bool foundAdjacentProject = false;
 				uint32_t closestDistance = UINT32_MAX;
 				//Iterate through factories to see if one is adjacent
-				for (int j = 0; j < m_factoryIDs.size(); j++)
+				for (int fIndex : factoryIndexes)
 				{
-					bc_Unit* structure = bc_VecUnit_index(units, m_factoryIDs[j]);
+					units::Factory factory = bc_Unit_clone(units[fIndex].self);
+					MapLocation loc = factory.Loc().ToMapLocation();
 
-					if (bc_Unit_structure_is_built(structure))
+					if (!factory.IsBuilt())
 					{
-						delete_bc_Unit(structure);
-						break;
-					}
+						std::cout << "1" << std::endl;
 
+						MapLocation loc = factory.Loc().ToMapLocation();
 
-					bc_Location* loc = bc_Unit_location(structure);
-					uint32_t tempDistance = bc_MapLocation_distance_squared_to(bc_Location_map_location(loc), bc_Location_map_location(bc_Unit_location(worker)));
+						std::cout << "2" << std::endl;
 
-					//Check if this distance is closer than the last closest, if so set the location to it and check to see if it is adjacent.
-					if (tempDistance < closestDistance)
-					{
-						locationOfStructure = loc;
-						factory = true;
-						structureID = j;
-						if (bc_Location_is_adjacent_to(loc, bc_Unit_location(worker)))
-						{
-							foundAdjacentProject = true;
-							break;
-						}
-					}
-
-
-
-					delete_bc_Location(loc);
-					delete_bc_Unit(structure);
-				}
-
-				//If we did not find an adjacent factory, iterate through rockets to find one.
-				if (!foundAdjacentProject)
-				{
-					for (int j = 0; j < m_factoryIDs.size(); j++)
-					{
-						bc_Unit* structure = bc_VecUnit_index(units, m_rocketIDs[j]);
-						if (bc_Unit_structure_is_built(structure))
-						{
-							delete_bc_Unit(structure);
-							break;
-						}
-						bc_Location* loc = bc_Unit_location(structure);
-						uint32_t tempDistance = bc_MapLocation_distance_squared_to(bc_Location_map_location(loc), bc_Location_map_location(bc_Unit_location(worker)));
+						uint32_t tempDistance = worker.Loc().ToMapLocation().DirectionTo(loc);
 
 						//Check if this distance is closer than the last closest, if so set the location to it and check to see if it is adjacent.
 						if (tempDistance < closestDistance)
 						{
 							locationOfStructure = loc;
-							factory = false;
-							structureID = j;
-							if (bc_Location_is_adjacent_to(loc, bc_Unit_location(worker)))
+							isFactory = true;
+							structureIndex = fIndex;
+							std::cout << "3" << std::endl;
+
+							if (worker.Loc().ToMapLocation().DistanceTo(loc) < 2)
 							{
 								foundAdjacentProject = true;
 								break;
 							}
 						}
+					}
+				}
 
-						delete_bc_Location(loc);
-						delete_bc_Unit(structure);
+				//If we did not find an adjacent factory, iterate through rockets to find one.
+				if (!foundAdjacentProject)
+				{
+					for (int rIndex : rocketIndexes)
+					{
+						units::Rocket rocket = bc_Unit_clone(units[rIndex].self);
+						if (!rocket.IsBuilt())
+						{
+							std::cout << "4" << std::endl;
+
+							MapLocation loc = rocket.Loc().ToMapLocation();
+							std::cout << "5" << std::endl;
+
+							uint32_t tempDistance = worker.Loc().ToMapLocation().DistanceTo(loc);
+
+							//Check if this distance is closer than the last closest, if so set the location to it and check to see if it is adjacent.
+							if (tempDistance < closestDistance)
+							{
+								locationOfStructure = loc;
+								isFactory = false;
+								structureIndex = rIndex;
+								std::cout << "6" << std::endl;
+
+								if (worker.Loc().ToMapLocation().IsAdjacentTo(loc))
+								{
+									foundAdjacentProject = true;
+									break;
+								}
+							}
+						}
 					}
 				}
 
 				//If we found an adjacent project, work on it.
 				if (foundAdjacentProject)
 				{
-					bc_Unit* structure = bc_VecUnit_index(units, structureID);
 
-					if (factory)
+					units::Structure structure = bc_Unit_clone(units[factoryIndexes[structureIndex]].self);
+					if (!isFactory)
 					{
-						if (bc_GameController_can_build(GameController::gc, m_workerIDs[i], bc_UnitType::Factory))
-							bc_GameController_build(GameController::gc, m_workerIDs[i], bc_UnitType::Factory);
+						structure = bc_Unit_clone(units[rocketIndexes[structureIndex]].self);
 					}
-					else
+			
+
+					if (worker.CanBuild(structure))
 					{
-						if (bc_GameController_can_build(GameController::gc, m_workerIDs[i], bc_UnitType::Rocket))
-							bc_GameController_build(GameController::gc, m_workerIDs[i], bc_UnitType::Rocket);
+						worker.Build(structure);
+						std::cout << "Contributed to project." << std::endl;
+
 					}
-					delete_bc_Unit(structure);
 				}
 				else //Move towards project.
 				{
-					bc_Direction directionTo = bc_MapLocation_direction_to(bc_Location_map_location(bc_Unit_location(worker)), bc_Location_map_location(locationOfStructure));
+					std::cout << "7" << std::endl;
+
+					bc_Direction directionTo = worker.Loc().ToMapLocation().DirectionTo(locationOfStructure);
 
 					for (int d : tryRotate)
 					{
 						bc_Direction dir = static_cast<bc_Direction>(directionTo + d);
-						if (bc_GameController_can_move(GameController::gc, m_workerIDs[i], dir))
+						if (worker.CanMove(dir))
 						{
-							bc_GameController_move_robot(GameController::gc, m_workerIDs[i], dir);
+							worker.Move(dir);
+							std::cout << "Moved towards project." << std::endl;
+
 							break;
 						}
+						
 					}
+					std::cout << "Tried moving towards project." << std::endl;
 
 				}
 
-				delete_bc_Location(locationOfStructure);
 			}
 
 			if (build)
 			{
+				std::cout << "Blueprinting a project!" << std::endl;
+
 				acted = true;
 				//Find clear spot to build
 				bool foundOpenSpot = false;
 				int spotX = 0;
 				int spotY = 0;
 
-				bc_MapLocation* workerLocation = bc_Location_map_location(bc_Unit_location(worker));
 
 				for (int x = -1; x < 2; x++)
 				{
 					for (int y = -1; y < 2; y++)
 					{
+						spotX = x + worker.Loc().ToMapLocation().X();
+						spotY = y + worker.Loc().ToMapLocation().Y();
 						bool isMars = GameController::Planet();
-						foundOpenSpot = bc_GameController_is_occupiable(GameController::gc, workerLocation);
+						MapLocation ml = MapLocation(GameController::Planet(), spotX, spotY);
 
+						foundOpenSpot = ml.IsOccupiable();
 						if (foundOpenSpot)
-						{
-							spotX = x + bc_MapLocation_x_get(workerLocation);
-							spotY = y + bc_MapLocation_y_get(workerLocation);
+						{						
 							break;
 						}
 					}
@@ -202,27 +247,32 @@ void BuilderOverlord::Update(uint32_t round)
 				//if clear spot exists, build with priority given to rockets.
 				if (foundOpenSpot)
 				{
-					bc_MapLocation* buildLocation = new_bc_MapLocation(GameController::Planet(), spotX, spotY);
-					bc_Direction buildDirection = bc_MapLocation_direction_to(workerLocation, buildLocation);
+					MapLocation buildLocation = MapLocation(GameController::Planet(), spotX, spotY);
+					bc_Direction buildDirection = worker.Loc().ToMapLocation().DirectionTo(buildLocation);
 					if (m_rocketCount < m_desiredRockets && GameController::Karbonite() >= 75)
 					{
-						if (bc_GameController_can_blueprint(GameController::gc, m_workerIDs[i], bc_UnitType::Rocket, buildDirection))
+						if(worker.CanBlueprint(bc_UnitType::Rocket, buildDirection))
 						{
-							bc_GameController_blueprint(GameController::gc, m_workerIDs[i], bc_UnitType::Rocket, buildDirection);
+							worker.Blueprint(bc_UnitType::Rocket, buildDirection);
 							m_unfinishedRockets = true;
+							std::cout << "Blueprinted a rocket." << std::endl;
 						}
 					}
 					else if (m_factoryCount < m_desiredFactories && GameController::Karbonite() >= 100)
 					{
-						if (bc_GameController_can_blueprint(GameController::gc, m_workerIDs[i], bc_UnitType::Factory, buildDirection))
+						if (worker.CanBlueprint(bc_UnitType::Factory, buildDirection))
 						{
-							bc_GameController_blueprint(GameController::gc, m_workerIDs[i], bc_UnitType::Factory, buildDirection);
-							m_unfinishedFactories = true;
+							worker.Blueprint(bc_UnitType::Factory, buildDirection);
+							m_unfinishedRockets = true;
+							std::cout << "Blueprinted a factory." << std::endl;
 						}
 					}
-					delete_bc_MapLocation(buildLocation);
+					else
+					{
+						std::cout << "Not enough karbonite to blueprint!" << std::endl;
+					}
+
 				}
-				delete_bc_MapLocation(workerLocation);
 			}
 
 			if (!acted)
@@ -231,28 +281,19 @@ void BuilderOverlord::Update(uint32_t round)
 				int spotX = 0;
 				int spotY = 0;
 
-				bc_MapLocation* workerLocation = bc_Location_map_location(bc_Unit_location(worker));
-
 				for (int x = -1; x < 2; x++)
 				{
 					for (int y = -1; y < 2; y++)
 					{
-						//Checking GameController::Planet() returns mars or earth, 1 and 0 respectively.
 						if (GameController::Planet())
 						{
-							foundKarboniteDeposit = bc_GameController_karbonite_at(GameController::gc, new_bc_MapLocation(Mars, spotX, spotY));
+							foundKarboniteDeposit = bc_GameController_karbonite_at(GameController::gc, new_bc_MapLocation(GameController::Planet(), spotX, spotY));
 						}
-						else
-						{
-							foundKarboniteDeposit = bc_GameController_karbonite_at(GameController::gc, new_bc_MapLocation(Earth, spotX, spotY));
-						}
-
-
-
+					
 						if (foundKarboniteDeposit)
 						{
-							spotX = x + bc_MapLocation_x_get(workerLocation);
-							spotY = y + bc_MapLocation_y_get(workerLocation);
+							spotX = x + worker.Loc().ToMapLocation().X();
+							spotY = y + worker.Loc().ToMapLocation().Y();
 							break;
 						}
 					}
@@ -264,79 +305,39 @@ void BuilderOverlord::Update(uint32_t round)
 
 				if (foundKarboniteDeposit)
 				{
-					bc_MapLocation* buildLocation = new_bc_MapLocation(Earth, spotX, spotY);
-					bc_Direction buildDirection = bc_MapLocation_direction_to(workerLocation, buildLocation);
+					MapLocation harvestLocation = MapLocation(GameController::Planet(), spotX, spotY);
+					bc_Direction harvestDirection = worker.Loc().ToMapLocation().DirectionTo(harvestLocation);
 
-					if (bc_GameController_can_harvest(GameController::gc, m_workerIDs[i], buildDirection))
+					if (worker.CanHarvest(harvestDirection))
 					{
-						bc_GameController_harvest(GameController::gc, m_workerIDs[i], buildDirection);
-						
-					}
-					delete_bc_MapLocation(buildLocation);
-				}
+						worker.Harvest(harvestDirection);
 
-				if (workerLocation)
-					delete_bc_MapLocation(workerLocation);
+					}
+				}
 			}
 
 		}
-
-
-		delete_bc_Unit(worker);
 	}
 
-	for (int id : m_factoryIDs)
+	for (int fIndex : factoryIndexes)
 	{
-		m_unfinishedFactories = false;
-		bc_Unit* factory = bc_VecUnit_index(units, m_factoryIDs[id]);
+		m_unfinishedFactories = true;
+		units::Factory factory = bc_Unit_clone(units[fIndex].self);
 
-		if (!bc_Unit_structure_is_built(factory))
+		if (!factory.IsBuilt())
 		{
-			m_unfinishedFactories = false;
+			m_unfinishedFactories = true;
 		}
-
-
-		delete_bc_Unit(factory);
-
 	}
 
-	for (int id : m_rocketIDs)
+	for (int rIndex : rocketIndexes)
 	{
-		m_unfinishedFactories = false;
-		bc_Unit* rocket = bc_VecUnit_index(units, m_rocketIDs[id]);
+		m_unfinishedRockets = false;
+		units::Rocket rocket = bc_Unit_clone(units[rIndex].self);
 
-		if (!bc_Unit_structure_is_built(rocket))
+		if (!rocket.IsBuilt())
 		{
-			m_unfinishedRockets = false;
+			m_unfinishedRockets = true;
 		}
-
-
-		delete_bc_Unit(rocket);
-	}
-	delete_bc_VecUnit(units);
-}
-
-
-void BuilderOverlord::AddToUnitContainers(bc_UnitType unitType, int unitID)
-{
-	switch (unitType)
-	{
-		//worker
-	case 0:
-		m_workerIDs.push_back(unitID);
-		m_workerCount++;
-		break;
-
-		//factory
-	case 5:
-		m_factoryIDs.push_back(unitID);
-		m_factoryCount++;
-		break;
-
-		//rocket
-	case 6:
-		m_rocketIDs.push_back(unitID);
-		m_rocketCount++;
-		break;
 	}
 }
