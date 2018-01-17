@@ -28,6 +28,7 @@ public:
 	void Update();
 
 	std::map<bc_UnitType, int> teamUnitCounts;
+	std::map<bc_UnitType, int> inProductionCounts;
 	std::map<bc_UnitType, int> enemyUnitCounts;
 	std::map<bc_UnitType, int> desiredUnitCounts;
 	void GatherUnitData();

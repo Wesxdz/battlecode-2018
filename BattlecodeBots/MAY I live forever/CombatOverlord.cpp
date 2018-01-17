@@ -106,7 +106,7 @@ void CombatOverlord::MageAction(units::Mage mage)
 	if (mage.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
 		auto nearby = EnemiesInRange(mage, mage.AttackRange());
 		auto best = std::max_element(nearby.begin(), nearby.end(), [&mage, this](units::Unit& a, units::Unit& b) {
-			return this->AttackValue(mage, a) < this->AttackValue(mage, b);
+			return this->SplashValue(mage, a) < this->SplashValue(mage, b);
 		});
 		if (best != nearby.end()) {
 			if (mage.CanAttack(*best)) {

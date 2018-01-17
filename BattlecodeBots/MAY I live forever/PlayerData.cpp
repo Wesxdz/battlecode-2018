@@ -7,6 +7,7 @@
 #include "Log.h"
 #include "MapUtil.h"
 #include "PlanetMap.h"
+#include "Factory.h"
 
 PlayerData* PlayerData::pd = nullptr;
 
@@ -62,6 +63,12 @@ void PlayerData::GatherUnitData()
 		bc_UnitType uType = unit.type;
 
 		uTeam == GameController::Team() ? teamUnitCounts[uType]++ : enemyUnitCounts[uType]++;
+		if (uType == Factory) {
+			units::Factory factory(bc_Unit_clone(unit.self));
+			if (factory.IsProducing()) {
+				inProductionCounts[factory.ProductionUnit()]++;
+			}
+		}
 
 	}
 }
@@ -70,6 +77,7 @@ void PlayerData::ClearUnitCounts()
 {
 	teamUnitCounts.clear();
 	enemyUnitCounts.clear();
+	inProductionCounts.clear();
 }
 
 

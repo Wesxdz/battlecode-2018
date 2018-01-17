@@ -13,6 +13,10 @@ namespace units {
 		CHECK_ERRORS();
 	}
 
+	Unit::Unit()
+	{
+	}
+
 	Unit::Unit(const Unit& other)
 	{
 		self = bc_Unit_clone(other.self);

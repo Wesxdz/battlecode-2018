@@ -112,7 +112,10 @@
     <ClCompile Include="PlayerData.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="tempSource.cpp" />
+    <ClCompile Include="Policy.cpp" />
+    <ClCompile Include="PolicyOverlord.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -218,5 +221,10 @@
     <ClInclude Include="PlayerData.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="Policy.h" />
+    <ClInclude Include="PolicyOverlord.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitPolicies.h" />
   </ItemGroup>
 </Project>

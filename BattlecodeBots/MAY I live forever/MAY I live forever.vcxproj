@@ -136,6 +136,8 @@
     <ClCompile Include="Pegboard.cpp" />
     <ClCompile Include="PlanetMap.cpp" />
     <ClCompile Include="PlayerData.cpp" />
+    <ClCompile Include="Policy.cpp" />
+    <ClCompile Include="PolicyOverlord.cpp" />
     <ClCompile Include="Ranger.cpp" />
     <ClCompile Include="Research.cpp" />
     <ClCompile Include="Robot.cpp" />
@@ -144,7 +146,6 @@
     <ClCompile Include="Section.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="TeamArray.cpp" />
-    <ClCompile Include="tempSource.cpp" />
     <ClCompile Include="Unit.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="VecUnit.cpp" />
@@ -174,6 +175,8 @@
     <ClInclude Include="Pegboard.h" />
     <ClInclude Include="PlanetMap.h" />
     <ClInclude Include="PlayerData.h" />
+    <ClInclude Include="Policy.h" />
+    <ClInclude Include="PolicyOverlord.h" />
     <ClInclude Include="Ranger.h" />
     <ClInclude Include="Research.h" />
     <ClInclude Include="Robot.h" />
@@ -183,6 +186,7 @@
     <ClInclude Include="Structure.h" />
     <ClInclude Include="TeamArray.h" />
     <ClInclude Include="Unit.h" />
+    <ClInclude Include="UnitPolicies.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="VecUnit.h" />
     <ClInclude Include="Worker.h" />

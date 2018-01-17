@@ -6,338 +6,144 @@
 #include "Factory.h"
 #include "Rocket.h"
 #include <iostream>
+#include "MapUtil.h"
+#include "Constants.h"
+#include "Pathfind.h"
+#include <algorithm>
+#include "VecUnit.h"
 
-std::array<int, 5> tryRotate = { 0, -1, 1, -2, 2 };
-
-
-void BuilderOverlord::Update(uint32_t round)
+BuilderOverlord::BuilderOverlord()
 {
-	m_workerCount = 0;
-	m_factoryCount = 0;
-	m_rocketCount = 0;
-	//round specifics and triggers
-	switch (round)
-	{
-	case 1:
-		m_desiredWorkers = 4;
-		m_desiredFactories = 1;
-		break;
+	PlayerData::pd->desiredUnitCounts[Worker] = 8;
+}
 
-	case 15:
-		m_desiredWorkers = 8;
-		break;
-
-	
+void BuilderOverlord::Update()
+{
+	auto units = GameController::Units(MyTeam);
+	if (GameController::Round() > 50) {
+		PlayerData::pd->desiredUnitCounts[Factory] = 6;
 	}
-
-	std::vector<units::Unit> units = GameController::Units(bc_Selection::MyTeam);
-
-	std::vector<int> workerIndexes;
-	std::vector<int> factoryIndexes;
-	std::vector<int> rocketIndexes;
-
-	for (int i = 0; i < units.size(); i++)
-	{
-		switch (units[i].type)
-		{
-		case bc_UnitType::Worker: workerIndexes.push_back(i); m_workerCount++; break;
-		case bc_UnitType::Factory: factoryIndexes.push_back(i); m_factoryCount++; break;
-		case bc_UnitType::Rocket: rocketIndexes.push_back(i); m_rocketCount++; break;
-
+	for (auto& unit : units) {
+		if (unit.Loc().IsOnMap()) {
+			if (unit.type == Worker) {
+				WorkerAction(units::Worker(bc_Unit_clone(unit.self)));
+			}
+			else if (unit.type == Factory) {
+				FactoryAction(units::Factory(bc_Unit_clone(unit.self)));
+			}
+			else if (unit.type == Rocket) {
+				RocketAction(units::Rocket(bc_Unit_clone(unit.self)));
+			}
 		}
 	}
+}
 
-	std::cout << m_workerCount << " / " << m_desiredWorkers << " workers." << std::endl;
-	std::cout << m_factoryCount << " / " << m_desiredFactories << " factories." << std::endl;
-	std::cout << m_rocketCount << " / " << m_desiredRockets << " rockets." << std::endl;
-
-
-
-	for (int i = 0; i < workerIndexes.size(); ++i)
-	{
-		bool replicate;
-		bool build;
-		bool acted = false;
-		m_workerCount < m_desiredWorkers ? replicate = true : replicate = false;
-		m_factoryCount < m_desiredFactories || m_rocketCount < m_desiredRockets ? build = true : build = false;
-
-
-		units::Worker worker = bc_Unit_clone(units[workerIndexes[i]].self);
-		//Check that worker is not in space
-
-		if (!worker.Loc().IsInSpace() && !worker.Loc().IsInGarrison())
-		{
-			//If we want to replicate, check that we have enough resources and then find a spot to replicate to.
-			if (replicate && GameController::Karbonite() >= 15)
-			{
-				std::cout << "Replicating!" << std::endl;
-				for (int dir : tryRotate)
-				{
-					bc_Direction replicateDirection = static_cast<bc_Direction>(South + dir);
-					if (worker.CanReplicate(replicateDirection))
-					{
-						worker.Replicate(replicateDirection);
-						m_workerCount++;
-						std::cout << "Done replicating." << std::endl;
-
-						break;
-					}
-
-				}
-
-
-
-
+void BuilderOverlord::WorkerAction(units::Worker worker)
+{
+	if (PlayerData::pd->desiredUnitCounts[Worker] > PlayerData::pd->teamUnitCounts[Worker]) {
+		for (auto direction : constants::directions_adjacent) {
+			if (worker.CanReplicate(direction)) {
+				worker.Replicate(direction);
 			}
-
-			if (m_unfinishedFactories || m_unfinishedRockets)
-			{
-				std::cout << "Working on a project!" << std::endl;
-
-				build = false;
-				acted = true;
-				std::cout << "0" << std::endl;
-
-				MapLocation locationOfStructure = worker.Loc().ToMapLocation();
-				int structureIndex;
-				bool isFactory = false;
-				bool foundAdjacentProject = false;
-				uint32_t closestDistance = UINT32_MAX;
-				//Iterate through factories to see if one is adjacent
-				for (int fIndex : factoryIndexes)
-				{
-					units::Factory factory = bc_Unit_clone(units[fIndex].self);
-					MapLocation loc = factory.Loc().ToMapLocation();
-
-					if (!factory.IsBuilt())
-					{
-						std::cout << "1" << std::endl;
-
-						MapLocation loc = factory.Loc().ToMapLocation();
-
-						std::cout << "2" << std::endl;
-
-						uint32_t tempDistance = worker.Loc().ToMapLocation().DirectionTo(loc);
-
-						//Check if this distance is closer than the last closest, if so set the location to it and check to see if it is adjacent.
-						if (tempDistance < closestDistance)
-						{
-							locationOfStructure = loc;
-							isFactory = true;
-							structureIndex = fIndex;
-							std::cout << "3" << std::endl;
-
-							if (worker.Loc().ToMapLocation().DistanceTo(loc) < 2)
-							{
-								foundAdjacentProject = true;
-								break;
-							}
-						}
-					}
-				}
-
-				//If we did not find an adjacent factory, iterate through rockets to find one.
-				if (!foundAdjacentProject)
-				{
-					for (int rIndex : rocketIndexes)
-					{
-						units::Rocket rocket = bc_Unit_clone(units[rIndex].self);
-						if (!rocket.IsBuilt())
-						{
-							std::cout << "4" << std::endl;
-
-							MapLocation loc = rocket.Loc().ToMapLocation();
-							std::cout << "5" << std::endl;
-
-							uint32_t tempDistance = worker.Loc().ToMapLocation().DistanceTo(loc);
-
-							//Check if this distance is closer than the last closest, if so set the location to it and check to see if it is adjacent.
-							if (tempDistance < closestDistance)
-							{
-								locationOfStructure = loc;
-								isFactory = false;
-								structureIndex = rIndex;
-								std::cout << "6" << std::endl;
-
-								if (worker.Loc().ToMapLocation().IsAdjacentTo(loc))
-								{
-									foundAdjacentProject = true;
-									break;
-								}
-							}
-						}
-					}
-				}
-
-				//If we found an adjacent project, work on it.
-				if (foundAdjacentProject)
-				{
-
-					units::Structure structure = bc_Unit_clone(units[factoryIndexes[structureIndex]].self);
-					if (!isFactory)
-					{
-						structure = bc_Unit_clone(units[rocketIndexes[structureIndex]].self);
-					}
-			
-
-					if (worker.CanBuild(structure))
-					{
-						worker.Build(structure);
-						std::cout << "Contributed to project." << std::endl;
-
-					}
-				}
-				else //Move towards project.
-				{
-					std::cout << "7" << std::endl;
-
-					bc_Direction directionTo = worker.Loc().ToMapLocation().DirectionTo(locationOfStructure);
-
-					for (int d : tryRotate)
-					{
-						bc_Direction dir = static_cast<bc_Direction>(directionTo + d);
-						if (worker.CanMove(dir))
-						{
-							worker.Move(dir);
-							std::cout << "Moved towards project." << std::endl;
-
-							break;
-						}
-						
-					}
-					std::cout << "Tried moving towards project." << std::endl;
-
-				}
-
-			}
-
-			if (build)
-			{
-				std::cout << "Blueprinting a project!" << std::endl;
-
-				acted = true;
-				//Find clear spot to build
-				bool foundOpenSpot = false;
-				int spotX = 0;
-				int spotY = 0;
-
-
-				for (int x = -1; x < 2; x++)
-				{
-					for (int y = -1; y < 2; y++)
-					{
-						spotX = x + worker.Loc().ToMapLocation().X();
-						spotY = y + worker.Loc().ToMapLocation().Y();
-						bool isMars = GameController::Planet();
-						MapLocation ml = MapLocation(GameController::Planet(), spotX, spotY);
-
-						foundOpenSpot = ml.IsOccupiable();
-						if (foundOpenSpot)
-						{						
-							break;
-						}
-					}
-					if (foundOpenSpot)
-					{
-						break;
-					}
-				}
-
-
-				//if clear spot exists, build with priority given to rockets.
-				if (foundOpenSpot)
-				{
-					MapLocation buildLocation = MapLocation(GameController::Planet(), spotX, spotY);
-					bc_Direction buildDirection = worker.Loc().ToMapLocation().DirectionTo(buildLocation);
-					if (m_rocketCount < m_desiredRockets && GameController::Karbonite() >= 75)
-					{
-						if(worker.CanBlueprint(bc_UnitType::Rocket, buildDirection))
-						{
-							worker.Blueprint(bc_UnitType::Rocket, buildDirection);
-							m_unfinishedRockets = true;
-							std::cout << "Blueprinted a rocket." << std::endl;
-						}
-					}
-					else if (m_factoryCount < m_desiredFactories && GameController::Karbonite() >= 100)
-					{
-						if (worker.CanBlueprint(bc_UnitType::Factory, buildDirection))
-						{
-							worker.Blueprint(bc_UnitType::Factory, buildDirection);
-							m_unfinishedRockets = true;
-							std::cout << "Blueprinted a factory." << std::endl;
-						}
-					}
-					else
-					{
-						std::cout << "Not enough karbonite to blueprint!" << std::endl;
-					}
-
-				}
-			}
-
-			if (!acted)
-			{
-				bool foundKarboniteDeposit = false;
-				int spotX = 0;
-				int spotY = 0;
-
-				for (int x = -1; x < 2; x++)
-				{
-					for (int y = -1; y < 2; y++)
-					{
-						if (GameController::Planet())
-						{
-							foundKarboniteDeposit = bc_GameController_karbonite_at(GameController::gc, new_bc_MapLocation(GameController::Planet(), spotX, spotY));
-						}
-					
-						if (foundKarboniteDeposit)
-						{
-							spotX = x + worker.Loc().ToMapLocation().X();
-							spotY = y + worker.Loc().ToMapLocation().Y();
-							break;
-						}
-					}
-					if (foundKarboniteDeposit)
-					{
-						break;
-					}
-				}
-
-				if (foundKarboniteDeposit)
-				{
-					MapLocation harvestLocation = MapLocation(GameController::Planet(), spotX, spotY);
-					bc_Direction harvestDirection = worker.Loc().ToMapLocation().DirectionTo(harvestLocation);
-
-					if (worker.CanHarvest(harvestDirection))
-					{
-						worker.Harvest(harvestDirection);
-
-					}
-				}
-			}
-
 		}
 	}
-
-	for (int fIndex : factoryIndexes)
-	{
-		m_unfinishedFactories = true;
-		units::Factory factory = bc_Unit_clone(units[fIndex].self);
-
-		if (!factory.IsBuilt())
-		{
-			m_unfinishedFactories = true;
+	if (PlayerData::pd->desiredUnitCounts[Factory] > PlayerData::pd->teamUnitCounts[Factory]) {
+		for (auto direction : constants::directions_adjacent) {
+			if (worker.CanBlueprint(Factory, direction)) {
+				worker.Blueprint(Factory, direction);
+			}
 		}
 	}
+	if (PlayerData::pd->desiredUnitCounts[Rocket] > PlayerData::pd->teamUnitCounts[Rocket]) {
+		for (auto direction : constants::directions_adjacent) {
+			if (worker.CanBlueprint(Rocket, direction)) {
+				worker.Blueprint(Rocket, direction);
+			}
+		}
+	}
+	MapLocation workerLocation = worker.Loc().ToMapLocation();
+	bc_VecMapLocation* nearby = bc_GameController_all_locations_within(GameController::gc, workerLocation.self, 25);
+	auto nearbyDeposits = MapUtil::FilteredLocations(nearby, [](bc_MapLocation* potentialDeposit) {
+		return bc_GameController_karbonite_at(GameController::gc, potentialDeposit) > 0;
+	});
+	delete_bc_VecMapLocation(nearby);
+	if (nearbyDeposits.size() == 0) {
+		Pathfind::MoveRandom(worker);
+	}
+	for (int i = 1; i <= 100; i = (i + 1) * (i + 1)) {
+		auto nearbyFactories = VecUnit::Wrap<units::Factory>(bc_GameController_sense_nearby_units_by_type(GameController::gc, workerLocation.self, i, Factory));
+		if (nearbyFactories.size() > 0) {
+			if (worker.CanBuild(nearbyFactories[0])) {
+				worker.Build(nearbyFactories[0]);
+			}
+			MapLocation buildLocation = nearbyFactories[0].Loc().ToMapLocation();
+			Pathfind::MoveGreedy(worker, buildLocation);
+			break;
+		}
+	}
+	//std::sort(nearbyDeposits.begin(), nearbyDeposits.end(), [&workerLocation, this](bc_MapLocation* a, bc_MapLocation* b) {
+	//	return
+	//		abs(bc_MapLocation_x_get(workerLocation.self) - bc_MapLocation_x_get(a)) + abs(bc_MapLocation_y_get(workerLocation.self) - bc_MapLocation_y_get(a)) <
+	//		abs(bc_MapLocation_x_get(workerLocation.self) - bc_MapLocation_x_get(b)) + abs(bc_MapLocation_y_get(workerLocation.self) - bc_MapLocation_y_get(b));
+	//});
+	//bc_Direction probe = bc_MapLocation_direction_to(workerLocation.self, nearbyDeposits[0]);
+	//if (worker.CanHarvest(probe)) {
+	//	worker.Harvest(probe);
+	//}
+	//MapLocation toSeek{ bc_MapLocation_clone(nearbyDeposits[0]) };
+	MapLocation test = MapLocation(Earth, 10, 10);
+	Pathfind::MoveGreedy(worker, test);
+}
 
-	for (int rIndex : rocketIndexes)
-	{
-		m_unfinishedRockets = false;
-		units::Rocket rocket = bc_Unit_clone(units[rIndex].self);
+void BuilderOverlord::FactoryAction(units::Factory factory)
+{
+	if (factory.IsBuilt()) {
+		for (auto direction : constants::directions_adjacent) {
+			if (factory.CanUnload(direction)) {
+				factory.Unload(direction);
+			}
+		}
+		if (PlayerData::pd->desiredUnitCounts[Factory] <= PlayerData::pd->teamUnitCounts[Factory] && // Don't spend Karbonite if structures need to be build
+			PlayerData::pd->desiredUnitCounts[Rocket] <= PlayerData::pd->teamUnitCounts[Rocket] &&
+			factory.CanProduce(Knight)) {
+			std::cout << "Actual Knights: " << PlayerData::pd->teamUnitCounts[Knight] << "\n";
+			std::cout << "Desired Knights: " << PlayerData::pd->desiredUnitCounts[Knight] << "\n";
+			if (PlayerData::pd->desiredUnitCounts[Knight] > PlayerData::pd->teamUnitCounts[Knight]) {
+				std::cout << "Producing Knight\n";
+				factory.Produce(Knight);
+				PlayerData::pd->inProductionCounts[Knight]++;
+			}
+			else if (PlayerData::pd->desiredUnitCounts[Ranger] > PlayerData::pd->teamUnitCounts[Ranger]) {
+				factory.Produce(Ranger);
+			}
+			else if (PlayerData::pd->desiredUnitCounts[Mage] > PlayerData::pd->teamUnitCounts[Mage]) {
+				factory.Produce(Mage);
+			}
+			else if (PlayerData::pd->desiredUnitCounts[Healer] > PlayerData::pd->teamUnitCounts[Healer]) {
+				factory.Produce(Healer);
+			}
+		}
+	}
+}
 
-		if (!rocket.IsBuilt())
-		{
-			m_unfinishedRockets = true;
+void BuilderOverlord::RocketAction(units::Rocket rocket)
+{
+	if (rocket.IsBuilt()) {
+		if (GameController::Planet() == Earth) {
+			MapLocation random{ MapUtil::marsPassableLocations[rand() % MapUtil::marsPassableLocations.size()] };
+			if (rocket.CanLaunch(random)) {
+				if (GameController::Round() == 749 || rocket.Garrison().size() == rocket.MaxCapacity()) {
+					rocket.Launch(random);
+				}
+			}
+		}
+		else {
+			for (auto direction : constants::directions_adjacent) {
+				if (rocket.CanUnload(direction)) {
+					rocket.Unload(direction);
+					// TODO Push unloaded unit and try unload again
+				}
+			}
 		}
 	}
 }
