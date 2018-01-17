@@ -18,7 +18,7 @@
 #include "RocketLandingInfo.h"
 #include "TeamArray.h"
 #include "Utility.h"
-//#include "MapUtil.h"
+#include "MapUtil.h"
 
 
 
@@ -29,7 +29,7 @@ OrbitPattern orbitPattern;
 AsteroidPattern asteroidPattern;
 RocketLandingInfo rocketLandingInfo;
 TeamArray teamArray;
-//MapUtil mapUtil;
+MapUtil mapUtil;
 PlayerData playerData;
 
 int main()
