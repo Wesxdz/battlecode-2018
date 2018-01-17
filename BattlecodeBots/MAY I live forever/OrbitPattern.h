@@ -11,7 +11,7 @@ class OrbitPattern
 {
 public:
 	static bc_OrbitPattern* self;
-public:
+
 	OrbitPattern();
 	~OrbitPattern();
 	/*
@@ -30,6 +30,7 @@ public:
 	@return The duration of flight if the rocket were to take off from either planet on #round
 	*/
 	static uint32_t Duration(uint32_t round);
+
 };
 
 #endif

@@ -98,9 +98,6 @@
     <ClCompile Include="TeamArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CombatOverlord.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -170,9 +167,6 @@
       <Filter>Header Files\MyFiles</Filter>
     </ClInclude>
     <ClInclude Include="TeamArray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CombatOverlord.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

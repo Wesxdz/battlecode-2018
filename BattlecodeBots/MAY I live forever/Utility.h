@@ -8,7 +8,7 @@
 
 namespace Utility{
 
-	static std::array<int, 5> tryRotate;
+
 
 	bc_Team GetOtherTeam(bc_Team other);
 
@@ -17,7 +17,6 @@ namespace Utility{
 	bool IsRobot(bc_UnitType type);
 
 	
-	static bool IsSpotOpen(int x, int y, bool mars);
 
 	//MapLocation GetRandomPosition(GameInfo* info, MapLocation* temp);
 

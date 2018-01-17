@@ -2,6 +2,9 @@
 #include "GameController.h"
 #include "GameMap.h"
 
+std::array<int, 5> tryRotate = { 0, -1, 1, -2, 2 };
+
+
 void BuilderOverlord::Update(uint32_t round)
 {
 	//round specifics and triggers
@@ -37,7 +40,7 @@ void BuilderOverlord::Update(uint32_t round)
 			//If we want to replicate, check that we have enough resources and then find a spot to replicate to.
 			if (replicate && GameController::Karbonite() >= 15)
 			{
-				for (int dir : Utility::tryRotate)
+				for (int dir : tryRotate)
 				{
 					bc_Direction replicateDirection = static_cast<bc_Direction>(South + dir);
 					if (bc_GameController_can_replicate(GameController::gc, m_workerIDs[i], replicateDirection))
@@ -150,7 +153,7 @@ void BuilderOverlord::Update(uint32_t round)
 				{
 					bc_Direction directionTo = bc_MapLocation_direction_to(bc_Location_map_location(bc_Unit_location(worker)), bc_Location_map_location(locationOfStructure));
 
-					for (int d : Utility::tryRotate)
+					for (int d : tryRotate)
 					{
 						bc_Direction dir = static_cast<bc_Direction>(directionTo + d);
 						if (bc_GameController_can_move(GameController::gc, m_workerIDs[i], dir))
@@ -180,7 +183,7 @@ void BuilderOverlord::Update(uint32_t round)
 					for (int y = -1; y < 2; y++)
 					{
 						bool isMars = GameController::Planet();
-						foundOpenSpot = Utility::IsSpotOpen(x + bc_MapLocation_x_get(workerLocation), y + bc_MapLocation_y_get(workerLocation), isMars);
+						foundOpenSpot = bc_GameController_is_occupiable(GameController::gc, workerLocation);
 
 						if (foundOpenSpot)
 						{

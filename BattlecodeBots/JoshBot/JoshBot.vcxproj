@@ -120,7 +120,6 @@
   <ItemGroup>
     <ClCompile Include="AsteroidPattern.cpp" />
     <ClCompile Include="AsteroidStrike.cpp" />
-    <ClCompile Include="CombatOverlord.cpp" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameInfo.h" />
@@ -148,7 +147,6 @@
     <ClInclude Include="AsteroidPattern.h" />
     <ClInclude Include="AsteroidStrike.h" />
     <ClInclude Include="bc.h" />
-    <ClInclude Include="CombatOverlord.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="GameController.h" />
     <ClInclude Include="GameMap.h" />
