@@ -144,6 +144,7 @@
     <ClCompile Include="Section.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="TeamArray.cpp" />
+    <ClCompile Include="tempSource.cpp" />
     <ClCompile Include="Unit.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="VecUnit.cpp" />
