@@ -18,136 +18,119 @@ CombatOverlord::~CombatOverlord()
 
 void CombatOverlord::Update()
 {
-	auto units = GameController::Units(MyTeam);
-	for (auto& unit : units) {
-		if (unit.Loc().IsOnMap()) {
-			if (unit.type == Mage) {
-				MageAction(units::Mage(bc_Unit_clone(unit.self)));
-			}
-			else if (unit.type == Knight) {
-				KnightAction(units::Knight(bc_Unit_clone(unit.self)));
-			}
-			else if (unit.type == Ranger) {
-				RangerAction(units::Ranger(bc_Unit_clone(unit.self)));
-			}
-			else if (unit.type == Healer) {
-				HealerAction(units::Healer(bc_Unit_clone(unit.self)));
-			}
-		}
-	}
 	DetermineDesiredUnits();
 }
 
-void CombatOverlord::KnightAction(units::Knight knight)
-{
-	if (knight.IsMoveReady()) {
-		bool hasMoved = false;
-		for (int i = 1; i <= 100; i = (i + 1) * (i + 1)) {
-			auto nearbyEnemies = knight.Loc().ToMapLocation().NearbyUnits(i, Utility::GetOtherTeam(knight.Team()));
-			if (nearbyEnemies.size() > 0) {
-				MapLocation enemyLocation = nearbyEnemies[0].Loc().ToMapLocation();
-				Pathfind::MoveGreedy(knight, enemyLocation);
-				hasMoved = true;
-				break;
-			}
-		}
-		if (!hasMoved) {
-			Pathfind::MoveRandom(knight); // TODO Group movement
-		}
-	}
-	if (knight.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
-		auto nearby = EnemiesInRange(knight, knight.AttackRange());
-		auto best = std::max_element(nearby.begin(), nearby.end(), [&knight, this](units::Unit& a, units::Unit& b) {
-			return this->AttackValue(knight, a) < this->AttackValue(knight, b);
-		});
-		if (best != nearby.end()) {
-			if (knight.CanAttack(*best)) {
-				knight.Attack(*best);
-			}
-		}
-	}
-	if (knight.IsActiveUnlocked() && knight.IsJavelinReady()) {
-		auto nearby = EnemiesInRange(knight, knight.AbilityRange());
-		auto best = std::max_element(nearby.begin(), nearby.end(), [&knight, this](units::Unit& a, units::Unit& b) {
-			return this->AttackValue(knight, a) < this->AttackValue(knight, b);
-		});
-		if (best != nearby.end()) {
-			if (knight.CanJavelin(*best)) {
-				knight.Javelin(*best);
-			}
-		}
-	}
-}
+//void CombatOverlord::KnightAction(units::Knight knight)
+//{
+//	if (knight.IsMoveReady()) {
+//		bool hasMoved = false;
+//		for (int i = 1; i <= 100; i = (i + 1) * (i + 1)) {
+//			auto nearbyEnemies = knight.Loc().ToMapLocation().NearbyUnits(i, Utility::GetOtherTeam(knight.Team()));
+//			if (nearbyEnemies.size() > 0) {
+//				MapLocation enemyLocation = nearbyEnemies[0].Loc().ToMapLocation();
+//				Pathfind::MoveGreedy(knight, enemyLocation);
+//				hasMoved = true;
+//				break;
+//			}
+//		}
+//		if (!hasMoved) {
+//			Pathfind::MoveRandom(knight); // TODO Group movement
+//		}
+//	}
+//	if (knight.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
+//		auto nearby = EnemiesInRange(knight, knight.AttackRange());
+//		auto best = std::max_element(nearby.begin(), nearby.end(), [&knight, this](units::Unit& a, units::Unit& b) {
+//			return this->AttackValue(knight, a) < this->AttackValue(knight, b);
+//		});
+//		if (best != nearby.end()) {
+//			if (knight.CanAttack(*best)) {
+//				knight.Attack(*best);
+//			}
+//		}
+//	}
+//	if (knight.IsActiveUnlocked() && knight.IsJavelinReady()) {
+//		auto nearby = EnemiesInRange(knight, knight.AbilityRange());
+//		auto best = std::max_element(nearby.begin(), nearby.end(), [&knight, this](units::Unit& a, units::Unit& b) {
+//			return this->AttackValue(knight, a) < this->AttackValue(knight, b);
+//		});
+//		if (best != nearby.end()) {
+//			if (knight.CanJavelin(*best)) {
+//				knight.Javelin(*best);
+//			}
+//		}
+//	}
+//}
 
-void CombatOverlord::RangerAction(units::Ranger ranger)
-{
-	if (!ranger.IsSniping()) {
-		if (ranger.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
-			auto nearby = EnemiesInRange(ranger,ranger.AttackRange());
-			nearby.erase(std::find_if(nearby.begin(), nearby.end(), [&ranger](units::Unit& unit) {
-				auto unitLocation = unit.Loc().ToMapLocation();
-				return ranger.Loc().ToMapLocation().DistanceTo(unitLocation) < ranger.AttackRangeMin();
-			}));
-			auto best = std::max_element(nearby.begin(), nearby.end(), [&ranger, this](units::Unit& a, units::Unit& b) {
-				return this->AttackValue(ranger, a) < this->AttackValue(ranger, b);
-			});
-			if (best != nearby.end()) {
-				if (ranger.CanAttack(*best)) {
-					ranger.Attack(*best);
-				}
-			}
-		}
-		// TODO Call down the thunder
-	}
-}
-
-void CombatOverlord::MageAction(units::Mage mage)
-{
-	if (mage.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
-		auto nearby = EnemiesInRange(mage, mage.AttackRange());
-		auto best = std::max_element(nearby.begin(), nearby.end(), [&mage, this](units::Unit& a, units::Unit& b) {
-			return this->SplashValue(mage, a) < this->SplashValue(mage, b);
-		});
-		if (best != nearby.end()) {
-			if (mage.CanAttack(*best)) {
-				mage.Attack(*best);
-			}
-		}
-	}
-}
-
-void CombatOverlord::HealerAction(units::Healer healer)
-{
-	if (healer.IsHealReady()) {
-		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AttackRange(), healer.Team());
-		auto best = std::max_element(nearby.begin(), nearby.end(), [&healer, this](units::Unit& a, units::Unit& b) {
-			return this->AttackValue(healer, a) < this->AttackValue(healer, b);
-		});
-		if (best != nearby.end()) {
-			units::Robot toHeal{ bc_Unit_clone((*best).self) };
-			healer.Heal(toHeal);
-		}
-	}
-	if (healer.IsActiveUnlocked() && healer.IsOverchargeReady()) {
-		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AbilityRange(), healer.Team());
-		auto best = std::max_element(nearby.begin(), nearby.end(), [&healer, this](units::Unit& a, units::Unit& b) {
-			return this->AttackValue(healer, a) < this->AttackValue(healer, b);
-		});
-		if (best != nearby.end()) {
-			units::Robot overcharging{ bc_Unit_clone((*best).self) };
-			healer.Overcharge(overcharging);
-			if (overcharging.type == Mage) {
-				MageAction(units::Mage(bc_Unit_clone(overcharging.self)));
-			}
-			else if (overcharging.type == Knight) {
-				KnightAction(units::Knight(bc_Unit_clone(overcharging.self)));
-			}
-			else if (overcharging.type == Ranger) {
-				RangerAction(units::Ranger(bc_Unit_clone(overcharging.self)));
-			}
-		}
-	}
-}
+//void CombatOverlord::RangerAction(units::Ranger ranger)
+//{
+//	if (!ranger.IsSniping()) {
+//		if (ranger.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
+//			auto nearby = EnemiesInRange(ranger,ranger.AttackRange());
+//			nearby.erase(std::find_if(nearby.begin(), nearby.end(), [&ranger](units::Unit& unit) {
+//				auto unitLocation = unit.Loc().ToMapLocation();
+//				return ranger.Loc().ToMapLocation().DistanceTo(unitLocation) < ranger.AttackRangeMin();
+//			}));
+//			auto best = std::max_element(nearby.begin(), nearby.end(), [&ranger, this](units::Unit& a, units::Unit& b) {
+//				return this->AttackValue(ranger, a) < this->AttackValue(ranger, b);
+//			});
+//			if (best != nearby.end()) {
+//				if (ranger.CanAttack(*best)) {
+//					ranger.Attack(*best);
+//				}
+//			}
+//		}
+//		// TODO Call down the thunder
+//	}
+//}
+//
+//void CombatOverlord::MageAction(units::Mage mage)
+//{
+//	if (mage.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
+//		auto nearby = EnemiesInRange(mage, mage.AttackRange());
+//		auto best = std::max_element(nearby.begin(), nearby.end(), [&mage, this](units::Unit& a, units::Unit& b) {
+//			return this->SplashValue(mage, a) < this->SplashValue(mage, b);
+//		});
+//		if (best != nearby.end()) {
+//			if (mage.CanAttack(*best)) {
+//				mage.Attack(*best);
+//			}
+//		}
+//	}
+//}
+//
+//void CombatOverlord::HealerAction(units::Healer healer)
+//{
+//	if (healer.IsHealReady()) {
+//		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AttackRange(), healer.Team());
+//		auto best = std::max_element(nearby.begin(), nearby.end(), [&healer, this](units::Unit& a, units::Unit& b) {
+//			return this->AttackValue(healer, a) < this->AttackValue(healer, b);
+//		});
+//		if (best != nearby.end()) {
+//			units::Robot toHeal{ bc_Unit_clone((*best).self) };
+//			healer.Heal(toHeal);
+//		}
+//	}
+//	if (healer.IsActiveUnlocked() && healer.IsOverchargeReady()) {
+//		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AbilityRange(), healer.Team());
+//		auto best = std::max_element(nearby.begin(), nearby.end(), [&healer, this](units::Unit& a, units::Unit& b) {
+//			return this->AttackValue(healer, a) < this->AttackValue(healer, b);
+//		});
+//		if (best != nearby.end()) {
+//			units::Robot overcharging{ bc_Unit_clone((*best).self) };
+//			healer.Overcharge(overcharging);
+//			if (overcharging.type == Mage) {
+//				MageAction(units::Mage(bc_Unit_clone(overcharging.self)));
+//			}
+//			else if (overcharging.type == Knight) {
+//				KnightAction(units::Knight(bc_Unit_clone(overcharging.self)));
+//			}
+//			else if (overcharging.type == Ranger) {
+//				RangerAction(units::Ranger(bc_Unit_clone(overcharging.self)));
+//			}
+//		}
+//	}
+//}
 
 std::vector<units::Unit> CombatOverlord::EnemiesInRange(units::Robot& robot, uint32_t range)
 {
@@ -234,14 +217,5 @@ uint32_t CombatOverlord::Danger(units::Unit & unit)
 
 void CombatOverlord::DetermineDesiredUnits()
 {
-	PlayerData::pd->desiredUnitCounts[Knight] = PlayerData::pd->teamUnitCounts[Knight];
-	PlayerData::pd->desiredUnitCounts[Ranger] = PlayerData::pd->teamUnitCounts[Ranger];
-	PlayerData::pd->desiredUnitCounts[Healer] = PlayerData::pd->teamUnitCounts[Healer];
-	PlayerData::pd->desiredUnitCounts[Mage] = PlayerData::pd->teamUnitCounts[Mage];
-	PlayerData::pd->desiredUnitCounts[MostDesiredType()]++;
-}
-
-bc_UnitType CombatOverlord::MostDesiredType()
-{
-	return Knight;
+	PlayerData::pd->desiredUnitCounts[Knight]++;
 }

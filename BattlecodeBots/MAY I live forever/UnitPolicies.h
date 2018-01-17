@@ -93,7 +93,7 @@ namespace policy {
 
 	//}
 
-	float WorkerBlueprintFactoryEvaluate(units::Unit unit) {
+	float WorkerBlueprintEvaluate(units::Unit unit) {
 		units::Worker worker = bc_Unit_clone(unit.self);
 		if (worker.HasActed()) return 0.0f;
 		if (GameController::Karbonite() >= bc_UnitType_blueprint_cost(Factory) &&
@@ -108,33 +108,11 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool WorkerBlueprintFactoryExecute(units::Unit unit) {
+	bool WorkerBlueprintExecute(units::Unit unit) {
 		units::Worker worker = bc_Unit_clone(unit.self);
 		worker.Blueprint(Factory, PolicyOverlord::storeDirection);
 		return true;
 	}
-
-	float WorkerBlueprintRocketEvaluate(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
-		if (worker.HasActed()) return 0.0f;
-		if (GameController::Karbonite() >= bc_UnitType_blueprint_cost(Factory) &&
-			PlayerData::pd->desiredUnitCounts[Factory] > PlayerData::pd->teamUnitCounts[Factory]) {
-			for (bc_Direction direction : constants::directions_adjacent) {
-				if (worker.CanBlueprint(Factory, direction)) {
-					PolicyOverlord::storeDirection = direction;
-					return 2.0f;
-				}
-			}
-		}
-		return 0.0f;
-	}
-
-	bool WorkerBlueprintRocketExecute(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
-		worker.Blueprint(Rocket, PolicyOverlord::storeDirection);
-		return true;
-	}
-
 
 }
 

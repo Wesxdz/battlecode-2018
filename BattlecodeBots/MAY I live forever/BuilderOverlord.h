@@ -14,9 +14,7 @@ class BuilderOverlord
 public:
 	BuilderOverlord();
 	void Update();
-	void WorkerAction(units::Worker worker);
-	void FactoryAction(units::Factory factory);
-	void RocketAction(units::Rocket rocket);
+	void DetermineDesiredUnits();
 
 };
 

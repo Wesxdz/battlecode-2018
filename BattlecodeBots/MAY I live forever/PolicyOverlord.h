@@ -14,7 +14,6 @@ class PolicyOverlord
 public:
 	std::map<bc_UnitType, std::vector<std::shared_ptr<Policy>>> policies;
 	PolicyOverlord();
-	void Init();
 	void Update();
 	
 	static bc_Direction storeDirection;
