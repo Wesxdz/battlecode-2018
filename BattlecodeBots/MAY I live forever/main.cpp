@@ -43,6 +43,7 @@ PolicyOverlord wesley;
 
 int main()
 {
+	//bc_GameController_get_time_left_ms(); This gets the time remaining supposedly. Header file doesnt have it
 	srand(0);
 
 	while (true)
