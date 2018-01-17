@@ -15,13 +15,7 @@ class BuilderOverlord
 public:
 	void Update(uint32_t round);
 
-	void AddToUnitContainers(bc_UnitType unitType, int unitID);
-
-	std::vector<int> m_workerIDs;
-	std::vector<int> m_factoryIDs;
-	std::vector<int> m_rocketIDs;
-
-	std::vector<int> m_CombatShippingIDs;
+	std::vector<units::Unit*> m_combatShippingIDs;
 
 	uint32_t m_workerCount = 0;
 	uint32_t m_desiredWorkers = 4;

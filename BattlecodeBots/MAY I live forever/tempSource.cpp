@@ -20,7 +20,7 @@
 #include "Utility.h"
 #include "MapUtil.h"
 
-#include "CombatOverlord.h"
+#include "BuilderOverlord.h"
 
 GameController gc;
 Research research;
@@ -31,21 +31,27 @@ TeamArray teamArray;
 MapUtil mapUtil;
 PlayerData playerData;
 
-CombatOverlord combat;
+BuilderOverlord builder;
+
 
 int main()
 {
-	//bc_GameController_get_time_left_ms(); This gets the time remaining supposedly. Header file doesnt have it
 	srand(0);
 
 	while (true)
 	{
 		uint32_t round = GameController::Round();
-		if (round % 10 == 0) {
+		if (round % 10 == 0) 
+		{
 			std::cout << "Round: " << round << std::endl;
 		}
+
+		builder.Update(round);
+
+
+
+
 		playerData.Update();
-		combat.Update();
 		GameController::EndTurn();
 	}
 }

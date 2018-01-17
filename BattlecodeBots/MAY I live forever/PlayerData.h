@@ -22,12 +22,14 @@ struct Vec2
 class PlayerData
 {
 public:
+	static PlayerData* pd;
 	PlayerData();
 	//Updates unit counts and vector of our units.
 	void Update();
 
 	std::map<bc_UnitType, int> teamUnitCounts;
 	std::map<bc_UnitType, int> enemyUnitCounts;
+	std::map<bc_UnitType, int> desiredUnitCounts;
 	void GatherUnitData();
 	void ClearUnitCounts();
 	

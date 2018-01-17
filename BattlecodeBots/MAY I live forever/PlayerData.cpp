@@ -8,6 +8,8 @@
 #include "MapUtil.h"
 #include "PlanetMap.h"
 
+PlayerData* PlayerData::pd = nullptr;
+
 PlayerData::PlayerData()
 {
 
@@ -22,9 +24,6 @@ PlayerData::PlayerData()
 		std::cout << "Flight time on round " << period * i - period / 4 << ": " << OrbitPattern::Duration(period * i - period / 4) << std::endl;
 	}
 
-
-	///////////////////////////////////////////////
-
 	PlanetMap earth{ GameController::PlanetMap(Earth) };
 	for (bc_MapLocation* location : MapUtil::earthLocations) {
 		MapLocation deposit{ bc_MapLocation_clone(location) };
@@ -35,11 +34,8 @@ PlayerData::PlayerData()
 		}
 	}
 	std::cout << initialKarboniteLocations.size() << " initial Karbonite deposits totaling " << earthStartingKarbonite << "\n";
-	CHECK_ERRORS()
 
 	PlanetMap map{ GameController::PlanetMap(Earth) };
-	CHECK_ERRORS()
-
 	for (auto& worker : map.InitialWorkers()) {
 		if (worker.Team() != GameController::Team()) {
 			std::cout << "enemy workers spawn at " <<  worker.Loc().ToMapLocation().X() << ", " <<  worker.Loc().ToMapLocation().Y() << "\n";
@@ -47,11 +43,7 @@ PlayerData::PlayerData()
 		}
 	}
 
-	CHECK_ERRORS()
-
-	////////////////////////////////////////////////
-
-
+	pd = this;
 
 }
 

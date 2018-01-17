@@ -5,7 +5,6 @@
 #include "Constants.h"
 #include "Knight.h"
 #include "Worker.h"
-#include "GlobalData.h"
 #include "Utility.h"
 
 std::map<units::Unit, std::vector<DamageInstance>> AttackCoordinator::damageCombinations;
