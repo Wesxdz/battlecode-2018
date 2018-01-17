@@ -51,9 +51,6 @@
     <ClCompile Include="Ranger.cpp">
       <Filter>Wrapper</Filter>
     </ClCompile>
-    <ClCompile Include="Research.cpp">
-      <Filter>Wrapper</Filter>
-    </ClCompile>
     <ClCompile Include="Robot.cpp">
       <Filter>Wrapper</Filter>
     </ClCompile>
@@ -112,19 +109,13 @@
     <ClCompile Include="PlayerData.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="Policy.cpp" />
-    <ClCompile Include="PolicyOverlord.cpp">
-      <Filter>Controller</Filter>
-    </ClCompile>
+    <ClCompile Include="tempSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
       <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="AsteroidStrike.h">
-      <Filter>Wrapper</Filter>
-    </ClInclude>
-    <ClInclude Include="Constants.h">
       <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Factory.h">
@@ -158,9 +149,6 @@
       <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Ranger.h">
-      <Filter>Wrapper</Filter>
-    </ClInclude>
-    <ClInclude Include="Research.h">
       <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Robot.h">
@@ -221,10 +209,8 @@
     <ClInclude Include="PlayerData.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="Policy.h" />
-    <ClInclude Include="PolicyOverlord.h">
-      <Filter>Controller</Filter>
+    <ClInclude Include="Constants.h">
+      <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="UnitPolicies.h" />
   </ItemGroup>
 </Project>
