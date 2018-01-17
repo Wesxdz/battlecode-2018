@@ -4,7 +4,6 @@
 #include "bc.h"
 
 #include "GameController.h"
-#include "GameMap.h"
 #include "PlanetMap.h"
 #include "Research.h"
 #include "OrbitPattern.h"
@@ -29,7 +28,6 @@ class GlobalData
 {
 public:
 	GameController gc;
-	GameMap gameMap;
 
 	Research research;
 	OrbitPattern orbitPattern;
@@ -74,7 +72,6 @@ public:
 	MapLocation* enemySpawns;
 	int enemySpawnAmo;
 
-	PlanetMap* thisPlanetMap = gameMap.OurPlanet();
 	bc_Team thisTeam = gc.Team();
 };
 

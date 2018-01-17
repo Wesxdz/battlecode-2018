@@ -4,7 +4,7 @@
 #include "bc.h"
 #include <vector>
 #include <list>
-#include "MapLocation.h"
+#include <memory>
 
 /*
 A group of bc_MapLocations that are connected in some way
@@ -15,10 +15,10 @@ class Section
 {
 public:
 	~Section();
-	std::vector<MapLocation> locations;
-	static std::list<Section> GenSections(std::vector<MapLocation>& passables);
-	static std::list<Section> marsSections;
-	static std::list<Section> earthSections;
+	std::vector<bc_MapLocation*> locations;
+	static std::list<std::shared_ptr<Section>> GenSections(std::vector<bc_MapLocation*>& passables);
+	static std::list<std::shared_ptr<Section>> marsSections;
+	static std::list<std::shared_ptr<Section>> earthSections;
 };
 
 #endif

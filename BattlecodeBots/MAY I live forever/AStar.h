@@ -1,7 +1,5 @@
 #ifndef ASTAR_H
 #define ASTAR_H
-#include "GameMap.h"
-
 #include <vector>
 
 

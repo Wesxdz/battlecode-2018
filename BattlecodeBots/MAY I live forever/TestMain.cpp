@@ -12,24 +12,24 @@
 #include "MapLocation.h"
 #include "Location.h"
 
-#include "GameMap.h"
 #include "Research.h"
 #include "OrbitPattern.h"
 #include "AsteroidPattern.h"
 #include "RocketLandingInfo.h"
 #include "TeamArray.h"
 #include "Utility.h"
+//#include "MapUtil.h"
 
 
 
 GameController gc;
-GameMap gameMap;
 
 Research research;
 OrbitPattern orbitPattern;
 AsteroidPattern asteroidPattern;
 RocketLandingInfo rocketLandingInfo;
 TeamArray teamArray;
+//MapUtil mapUtil;
 PlayerData playerData;
 
 int main()
@@ -42,10 +42,6 @@ int main()
 		uint32_t round = GameController::Round();
 		std::cout << "Round: " << round << std::endl;
 		playerData.Update();
-
-		
-
-
 
 		GameController::EndTurn();
 	}

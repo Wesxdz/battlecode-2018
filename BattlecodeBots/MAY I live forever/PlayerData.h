@@ -28,6 +28,7 @@ public:
 
 	std::map<bc_UnitType, int> teamUnitCounts;
 	std::map<bc_UnitType, int> enemyUnitCounts;
+	bc_PlanetMap* Map(bc_Planet);
 	void GatherUnitData();
 	void ClearUnitCounts();
 	

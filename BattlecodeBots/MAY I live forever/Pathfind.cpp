@@ -1,8 +1,8 @@
 #include "Pathfind.h"
 
 #include "Constants.h"
-#include "GameMap.h"
 #include "PlanetMap.h"
+#include "GameController.h"
 
 #include <stdlib.h>
 #include <algorithm>
@@ -10,7 +10,7 @@
 std::vector<MapLocation> Pathfind::Neighbors(MapLocation & start)
 {
 	std::vector<MapLocation> neighbors;
-	PlanetMap* planetMap = GameMap::OurPlanet();
+	bc_PlanetMap* planetMap = GameController::PlanetMap(start.Planet());
 	for (bc_Direction direction : constants::directions_adjacent) {
 		MapLocation neighbor = MapLocation::Neighbor(start, direction);
 		if (neighbor.IsValid()) neighbors.push_back(neighbor);
@@ -21,7 +21,7 @@ std::vector<MapLocation> Pathfind::Neighbors(MapLocation & start)
 std::vector<MapLocation> Pathfind::Moveable(MapLocation& start)
 {
 	std::vector<MapLocation> neighbors;
-	PlanetMap* planetMap = GameMap::OurPlanet();
+	bc_PlanetMap* planetMap = GameController::PlanetMap(start.Planet());
 	for (bc_Direction direction : constants::directions_adjacent) {
 		MapLocation neighbor = MapLocation::Neighbor(start, direction);
 		if (neighbor.IsValid()) {

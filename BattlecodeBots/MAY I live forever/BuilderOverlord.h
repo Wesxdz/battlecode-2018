@@ -2,12 +2,8 @@
 #define BUILDEROVERLORD_H
 
 #include "bc.h"
-#include "PlayerInfo.h"
 #include <vector>
 #include "Utility.h"
-
-
-
 
 
 class BuilderOverlord

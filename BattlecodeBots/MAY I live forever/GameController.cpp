@@ -1,6 +1,5 @@
 #include "GameController.h"
 
-#include "GameMap.h"
 #include "PlanetMap.h"
 #include "Unit.h"
 #include "Knight.h"
@@ -37,6 +36,12 @@ uint32_t GameController::Round()
 bc_Planet GameController::Planet()
 {
 	return bc_GameController_planet(gc);
+}
+
+bc_PlanetMap * GameController::PlanetMap(bc_Planet planet)
+{
+	if (planet == Earth) return  bc_GameController_starting_map(GameController::gc, bc_Planet::Earth);
+	return bc_GameController_starting_map(GameController::gc, bc_Planet::Mars);
 }
 
 bc_Team GameController::Team()

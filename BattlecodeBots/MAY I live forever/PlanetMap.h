@@ -24,7 +24,6 @@ public:
 	uintptr_t height;
 public:
 	PlanetMap();
-	PlanetMap(bc_Planet type);
 	PlanetMap(bc_PlanetMap* self);
 	PlanetMap(const PlanetMap& other);
 	~PlanetMap();
