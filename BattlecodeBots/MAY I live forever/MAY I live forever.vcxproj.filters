@@ -78,9 +78,6 @@
     <ClCompile Include="Science.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalData.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
     <ClCompile Include="Pathfind.cpp">
       <Filter>Pathfinding</Filter>
     </ClCompile>
@@ -187,9 +184,6 @@
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="bc.h" />
-    <ClInclude Include="GlobalData.h">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="Pathfind.h">
       <Filter>Pathfinding</Filter>
     </ClInclude>

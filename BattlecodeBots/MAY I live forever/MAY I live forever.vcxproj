@@ -123,7 +123,6 @@
     <ClCompile Include="CombatOverlord.cpp" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
-    <ClCompile Include="GlobalData.cpp" />
     <ClCompile Include="Healer.cpp" />
     <ClCompile Include="Knight.cpp" />
     <ClCompile Include="Location.cpp" />
@@ -161,7 +160,6 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="GameController.h" />
-    <ClInclude Include="GlobalData.h" />
     <ClInclude Include="Healer.h" />
     <ClInclude Include="Knight.h" />
     <ClInclude Include="Location.h" />

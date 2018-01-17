@@ -20,6 +20,8 @@
 #include "Utility.h"
 #include "MapUtil.h"
 
+#include "CombatOverlord.h"
+
 GameController gc;
 Research research;
 OrbitPattern orbitPattern;
@@ -28,6 +30,8 @@ RocketLandingInfo rocketLandingInfo;
 TeamArray teamArray;
 MapUtil mapUtil;
 PlayerData playerData;
+
+CombatOverlord combat;
 
 int main()
 {
@@ -40,6 +44,7 @@ int main()
 			std::cout << "Round: " << round << std::endl;
 		}
 		playerData.Update();
+		combat.Update();
 		GameController::EndTurn();
 	}
 }
