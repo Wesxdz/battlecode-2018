@@ -1,7 +1,6 @@
 #include "Utility.h"
 
 #include <iostream>
-#include "GameMap.h"
 #include "GameController.h"
 
 namespace Utility{

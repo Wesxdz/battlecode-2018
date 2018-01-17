@@ -1,8 +1,8 @@
 #include "PlanetMap.h"
 
-#include "GameMap.h"
 #include "MapLocation.h"
 #include "Log.h"
+#include "GameController.h"
 
 PlanetMap::PlanetMap()
 {
@@ -15,7 +15,7 @@ PlanetMap::~PlanetMap()
 
 PlanetMap::PlanetMap(const PlanetMap& other)
 {
-	self = bc_PlanetMap_clone(other.self);
+	self = bc_GameController_starting_map(GameController::gc, other.planetType);
 	planetType = bc_PlanetMap_planet_get(self);
 	width = bc_PlanetMap_width_get(self);
 	height = bc_PlanetMap_height_get(self);
@@ -71,6 +71,7 @@ std::vector<units::Worker> PlanetMap::InitialWorkers()
 		units::Worker worker(bc_VecUnit_index(bcWorkers, i));
 		workers.push_back(worker);
 	}
+	delete_bc_VecUnit(bcWorkers);
 	return workers;
 }
 

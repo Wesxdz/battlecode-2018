@@ -1,4 +1,4 @@
-//#include "AttackCoordinator.h"
+#include "AttackCoordinator.h"
 //
 //#include <algorithm>
 //#include "MapLocation.h"

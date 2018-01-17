@@ -4,12 +4,12 @@
 
 #include "bc.h"
 
-#include "GlobalData.h"
+#include "GameController.h"
+#include "Research.h"
 #include "Science.h"
 #include "Log.h"
 
 GameController gc;
-Research research;
 
 /*
 Instead of micromanaging individual unit behavior, prioritize goals based on available data and

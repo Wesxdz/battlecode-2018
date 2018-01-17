@@ -1,13 +1,14 @@
 #ifndef RESEARCH_POLICIES_H
 #define RESEARCH_POLICIES_H
 
-#include "bc.h"
-
 #include <map>
 #include <list>
 #include <memory>
+#include "bc.h"
 #include <functional>
 #include <string>
+
+#include "PlayerData.h"
 
 struct Upgrade
 {
@@ -24,11 +25,20 @@ struct Upgrade
 class Science
 {
 public:
-	virtual void Init();
+	virtual void Init(PlayerData* playerData);
 	void Update();
 	std::list<Upgrade> paths;
-//private:
+private:
+	PlayerData* playerData;  
+
 	bool researchNextTurn = true;
+	int turnsToResearch = 0;
+
+	bool hasBlink;
+	bool hasSnipe;
+	bool hasJavelin;
+	bool hasOverCharge;
+	bool hasRockets;
 };
 
 #endif

@@ -14,44 +14,44 @@
 //
 //void CombatOverlord::Update(GlobalData* data)
 //{
-//	for (auto mage : data->currMages) { // Mage goes first because of splash damage
-//		MageAction(mage);
-//	}
-//	for (auto knight : data->currKnights) {
-//		KnightAction(knight);
-//	}
-//	for (auto ranger : data->currRangers) {
-//		RangerAction(ranger);
-//	}
-//	for (auto healer : data->currHealers) { // Healer overcharge makes unit act again
-//		HealerAction(healer);
-//	}
+//	//for (auto mage : data->currMages) { // Mage goes first because of splash damage
+//	//	MageAction(mage);
+//	//}
+//	//for (auto knight : data->currKnights) {
+//	//	KnightAction(knight);
+//	//}
+//	//for (auto ranger : data->currRangers) {
+//	//	RangerAction(ranger);
+//	//}
+//	//for (auto healer : data->currHealers) { // Healer overcharge makes unit act again
+//	//	HealerAction(healer);
+//	//}
 //}
 //
 //void CombatOverlord::KnightAction(units::Knight & knight)
 //{
-//	if (knight.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
-//		auto nearby = InAttackRange(knight, knight.AttackRange());
-//		auto best = std::max_element(nearby.begin(), nearby.end(), [&knight, this](units::Unit& unit) {
-//			return this->AttackValue(knight, unit);
-//		});
-//		if (best != nearby.end()) {
-//			if (knight.CanAttack(*best)) {
-//				knight.Attack(*best);
-//			}
-//		}
-//	}
-//	if (knight.IsJavelinReady()) {
-//		auto nearby = InAttackRange(knight, knight.AbilityRange());
-//		auto best = std::max_element(nearby.begin(), nearby.end(), [&knight, this](units::Unit& unit) {
-//			return this->AttackValue(knight, unit);
-//		});
-//		if (best != nearby.end()) {
-//			if (knight.CanJavelin(*best)) {
-//				knight.Javelin(*best);
-//			}
-//		}
-//	}
+//	//if (knight.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
+//	//	auto nearby = InAttackRange(knight, knight.AttackRange());
+//	//	auto best = std::max_element(nearby.begin(), nearby.end(), [&knight, this](units::Unit& unit) {
+//	//		return this->AttackValue(knight, unit);
+//	//	});
+//	//	if (best != nearby.end()) {
+//	//		if (knight.CanAttack(*best)) {
+//	//			knight.Attack(*best);
+//	//		}
+//	//	}
+//	//}
+//	//if (knight.IsJavelinReady()) {
+//	//	auto nearby = InAttackRange(knight, knight.AbilityRange());
+//	//	auto best = std::max_element(nearby.begin(), nearby.end(), [&knight, this](units::Unit& unit) {
+//	//		return this->AttackValue(knight, unit);
+//	//	});
+//	//	if (best != nearby.end()) {
+//	//		if (knight.CanJavelin(*best)) {
+//	//			knight.Javelin(*best);
+//	//		}
+//	//	}
+//	//}
 //}
 //
 //void CombatOverlord::RangerAction(units::Ranger & ranger)

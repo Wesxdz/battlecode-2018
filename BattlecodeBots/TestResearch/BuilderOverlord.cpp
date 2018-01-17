@@ -1,6 +1,6 @@
 //#include "BuilderOverlord.h"
 //#include "GameController.h"
-//#include "GameMap.h"
+//#include "GameController.h"
 //
 //std::array<int, 5> tryRotate = { 0, -1, 1, -2, 2 };
 //
@@ -61,7 +61,7 @@
 //			{
 //				build = false;
 //				acted = true;
-//				bc_Location* locationOfStructure;
+//				bc_Location* locationOfStructure = nullptr;
 //				int structureID;
 //				bool factory = false;
 //				bool foundAdjacentProject = false;
@@ -202,7 +202,7 @@
 //				//if clear spot exists, build with priority given to rockets.
 //				if (foundOpenSpot)
 //				{
-//					bc_MapLocation* buildLocation = new_bc_MapLocation(GameMap::Earth().Planet(), spotX, spotY);
+//					bc_MapLocation* buildLocation = new_bc_MapLocation(GameController::Planet(), spotX, spotY);
 //					bc_Direction buildDirection = bc_MapLocation_direction_to(workerLocation, buildLocation);
 //					if (m_rocketCount < m_desiredRockets && GameController::Karbonite() >= 75)
 //					{
@@ -240,11 +240,11 @@
 //						//Checking GameController::Planet() returns mars or earth, 1 and 0 respectively.
 //						if (GameController::Planet())
 //						{
-//							foundKarboniteDeposit = bc_GameController_karbonite_at(GameController::gc, new_bc_MapLocation(GameMap::Mars().Planet(), spotX, spotY));
+//							foundKarboniteDeposit = bc_GameController_karbonite_at(GameController::gc, new_bc_MapLocation(Mars, spotX, spotY));
 //						}
 //						else
 //						{
-//							foundKarboniteDeposit = bc_GameController_karbonite_at(GameController::gc, new_bc_MapLocation(GameMap::Earth().Planet(), spotX, spotY));
+//							foundKarboniteDeposit = bc_GameController_karbonite_at(GameController::gc, new_bc_MapLocation(Earth, spotX, spotY));
 //						}
 //
 //
@@ -264,7 +264,7 @@
 //
 //				if (foundKarboniteDeposit)
 //				{
-//					bc_MapLocation* buildLocation = new_bc_MapLocation(GameMap::Earth().Planet(), spotX, spotY);
+//					bc_MapLocation* buildLocation = new_bc_MapLocation(Earth, spotX, spotY);
 //					bc_Direction buildDirection = bc_MapLocation_direction_to(workerLocation, buildLocation);
 //
 //					if (bc_GameController_can_harvest(GameController::gc, m_workerIDs[i], buildDirection))
