@@ -2,7 +2,6 @@
 
 #include "GameController.h"
 #include "Log.h"
-#include "GameMap.h"
 #include "PlanetMap.h"
 
 #include "VecUnit.h"
@@ -129,17 +128,25 @@ bc_Unit* MapLocation::Occupant()
 uint8_t MapLocation::IsValid()
 {
 	if (Planet() == Earth) {
-		return GameMap::Earth().IsOnMap(*this);
+		PlanetMap map{ GameController::PlanetMap(Earth) };
+		return map.IsOnMap(*this);
 	}
-	return GameMap::Mars().IsOnMap(*this);
+	else {
+		PlanetMap map{ GameController::PlanetMap(Mars) };
+		return map.IsOnMap(*this);
+	}
 }
 
 uint8_t MapLocation::IsPassable()
 {
 	if (Planet() == Earth) {
-		return GameMap::earth.IsPassableTerrain(*this);
+		PlanetMap map{ GameController::PlanetMap(Earth) };
+		return map.IsPassableTerrain(*this);
 	}
-	return GameMap::mars.IsPassableTerrain(*this);
+	else {
+		PlanetMap map{ GameController::PlanetMap(Mars) };
+		return map.IsPassableTerrain(*this);
+	}
 }
 
 std::vector<units::Unit> MapLocation::NearbyUnits(uint32_t radius_squared)

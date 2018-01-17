@@ -1,12 +1,9 @@
 #ifndef ASTAR_H
 #define ASTAR_H
-#include "GameMap.h"
 
 #include <vector>
-
-
-
-
+#include "bc.h"
+#include "MapLocation.h"
 
 class AStar
 {

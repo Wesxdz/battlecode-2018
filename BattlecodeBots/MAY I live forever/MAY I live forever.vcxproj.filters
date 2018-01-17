@@ -27,9 +27,6 @@
     <ClCompile Include="GameController.cpp">
       <Filter>Wrapper</Filter>
     </ClCompile>
-    <ClCompile Include="GameMap.cpp">
-      <Filter>Wrapper</Filter>
-    </ClCompile>
     <ClCompile Include="Healer.cpp">
       <Filter>Wrapper</Filter>
     </ClCompile>
@@ -81,9 +78,6 @@
     <ClCompile Include="Science.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="Section.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
     <ClCompile Include="GlobalData.cpp">
       <Filter>Util</Filter>
     </ClCompile>
@@ -105,9 +99,21 @@
     <ClCompile Include="Pegboard.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="CombatOverlord.cpp">
       <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="MapUtil.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Section.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="BuilderOverlord.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerData.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -124,9 +130,6 @@
       <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="GameController.h">
-      <Filter>Wrapper</Filter>
-    </ClInclude>
-    <ClInclude Include="GameMap.h">
       <Filter>Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="Healer.h">
@@ -183,9 +186,6 @@
     <ClInclude Include="Science.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="Section.h">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="bc.h" />
     <ClInclude Include="GlobalData.h">
       <Filter>Util</Filter>
@@ -210,6 +210,18 @@
     </ClInclude>
     <ClInclude Include="CombatOverlord.h">
       <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="MapUtil.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Section.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="BuilderOverlord.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerData.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

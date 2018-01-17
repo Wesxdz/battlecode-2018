@@ -4,7 +4,6 @@
 #include "bc.h"
 
 #include "GameController.h"
-#include "GameMap.h"
 #include "PlanetMap.h"
 #include "Research.h"
 #include "OrbitPattern.h"
@@ -30,7 +29,6 @@ class GlobalData
 public:
 // Static Variables. Should only be created once
 	GameController gc;
-	GameMap gameMap;
 
 	Research research;
 	OrbitPattern orbitPattern;
@@ -78,19 +76,7 @@ public:
 	MapLocation* enemySpawns;
 	int enemySpawnAmo;
 
-// Useful variables
-	PlanetMap* thisPlanetMap;
-	bc_Team thisTeam;
-	int currKarbonite;
-	int currRound;
-
-	static GlobalData* data;
-public:
-	GlobalData();
-	~GlobalData();
-
-	void Init();
-	void Update();
+	bc_Team thisTeam = gc.Team();
 };
 
 #endif

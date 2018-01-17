@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Node.h"
 #include "GameController.h"
+#include "PlanetMap.h"
 
 AStar::AStar(const int& xMinBounds, const int& yMinBounds, const int& xMaxBounds, const int& yMaxBounds)
 {
@@ -24,7 +25,7 @@ std::vector<bc_Direction> AStar::PathFind(const int & xStart, const int & yStart
 {
 	return std::vector<bc_Direction>();
 
-	PlanetMap* gameMap = GameMap::OurPlanet();
+	PlanetMap gameMap{ GameController::PlanetMap(GameController::Planet()) };
 	if (m_hasBounds)
 	{
 		m_mapHSize = m_maxBX - m_minBX;
@@ -32,8 +33,8 @@ std::vector<bc_Direction> AStar::PathFind(const int & xStart, const int & yStart
 	}
 	else
 	{
-		m_mapHSize = gameMap->Width();
-		m_mapVSize = gameMap->Height();
+		m_mapHSize = gameMap.Width();
+		m_mapVSize = gameMap.Height();
 		m_minBX = 0;
 		m_minBY = 0;
 		m_maxBX = m_mapHSize;
@@ -56,7 +57,7 @@ std::vector<bc_Direction> AStar::PathFind(const int & xStart, const int & yStart
 		for (int gmX = m_minBX; gmX < m_maxBX; gmX++)
 		{
 			MapLocation ml = MapLocation(GameController::Planet(), gmX, gmY);
-			map[gmX * m_mapVSize + gmY] = gameMap->IsPassableTerrain(ml);
+			map[gmX * m_mapVSize + gmY] = gameMap.IsPassableTerrain(ml);
 		}
 	}
 
@@ -149,7 +150,6 @@ std::vector<bc_Direction> AStar::PathFind(const int & xStart, const int & yStart
 			delete[] openNodesMap;
 			delete[] closedNodesMap;
 			delete[] map;
-			delete[] gameMap;
 			return returnPath;
 		}
 
@@ -214,7 +214,6 @@ std::vector<bc_Direction> AStar::PathFind(const int & xStart, const int & yStart
 	delete[] openNodesMap;
 	delete[] closedNodesMap;
 	delete[] map;
-	delete[] gameMap;
 	//No route found
 	return std::vector<bc_Direction>();
 }

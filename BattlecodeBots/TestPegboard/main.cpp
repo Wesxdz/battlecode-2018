@@ -4,7 +4,6 @@
 #include "Worker.h"
 #include "Constants.h"
 #include "Pegboard.h"
-#include "GameMap.h"
 
 /*
 Instead of micromanaging individual unit behavior, prioritize goals based on available data and
@@ -14,7 +13,6 @@ int main()
 {
 	srand(0);
 	GameController player;
-	GameMap map;
 	while (true)
 	{
 		auto units = player.Units(bc_Selection::MyTeam);

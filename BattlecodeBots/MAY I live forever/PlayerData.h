@@ -34,10 +34,8 @@ public:
 	int earthStartingKarbonite;
 	std::vector<MapLocation> initialKarboniteLocations;
 	std::vector<MapLocation> enemySpawnPositions;
-	std::vector<MapLocation> passableEarthTerrain;
-	std::vector<MapLocation> passableMarsTerrain;
 
-	int optimalLaunchTime;
+	int optimalFlightTime;
 	std::vector<int> optimalLaunchRounds;
 
 	std::map<bc_UnitType, int> enemyResearchBranches;

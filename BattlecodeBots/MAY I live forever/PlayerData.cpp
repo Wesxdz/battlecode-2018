@@ -1,21 +1,19 @@
 #include "PlayerData.h"
 #include "GameController.h"
 #include "OrbitPattern.h"
-#include "GameMap.h"
 
 #include <iostream>
 #include "Utility.h"
 #include "Log.h"
+#include "MapUtil.h"
+#include "PlanetMap.h"
 
 PlayerData::PlayerData()
 {
+
 	int period = OrbitPattern::Period();
 	int optimalRounds = 749 / period;
-	optimalLaunchTime = OrbitPattern::Center() - OrbitPattern::Amplitude();
-
-	std::cout << "Period: " << period << std::endl;
-	std::cout << "Center: " << OrbitPattern::Center() << std::endl;
-	std::cout << "Amplitude: " << OrbitPattern::Amplitude() << std::endl;
+	optimalFlightTime = OrbitPattern::Center() - OrbitPattern::Amplitude();
 	std::cout << "Optimal Launch Rounds: " << optimalRounds << std::endl;
 
 	for (int i = 1; i <= optimalRounds; i++)
@@ -25,74 +23,31 @@ PlayerData::PlayerData()
 	}
 
 
-	/////////////////////////////////////////////////
+	///////////////////////////////////////////////
 
-	int centerPoint = GameMap::OurPlanet()->height / 2;
+	PlanetMap earth{ GameController::PlanetMap(Earth) };
+	for (bc_MapLocation* location : MapUtil::earthLocations) {
+		MapLocation deposit{ bc_MapLocation_clone(location) };
+		int karb = earth.InitialKarbonite(deposit);
+		if (karb > 0) {
+			initialKarboniteLocations.push_back(deposit);
+			earthStartingKarbonite += karb;
+		}
+	}
+	std::cout << initialKarboniteLocations.size() << " initial Karbonite deposits totaling " << earthStartingKarbonite << "\n";
+	CHECK_ERRORS()
 
-	int allLocationsSize = centerPoint * centerPoint * 4;
-	MapLocation centerPointEarth(GameMap::OurPlanet()->planetType, centerPoint, centerPoint);
-	MapLocation centerPointMars(Utility::GetOtherPlanet(GameMap::OurPlanet()->planetType), centerPoint, centerPoint);
+	PlanetMap map{ GameController::PlanetMap(Earth) };
+	CHECK_ERRORS()
 
-	int playAreaSqr = centerPoint * centerPoint + centerPoint * centerPoint;
-
-	bc_VecMapLocation* allLocationsEarth = bc_GameController_all_locations_within(GameController::gc, centerPointEarth.self, playAreaSqr);
-	bc_VecMapLocation* allLocationsMars = bc_GameController_all_locations_within(GameController::gc, centerPointMars.self, playAreaSqr);
-	uintptr_t actualAmo = bc_VecMapLocation_len(allLocationsEarth);
-	if (actualAmo != allLocationsSize) {
-		std::cout << "We expected " << allLocationsSize << " Locations but got " << actualAmo << std::endl;
-		std::cout << "The center point on earth is at " << centerPoint << ", " << centerPoint << std::endl;
-		std::cout << "Planet Height: " << GameMap::OurPlanet()->height << ", Width: " << GameMap::OurPlanet()->width << std::endl;
-		std::cout << "We are searching all areas with " << playAreaSqr << "radius squared" << std::endl;
-		CHECK_ERRORS();
+	for (auto& worker : map.InitialWorkers()) {
+		if (worker.Team() != GameController::Team()) {
+			std::cout << "enemy workers spawn at " <<  worker.Loc().ToMapLocation().X() << ", " <<  worker.Loc().ToMapLocation().Y() << "\n";
+			enemySpawnPositions.push_back(worker.Loc().ToMapLocation());
+		}
 	}
 
-	bc_PlanetMap* planetEarthPtr = GameMap::earth.self;
-	bc_PlanetMap* planetMarsPtr = GameMap::mars.self;
-	std::cout << "The pointers are " << planetEarthPtr << " " << planetMarsPtr << std::endl;
-	for (int i = 0; i < allLocationsSize; i++) 
-	{
-		bc_MapLocation* earthLocPtr = bc_VecMapLocation_index(allLocationsEarth, i);
-		bc_MapLocation* marsLocPtr = bc_VecMapLocation_index(allLocationsMars, i);
-		std::cout << "The pointers are " << earthLocPtr << " " << marsLocPtr << std::endl;
-		bc_MapLocation* thisPlanetLocPtr = GameMap::OurPlanet()->planetType == bc_Planet::Earth ? earthLocPtr : marsLocPtr;
-
-		bool canPass = bc_PlanetMap_is_passable_terrain_at(planetEarthPtr, earthLocPtr);
-		MapLocation earthLoc(earthLocPtr);
-		if (canPass) 
-		{
-			passableEarthTerrain.push_back(earthLoc);
-		}
-		CHECK_ERRORS();
-		std::cout << "Earth " << earthLoc.X() << ", " << earthLoc.Y() << ". Type " << earthLoc.Planet() << std::endl;
-
-		canPass = bc_PlanetMap_is_passable_terrain_at(planetMarsPtr, marsLocPtr);
-		MapLocation marsLoc(marsLocPtr);
-		if (canPass) 
-		{
-			passableMarsTerrain.push_back(marsLoc);
-		}
-		CHECK_ERRORS();
-		std::cout << "Mars " << marsLoc.X() << ", " << marsLoc.Y() << ". Type " << marsLoc.Planet() << std::endl;
-
-		uint32_t initialKarb = bc_PlanetMap_initial_karbonite_at(GameMap::OurPlanet()->self, thisPlanetLocPtr);
-		MapLocation karbLoc(bc_MapLocation_clone(thisPlanetLocPtr));
-		if (initialKarb)
-		{
-			initialKarboniteLocations.push_back(karbLoc);
-			earthStartingKarbonite += initialKarb;
-		}
-		CHECK_ERRORS();
-		std::cout << "Karbonite " << karbLoc.X() << ", " << karbLoc.Y() << ". Type " << karbLoc.Planet() << std::endl;
-	}
-	delete_bc_VecMapLocation(allLocationsEarth);
-	delete_bc_VecMapLocation(allLocationsMars);
-
-	std::cout << "There are " << passableEarthTerrain.size() << " passable tiles on earth." << std::endl;
-	std::cout << "There are " << initialKarboniteLocations.size() << " initial Karbonite locations" << std::endl;
-	std::cout << "There is " << earthStartingKarbonite << " total karbonite available." << std::endl;
-	CHECK_ERRORS();
-
-
+	CHECK_ERRORS()
 
 	////////////////////////////////////////////////
 
