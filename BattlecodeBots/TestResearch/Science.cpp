@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "GameController.h"
+#include "OrbitPattern.h"
 #include "Constants.h"
 #include "MapUtil.h"
 #include "PlayerData.h"
@@ -84,11 +85,13 @@ void Science::Init(PlayerData* playerData)
 {
 	this->playerData = playerData;
 
+	// Damage = 2 Points
+
 	/*
 	25
 	Workers may harvest an additional 1 Karbonite from a deposit at a time.
 	*/
-	/// 725 - 0, Linear through rounds
+	/// ??? - 0, Linear through Ratio and Workers
 	paths.push_back({ "Gimme some of that Black Stuff", Worker, 1, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
 		auto currRound = GameController::Round();
@@ -97,10 +100,11 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::WorkerUpgrade1) {
 			score = .0f;
 		} else {
-			int ourShare = playerData->earthStartingKarbonite / 2.0f;
-			int predictedTurns = ourShare / (3 * playerData->teamUnitCounts[bc_UnitType::Worker]);
-			int possibleTurns = ourShare / (4 * playerData->teamUnitCounts[bc_UnitType::Worker]);
-			score = (possibleTurns / predictedTurns) * ourShare;
+			float ourShare = playerData->earthStartingKarbonite / 2.0f;
+			if(ourShare < 1) { ourShare = 1; }
+			float predictedTurns = ourShare / (3 * playerData->teamUnitCounts[bc_UnitType::Worker]);
+			float possibleTurns = ourShare / (4 * playerData->teamUnitCounts[bc_UnitType::Worker]);
+			score = (possibleTurns / predictedTurns) * (ourShare / 10.0f); // 5000 karbonite = Very worth = 500 Points * Ratio
 		} 
 
 		std::cout << "Gimme some of that Black Stuff has a value of " << score << std::endl;
@@ -111,8 +115,8 @@ void Science::Init(PlayerData* playerData)
 	75
 	Workers add 1 more health when repairing or constructing a building.
 	*/
-	/// 675 - 0, Linear through rounds
-	paths.push_back({ "Time is of the Essence", Worker, 2, [](Upgrade* upgrade) {
+	/// 1 - 0, Straight
+	paths.push_back({ "Time is of the Essence", Worker, 2, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
 		auto currRound = GameController::Round();
 
@@ -120,7 +124,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::WorkerUpgrade2) {
 			score = .0f;
 		} else {
-			score = 1.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Worker] > 0 ? 1 : 0;
+			float tempScore = 1.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
 
 		std::cout << "Time is of the Essence I has a value of " << score << std::endl;
@@ -131,8 +138,8 @@ void Science::Init(PlayerData* playerData)
 	75
 	Workers add another 1 more health (2 more total) when repairing or constructing a building.
 	*/
-	/// 675 - 0, Linear through rounds
-	paths.push_back({ "Time is of the Essence II", Worker, 3, [](Upgrade* upgrade) {
+	/// 1 - 0, Straight
+	paths.push_back({ "Time is of the Essence II", Worker, 3, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
 		auto currRound = GameController::Round();
 
@@ -140,7 +147,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::WorkerUpgrade3) {
 			score = .0f;
 		} else {
-			score = 1.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Worker] > 0 ? 1 : 0;
+			float tempScore = 1.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
 
 		std::cout << "Time is of the Essence II has a value of " << score << std::endl;
@@ -151,16 +161,19 @@ void Science::Init(PlayerData* playerData)
 	75
 	Workers add another 3 more health (5 more total) when repairing or constructing a building.
 	*/
-	/// 675 - 0, Linear through rounds
-	paths.push_back({ "Time is of the Essence III", Worker, 4, [](Upgrade* upgrade) {
+	/// 5 - 0, Straight
+	paths.push_back({ "Time is of the Essence III", Worker, 4, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
 		auto currRound = GameController::Round();
 
 		float score = .0f;
-		if (currRound > 1000 - constants::WorkerUpgrade4) {
+		if (currRound > 1000 - constants::WorkerUpgrade3) {
 			score = .0f;
 		} else {
-			score = 5.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Worker] > 0 ? 1 : 0;
+			float tempScore = 5.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
 
 		std::cout << "Time is of the Essence III has a value of " << score << std::endl;
@@ -171,8 +184,8 @@ void Science::Init(PlayerData* playerData)
 	25
 	Decreases the strength of an attack on a Knight by an additional 5HP.
 	*/
-	/// 975 - 0, Linear through rounds
-	paths.push_back({ "Armor", Knight, 1, [](Upgrade* upgrade) {
+	/// 30 - 0, Linear through Units
+	paths.push_back({ "Armor", Knight, 1, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -180,7 +193,9 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::KnightUpgrade1) {
 			score = .0f;
 		} else {
-			score = 30.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Knight] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Knight] > 0 ? 1 : 0;
+			score = 30.0f * hasUnits + 30.0f * willHaveUnits;
 		} 
 
 		std::cout << "Armor has a value of " << score << std::endl;
@@ -192,7 +207,7 @@ void Science::Init(PlayerData* playerData)
 	Decreases the strength of an attack on a Knight by another 5HP (10HP more total).
 	*/
 	/// 30 - 0, Straight
-	paths.push_back({ "Even More Armor", Knight, 2, [](Upgrade* upgrade) {
+	paths.push_back({ "Even More Armor", Knight, 2, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -200,19 +215,21 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::KnightUpgrade2) {
 			score = .0f;
 		} else {
-			score = 30.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Knight] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Knight] > 0 ? 1 : 0;
+			score = 30.0f * hasUnits + 30.0f * willHaveUnits;
 		} 
 
 		std::cout << "Even More Armor has a value of " << score << std::endl;
 		return score;
 	} });
-
+	auto val = -.0000007f;
 	/*
 	150
 	Unlocks “Javelin” for Knights.
 	*/
 	/// 400 - 0, Slope through rounds
-	paths.push_back({ "Javelin", Knight, 3, [](Upgrade* upgrade) {
+	paths.push_back({ "Javelin", Knight, 3, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -220,7 +237,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::KnightUpgrade3) {
 			score = .0f;
 		} else {
-			score = -.0000007 * pow(currRound, 3) - pow(currRound, 2) + 400;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Knight] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Knight] > 0 ? 1 : 0;
+			float tempScore = -.0000007f * pow(currRound, 3.0f) - pow(currRound, 2.0f) + 400.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
 		// 60 damage, every 10 rounds. +3~ range
 
@@ -233,7 +253,7 @@ void Science::Init(PlayerData* playerData)
 	Decreases a Ranger’s movement cooldown by 5.
 	*/
 	/// 60 - 0, Straight
-	paths.push_back({ "Get in Fast", Ranger, 1, [](Upgrade* upgrade) {
+	paths.push_back({ "Get in Fast", Ranger, 1, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -241,7 +261,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::RangerUpgrade1) {
 			score = .0f;
 		} else {
-			score = 60.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			float tempScore = 60.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
 
 		std::cout << "Get in Fast has a value of " << score << std::endl;
@@ -253,7 +276,7 @@ void Science::Init(PlayerData* playerData)
 	Increases a Ranger’s vision range by 30.
 	*/
 	/// 100 - 0, Straight
-	paths.push_back({ "Scopes", Ranger, 2, [](Upgrade* upgrade) {
+	paths.push_back({ "Scopes", Ranger, 2, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -261,7 +284,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::RangerUpgrade2) {
 			score = .0f;
 		} else {
-			score = 100.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			float tempScore = 100.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
 
 		std::cout << "Scopes has a value of " << score << std::endl;
@@ -273,7 +299,7 @@ void Science::Init(PlayerData* playerData)
 	Unlocks "Snipe" for Rangers.
 	*/
 	/// 0 - 400 - 0, Straight, Slope through rounds
-	paths.push_back({ "Snipe", Ranger, 3, [](Upgrade* upgrade) {
+	paths.push_back({ "Snipe", Ranger, 3, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -281,9 +307,15 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::RangerUpgrade3) {
 			score = .0f;
 		} else if(currRound < 400) {
-			score = 300.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			float tempScore = 300.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} else {
-			score = pow(.99f, currRound - 1000);
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			float tempScore = pow(.99f, currRound - 1000.0f);
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 
 		std::cout << "Snipe has a value of " << score << std::endl;
@@ -295,7 +327,7 @@ void Science::Init(PlayerData* playerData)
 	Increases standard attack damage by 15HP.
 	*/
 	/// 30 - 0, Straight through rounds
-	paths.push_back({ "Glass Cannon", Mage, 1, [](Upgrade* upgrade) {
+	paths.push_back({ "Glass Cannon", Mage, 1, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -303,7 +335,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::MageUpgrade1) {
 			score = .0f;
 		} else {
-			score = 30.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
+			float tempScore = 30.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 
 		std::cout << "Glass Cannon I has a value of " << score << std::endl;
@@ -315,7 +350,7 @@ void Science::Init(PlayerData* playerData)
 	Increases standard attack damage by another 15HP (30HP more total).
 	*/
 	/// 30 - 0, Straight through rounds
-	paths.push_back({ "Glass Cannon II", Mage, 2, [](Upgrade* upgrade) {
+	paths.push_back({ "Glass Cannon II", Mage, 2, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -323,7 +358,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::MageUpgrade2) {
 			score = .0f;
 		} else {
-			score = 30.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
+			float tempScore = 30.0f;
+				score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 
 		std::cout << "Glass Cannon II has a value of " << score << std::endl;
@@ -335,7 +373,7 @@ void Science::Init(PlayerData* playerData)
 	Glass Cannon III: Increases standard attack damage by another 15HP (45HP more total).
 	*/
 	/// 30 - 0, Straight through rounds
-	paths.push_back({ "Glass Cannon III", Mage, 3, [](Upgrade* upgrade) {
+	paths.push_back({ "Glass Cannon III", Mage, 3, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -343,7 +381,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::MageUpgrade3) {
 			score = .0f;
 		} else {
-			score = 30.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
+			float tempScore = 30.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 
 		std::cout << "Glass Cannon III has a value of " << score << std::endl;
@@ -355,7 +396,7 @@ void Science::Init(PlayerData* playerData)
 	Unlocks “Blink” for Mages.
 	*/
 	/// 0 - 500 - 0, Parabola through rounds
-	paths.push_back({ "Blink", Mage, 4, [](Upgrade* upgrade) {
+	paths.push_back({ "Blink", Mage, 4, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -363,7 +404,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::MageUpgrade4) {
 			score = .0f;
 		} else {
-			score = -.07 * pow(currRound - 600, 2) + 500;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
+			float tempScore =  -.07f * pow(currRound - 600.0f, 2.0f) + 500.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 	
 		std::cout << "Blink has a value of " << score << std::endl;
@@ -383,7 +427,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::HealerUpgrade1) {
 			score = .0f;
 		} else {
-			score = 4.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
+			float tempScore = 4.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 
 		std::cout << "Spirit Water I has a value of " << score << std::endl;
@@ -395,7 +442,7 @@ void Science::Init(PlayerData* playerData)
 	Increases Healer’s healing ability by an another 5HP (7HP more total).
 	*/
 	/// 10 - 0, Straight
-	paths.push_back({ "Spirit Water II", Healer, 2, [](Upgrade* upgrade) {
+	paths.push_back({ "Spirit Water II", Healer, 2, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -403,7 +450,10 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::HealerUpgrade2) {
 			score = .0f;
 		} else {
-			score = 10.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
+			float tempScore = 10.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 
 		std::cout << "Spirit Water II has a value of " << score << std::endl;
@@ -415,7 +465,7 @@ void Science::Init(PlayerData* playerData)
 	Unlocks “Overcharge” for Healers.
 	*/
 	/// 0 - 600 - 0, Parabola through Rounds / Straight
-	paths.push_back({ "Overcharge", Healer, 3, [this](Upgrade* upgrade) {
+	paths.push_back({ "Overcharge", Healer, 3, [this, playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
 		auto currRound = GameController::Round();
 
@@ -425,9 +475,15 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::HealerUpgrade3) {
 			score = .0f;
 		} else if(this->hasJavelin || this->hasSnipe || this->hasBlink){
-			score = -.007 * pow(currRound - 500, 2) + 400;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
+			float tempScore = -.007f * pow(currRound - 500.0f, 2.0f) + 400.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} else {
-			score = 100.0f;
+			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
+			int willHaveUnits = playerData->desiredUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
+			float tempScore = 100.0f;
+			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 
 		std::cout << "Overcharge has a value of " << score << std::endl;
@@ -449,7 +505,7 @@ void Science::Init(PlayerData* playerData)
 		// Exponential model with rounds. Normal
 		// Plus bonus depending on initial karbonite on earth and ratio
 
-		float multiplier = currRound;
+		float multiplier = static_cast<float>(currRound);
 		
 
 		// Average of 15 rounds per strike
@@ -464,20 +520,20 @@ void Science::Init(PlayerData* playerData)
 		if (currRound < 200) {
 			int KarbPerRoundOnMars = 4;
 
-			float totalMarsLocation = MapUtil::marsLocations.size();
-			float passableMarsLocation = MapUtil::marsPassableLocations.size();
-			float passableMarsRatio = passableMarsLocation / totalMarsLocation;
+			auto totalMarsLocation = MapUtil::marsLocations.size();
+			auto passableMarsLocation = MapUtil::marsPassableLocations.size();
+			float passableMarsRatio = static_cast<float>(passableMarsLocation) / totalMarsLocation;
 
 			float averageKarbPerRoundOnMars = passableMarsRatio * KarbPerRoundOnMars;
 			// float averageKarbPerRoundOnMars = AsteroidPattern::GetTotalKarbOnMarsByRound(currRound+100);
 
 			// 1000 is a hardcoded minimum to be competent on Earth at start
-			float EarthToMarsRatio = 1000 / playerData->earthStartingKarbonite;
+			float EarthToMarsRatio = 1000.0f / playerData->earthStartingKarbonite;
 			if (EarthToMarsRatio > multiplier) {
 				multiplier = EarthToMarsRatio;
 			}
 		}
-		float score = pow(1.014, multiplier);
+		float score = pow(1.014f, multiplier);
 
 		std::cout << "Rocketry has a value of " << score << std::endl;
 		return score;
@@ -488,12 +544,19 @@ void Science::Init(PlayerData* playerData)
 	Reduces rocket travel time by 20 rounds compared to the travel time determined by the orbit of the planets.
 	*/
 	/// 650 - 0, Linear through rounds.
-	paths.push_back({ "Rocket Boosters", Rocket, 2, [](Upgrade* upgrade) {
+	paths.push_back({ "Rocket Boosters", Rocket, 2, [playerData](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
-		// Make it relevant with 
 		auto currRound = GameController::Round();
 
-		float score = 1.0f * (750 - currRound - constants::RocketUpgrade2);
+		float score = .0f;
+		if (currRound > 750 - constants::RocketUpgrade2) {
+			score = .0f;
+		} else {
+
+			score = playerData->optimalFlightTime / playerData->optimalLaunchRounds.size();
+		}
+		// Ratio of Turns it takes and launch Amount. Then maybe we should research this?
+		// LaunchTime / Launch Amo
 
 		std::cout << "Rocket Boosters has a value of " << score << std::endl;
 		return score;
@@ -508,7 +571,13 @@ void Science::Init(PlayerData* playerData)
 		// This Upgrade is pointless if it can't be reached by round 750
 		auto currRound = GameController::Round();
 
-		float score = 1.0f * (750 - currRound - constants::RocketUpgrade3);
+		float score = .0f;
+		if (currRound > 750 - constants::RocketUpgrade3) {
+			score = .0f;
+		} else {
+			score = .0f;
+		}
+		// Never research this?
 
 		std::cout << "Increased Capacity has a value of " << score << std::endl;
 		return score;

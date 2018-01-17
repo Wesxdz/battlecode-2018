@@ -8,6 +8,8 @@
 #include "MapUtil.h"
 #include "PlanetMap.h"
 
+PlayerData* PlayerData::pd = nullptr;
+
 PlayerData::PlayerData()
 {
 
@@ -15,15 +17,14 @@ PlayerData::PlayerData()
 	int optimalRounds = 749 / period;
 	optimalFlightTime = OrbitPattern::Center() - OrbitPattern::Amplitude();
 	std::cout << "Optimal Launch Rounds: " << optimalRounds << std::endl;
+	CHECK_ERRORS();
 
 	for (int i = 1; i <= optimalRounds; i++)
 	{
 		optimalLaunchRounds.push_back(period * i - period/4);
 		std::cout << "Flight time on round " << period * i - period / 4 << ": " << OrbitPattern::Duration(period * i - period / 4) << std::endl;
 	}
-
-
-	///////////////////////////////////////////////
+	CHECK_ERRORS();
 
 	PlanetMap earth{ GameController::PlanetMap(Earth) };
 	for (bc_MapLocation* location : MapUtil::earthLocations) {
@@ -35,23 +36,18 @@ PlayerData::PlayerData()
 		}
 	}
 	std::cout << initialKarboniteLocations.size() << " initial Karbonite deposits totaling " << earthStartingKarbonite << "\n";
-	CHECK_ERRORS()
+	CHECK_ERRORS();
 
 	PlanetMap map{ GameController::PlanetMap(Earth) };
-	CHECK_ERRORS()
-
 	for (auto& worker : map.InitialWorkers()) {
 		if (worker.Team() != GameController::Team()) {
 			std::cout << "enemy workers spawn at " <<  worker.Loc().ToMapLocation().X() << ", " <<  worker.Loc().ToMapLocation().Y() << "\n";
 			enemySpawnPositions.push_back(worker.Loc().ToMapLocation());
 		}
 	}
+	CHECK_ERRORS();
 
-	CHECK_ERRORS()
-
-	////////////////////////////////////////////////
-
-
+	pd = this;
 
 }
 
@@ -70,7 +66,7 @@ void PlayerData::GatherUnitData()
 		bc_UnitType uType = unit.type;
 
 		uTeam == GameController::Team() ? teamUnitCounts[uType]++ : enemyUnitCounts[uType]++;
-
+		std::cout << "Unit " << uType << std::endl;
 	}
 }
 
