@@ -21,7 +21,6 @@
 #include "MapUtil.h"
 
 GameController gc;
-
 Research research;
 OrbitPattern orbitPattern;
 AsteroidPattern asteroidPattern;
@@ -33,15 +32,14 @@ PlayerData playerData;
 int main()
 {
 	srand(0);
-	std::cout << "Playerdata test initialize" << std::endl;
 
 	while (true)
 	{
 		uint32_t round = GameController::Round();
-		std::cout << "Round: " << round << std::endl;
+		if (round % 10 == 0) {
+			std::cout << "Round: " << round << std::endl;
+		}
 		playerData.Update();
-
 		GameController::EndTurn();
 	}
 }
-

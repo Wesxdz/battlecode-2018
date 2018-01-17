@@ -128,6 +128,7 @@
     <ClCompile Include="Knight.cpp" />
     <ClCompile Include="Location.cpp" />
     <ClCompile Include="Mage.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="MapLocation.cpp" />
     <ClCompile Include="MapUtil.cpp" />
     <ClCompile Include="Node.cpp" />
@@ -144,7 +145,6 @@
     <ClCompile Include="Section.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="TeamArray.cpp" />
-    <ClCompile Include="TestMain.cpp" />
     <ClCompile Include="Unit.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="VecUnit.cpp" />

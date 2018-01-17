@@ -6,6 +6,7 @@
 #include "Utility.h"
 #include "Log.h"
 #include "MapUtil.h"
+#include "PlanetMap.h"
 
 PlayerData::PlayerData()
 {
@@ -13,10 +14,6 @@ PlayerData::PlayerData()
 	int period = OrbitPattern::Period();
 	int optimalRounds = 749 / period;
 	optimalFlightTime = OrbitPattern::Center() - OrbitPattern::Amplitude();
-
-	std::cout << "Period: " << period << std::endl;
-	std::cout << "Center: " << OrbitPattern::Center() << std::endl;
-	std::cout << "Amplitude: " << OrbitPattern::Amplitude() << std::endl;
 	std::cout << "Optimal Launch Rounds: " << optimalRounds << std::endl;
 
 	for (int i = 1; i <= optimalRounds; i++)
@@ -28,10 +25,28 @@ PlayerData::PlayerData()
 
 	///////////////////////////////////////////////
 
+	PlanetMap earth{ GameController::PlanetMap(Earth) };
 	for (bc_MapLocation* location : MapUtil::earthLocations) {
-		MapLocation loc{ bc_MapLocation_clone(location) };
-		std::cout << (bool)loc.IsPassable() << std::endl;
+		MapLocation deposit{ bc_MapLocation_clone(location) };
+		int karb = earth.InitialKarbonite(deposit);
+		if (karb > 0) {
+			initialKarboniteLocations.push_back(deposit);
+			earthStartingKarbonite += karb;
+		}
 	}
+	std::cout << initialKarboniteLocations.size() << " initial Karbonite deposits totaling " << earthStartingKarbonite << "\n";
+	CHECK_ERRORS()
+
+	PlanetMap map{ GameController::PlanetMap(Earth) };
+	CHECK_ERRORS()
+
+	for (auto& worker : map.InitialWorkers()) {
+		if (worker.Team() != GameController::Team()) {
+			std::cout << "enemy workers spawn at " <<  worker.Loc().ToMapLocation().X() << ", " <<  worker.Loc().ToMapLocation().Y() << "\n";
+			enemySpawnPositions.push_back(worker.Loc().ToMapLocation());
+		}
+	}
+
 	CHECK_ERRORS()
 
 	////////////////////////////////////////////////

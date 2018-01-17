@@ -71,6 +71,7 @@ std::vector<units::Worker> PlanetMap::InitialWorkers()
 		units::Worker worker(bc_VecUnit_index(bcWorkers, i));
 		workers.push_back(worker);
 	}
+	delete_bc_VecUnit(bcWorkers);
 	return workers;
 }
 

@@ -102,13 +102,17 @@
     <ClCompile Include="CombatOverlord.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
-    <ClCompile Include="BuilderOverlord.cpp" />
-    <ClCompile Include="PlayerData.cpp" />
-    <ClCompile Include="TestMain.cpp" />
     <ClCompile Include="MapUtil.cpp">
       <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="Section.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="BuilderOverlord.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerData.cpp">
       <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
@@ -207,12 +211,16 @@
     <ClInclude Include="CombatOverlord.h">
       <Filter>Controller</Filter>
     </ClInclude>
-    <ClInclude Include="BuilderOverlord.h" />
-    <ClInclude Include="PlayerData.h" />
     <ClInclude Include="MapUtil.h">
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="Section.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="BuilderOverlord.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerData.h">
       <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
