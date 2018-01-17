@@ -12,10 +12,16 @@ PlayerData::PlayerData()
 	int period = OrbitPattern::Period();
 	int optimalRounds = 749 / period;
 	optimalLaunchTime = OrbitPattern::Center() - OrbitPattern::Amplitude();
-	for (int i = 0; i < optimalRounds; i++)
+
+	std::cout << "Period: " << period << std::endl;
+	std::cout << "Center: " << OrbitPattern::Center() << std::endl;
+	std::cout << "Amplitude: " << OrbitPattern::Amplitude() << std::endl;
+	std::cout << "Optimal Launch Rounds: " << optimalRounds << std::endl;
+
+	for (int i = 1; i <= optimalRounds; i++)
 	{
-		optimalLaunchRounds.push_back((period - period / 4) * i);
-		std::cout << OrbitPattern::Duration((period - period / 4) * i) << std::endl;
+		optimalLaunchRounds.push_back(period * i - period/4);
+		std::cout << "Flight time on round " << period * i - period / 4 << ": " << OrbitPattern::Duration(period * i - period / 4) << std::endl;
 	}
 
 
