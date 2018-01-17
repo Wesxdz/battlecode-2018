@@ -14,6 +14,7 @@ public:
 public:
 	GameMap();
 	~GameMap();
+	void Update();
 	/*
 	@return The planet map of this player
 	*/

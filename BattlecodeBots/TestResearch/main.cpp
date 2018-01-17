@@ -1,24 +1,39 @@
 #include <iostream>
+#include <memory>
+#include <math.h>
 
 #include "bc.h"
 
 #include "GlobalData.h"
-
 #include "Science.h"
+#include "Log.h"
 
-GlobalData data;
+GameController gc;
+Research research;
 
+/*
+Instead of micromanaging individual unit behavior, prioritize goals based on available data and
+then determine best execution strategy
+*/
 int main()
 {
 	srand(0);
 
+	std::cout << "A* test initialize" << std::endl;
+
 	Science science;
-	while (true) {
-		data.currRound = GameController::Round();
+	science.Init();
 
-		science.researchNextTurn = true;
-		science.Update();
+	while (true)
+	{
+		int currRound = GameController::Round();
+		std::cout << "Round " << currRound << std::endl;
+		CHECK_ERRORS();
 
+		//science.researchNextTurn = true;
+		if (bc_GameController_planet(GameController::gc) == bc_Planet::Earth) {
+			science.Update();
+		}
 		GameController::EndTurn();
 	}
 }

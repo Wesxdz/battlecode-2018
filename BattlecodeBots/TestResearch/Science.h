@@ -27,8 +27,8 @@ public:
 	virtual void Init();
 	void Update();
 	std::list<Upgrade> paths;
+//private:
 	bool researchNextTurn = true;
-private:
 };
 
 #endif

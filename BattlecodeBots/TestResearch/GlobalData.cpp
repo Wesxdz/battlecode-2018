@@ -1,4 +1,4 @@
-#include "Globaldata.h"
+#include "GlobalData.h"
 
 #include <iostream>
 

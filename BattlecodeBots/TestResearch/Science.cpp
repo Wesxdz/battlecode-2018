@@ -10,14 +10,34 @@
 
 void Science::Update()
 {
+	//auto researchInfoPtr = bc_GameController_research_info(GameController::gc);
+	//std::cout << "GameController Pointer " << GameController::gc << std::endl;
+	//std::cout << "Research Pointer " << Research::self << std::endl;
+	//std::cout << "New Research Pointer " << researchInfoPtr << std::endl;
+	CHECK_ERRORS();
+	//if (Research::self == nullptr) {
+	//	Research::self = researchInfoPtr;
+	//}
+
 	if (researchNextTurn) { // Determine what upgrade to research
+
+		std::cout << "Here2" << std::endl;
+		CHECK_ERRORS();
 		// Upgrades are removed from paths once they are researched
 		paths.erase(std::remove_if(std::begin(paths), std::end(paths), [](Upgrade& upgrade) {
-			return Research::GetLevel(upgrade.branch) >= upgrade.level;
+			auto val = bc_ResearchInfo_get_level(Research::self, upgrade.branch);
+			std::cout << "Research Info Get Level " << val << std::endl;
+			return val >= upgrade.level;
 		}), std::end(paths));
+
+		std::cout << "Here3" << std::endl;
+		CHECK_ERRORS();
 		for (auto& upgrade : paths) {
 			upgrade.evaluationScore = upgrade.Evaluate(&upgrade);
 		}
+
+		std::cout << "Here4" << std::endl;
+		CHECK_ERRORS();
 		for (int i = 1; i < 4; i++) {
 			for (auto& upgrade : paths) {
 				if (upgrade.level == i) {
@@ -30,17 +50,27 @@ void Science::Update()
 				}
 			}
 		}
+		std::cout << "Here5" << std::endl;
+		CHECK_ERRORS();
 		auto max = std::max_element(std::begin(paths), std::end(paths), [](Upgrade& a, Upgrade& b) {
 			return a.evaluationScore/a.TurnsToResearch() < b.evaluationScore/b.TurnsToResearch();
 		});
+
+		std::cout << "Here6" << std::endl;
+		CHECK_ERRORS();
 		(*max).Research();
 		researchNextTurn = false;
 	}
 
-	uint32_t roundsLeft = Research::RoundsLeft();
+	std::cout << "Here7" << std::endl;
+	CHECK_ERRORS();
+	uint32_t roundsLeft = bc_ResearchInfo_rounds_left(Research::self);
 	if (roundsLeft == 1) {
 		researchNextTurn = true;
 	}
+	std::cout << "Rounds left " << roundsLeft << std::endl;
+	CHECK_ERRORS();
+	//delete_bc_ResearchInfo(researchInfoPtr);
 }
 
 void Science::Init()
@@ -52,7 +82,7 @@ void Science::Init()
 	/// 725 - 0, Linear through rounds
 	paths.push_back({ "Gimme some of that Black Stuff", Worker, 1, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (750 - currRound - constants::WorkerUpgrade1);
 		return score;
@@ -65,7 +95,7 @@ void Science::Init()
 	/// 675 - 0, Linear through rounds
 	paths.push_back({ "Time is of the Essence", Worker, 2, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 0.1f * (750 - currRound - constants::WorkerUpgrade2);
 		return score;
@@ -78,7 +108,7 @@ void Science::Init()
 	/// 675 - 0, Linear through rounds
 	paths.push_back({ "Time is of the Essence II", Worker, 3, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (750 - currRound - constants::WorkerUpgrade3);
 		return score;
@@ -91,7 +121,7 @@ void Science::Init()
 	/// 675 - 0, Linear through rounds
 	paths.push_back({ "Time is of the Essence III", Worker, 4, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (750 - currRound - constants::WorkerUpgrade4);
 		return score;
@@ -104,7 +134,7 @@ void Science::Init()
 	/// 975 - 0, Linear through rounds
 	paths.push_back({ "Armor", Knight, 1, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::KnightUpgrade1);
 		return score;
@@ -117,7 +147,7 @@ void Science::Init()
 	/// 925 - 0, Linear through rounds
 	paths.push_back({ "Even More Armor", Knight, 2, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::KnightUpgrade2);
 		return score;
@@ -130,7 +160,7 @@ void Science::Init()
 	/// 850 - 0, Linear through rounds
 	paths.push_back({ "Javelin", Knight, 3, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::KnightUpgrade3);
 		return score;
@@ -143,7 +173,7 @@ void Science::Init()
 	/// 975 - 0, Linear through rounds
 	paths.push_back({ "Get in Fast", Ranger, 1, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::RangerUpgrade1);
 		return score;
@@ -156,7 +186,7 @@ void Science::Init()
 	/// 900 - 0, Linear through rounds
 	paths.push_back({ "Scopes", Ranger, 2, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::RangerUpgrade2);
 		return score;
@@ -169,7 +199,7 @@ void Science::Init()
 	/// 800 - 0, Linear through rounds
 	paths.push_back({ "Snipe", Ranger, 3, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::RangerUpgrade3);
 		return score;
@@ -182,7 +212,7 @@ void Science::Init()
 	/// 975 - 0, Linear through rounds
 	paths.push_back({ "Glass Cannon", Mage, 1, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::MageUpgrade1);
 		return score;
@@ -195,7 +225,7 @@ void Science::Init()
 	/// 925 - 0, Linear through rounds
 	paths.push_back({ "Glass Cannon II", Mage, 2, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::MageUpgrade2);
 		return score;
@@ -208,7 +238,7 @@ void Science::Init()
 	/// 900 - 0, Linear through rounds
 	paths.push_back({ "Glass Cannon III", Mage, 3, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::MageUpgrade3);
 		return score;
@@ -221,7 +251,7 @@ void Science::Init()
 	/// 800 - 0, Linear through rounds
 	paths.push_back({ "Blink", Mage, 4, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::MageUpgrade4);
 		return score;
@@ -234,7 +264,7 @@ void Science::Init()
 	/// 975 - 0, Linear through rounds
 	paths.push_back({ "Spirit Water", Healer, 1, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::HealerUpgrade1);
 		return score;
@@ -247,7 +277,7 @@ void Science::Init()
 	/// 900 - 0, Linear through rounds
 	paths.push_back({ "Spirit Water II", Healer, 2, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::HealerUpgrade2);
 		return score;
@@ -260,7 +290,7 @@ void Science::Init()
 	/// 800 - 0, Linear through Rounds
 	paths.push_back({ "Overcharge", Healer, 3, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 1000
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (1000 - currRound - constants::HealerUpgrade3);
 		return score;
@@ -272,7 +302,7 @@ void Science::Init()
 	*/
 	/// 0 - 6000, Linear through rounds
 	paths.push_back({ "Rocketry", Rocket, 1, [](Upgrade* upgrade) {
-		int currRound = GlobalData::data->currRound;
+		int currRound = GameController::Round();
 		int minRound = (750 - constants::RocketUpgrade1 - 50); // Round 600. We MUST research by now.
 
 		float score = 6000 - (minRound - currRound) * 10;
@@ -288,7 +318,7 @@ void Science::Init()
 	paths.push_back({ "Rocket Boosters", Rocket, 2, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
 		// Make it relevant with 
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (750 - currRound - constants::RocketUpgrade2);
 		return score;
@@ -301,20 +331,22 @@ void Science::Init()
 	/// 650 - 0, Linear through rounds
 	paths.push_back({ "Increased Capacity", Rocket, 3, [](Upgrade* upgrade) {
 		// This Upgrade is pointless if it can't be reached by round 750
-		auto currRound = GlobalData::data->currRound;
+		auto currRound = GameController::Round();
 
 		float score = 1.0f * (750 - currRound - constants::RocketUpgrade3);
 		return score;
 	} });
-
+	CHECK_ERRORS();
 }
 
 uint32_t Upgrade::TurnsToResearch()
 {
-	uintptr_t startLevel = Research::GetLevel(branch);
+	//auto researchInfoPtr = bc_GameController_research_info(GameController::gc);
+	uintptr_t startLevel = bc_ResearchInfo_get_level(Research::self, branch);
+
 	uint32_t turnsToResearch = 0;
 	for (uintptr_t i = startLevel; i <= level; i++) {
-		turnsToResearch += Research::TimeToResearch(branch, i);
+		turnsToResearch += cost_of(branch, i);
 	}
 	
 	return turnsToResearch;
@@ -323,8 +355,9 @@ uint32_t Upgrade::TurnsToResearch()
 void Upgrade::Research()
 {
 	std::cout << "Researching " << name << "\n";
-	Research::Reset();
-	Research::Queue(branch);
+	bc_GameController_reset_research(GameController::gc);
+	bc_GameController_queue_research(GameController::gc, branch);
+	CHECK_ERRORS();
 }
 
 // I dont think we should take into account Further Research... Or we should modify how it works...

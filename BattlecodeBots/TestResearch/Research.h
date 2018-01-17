@@ -7,7 +7,6 @@ class Research
 {
 public:
 	static bc_ResearchInfo* self;
-	int id;
 public:
 	Research();
 	~Research();

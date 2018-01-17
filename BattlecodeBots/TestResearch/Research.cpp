@@ -6,7 +6,7 @@ bc_ResearchInfo* Research::self = nullptr;
 
 Research::Research()
 {
-	bc_GameController_research_info(GameController::gc);
+	self = bc_GameController_research_info(GameController::gc);
 }
 
 Research::~Research()

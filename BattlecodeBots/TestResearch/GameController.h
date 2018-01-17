@@ -67,6 +67,7 @@ public:
 };
 
 #include "Unit.h"
+#include "Robot.h"
 
 template<>
 inline std::vector<units::Unit> GameController::Wrap(bc_VecUnit* bcUnits)
@@ -74,6 +75,17 @@ inline std::vector<units::Unit> GameController::Wrap(bc_VecUnit* bcUnits)
 	auto units = std::vector<units::Unit>();
 	for (uintptr_t i = 0; i < bc_VecUnit_len(bcUnits); i++) {
 		units.push_back(units::Unit(bc_VecUnit_index(bcUnits, i)));
+	}
+	delete_bc_VecUnit(bcUnits);
+	return units;
+}
+
+template<>
+inline std::vector<units::Robot> GameController::Wrap(bc_VecUnit* bcUnits)
+{
+	auto units = std::vector<units::Robot>();
+	for (uintptr_t i = 0; i < bc_VecUnit_len(bcUnits); i++) {
+		units.push_back(units::Robot(bc_VecUnit_index(bcUnits, i)));
 	}
 	delete_bc_VecUnit(bcUnits);
 	return units;
