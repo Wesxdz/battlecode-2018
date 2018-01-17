@@ -21,6 +21,10 @@
 #include "MapUtil.h"
 
 #include "CombatOverlord.h"
+#include "VecUnit.h"
+
+#include "Factory.h"
+#include "Constants.h"
 
 GameController gc;
 Research research;
@@ -45,6 +49,36 @@ int main()
 		}
 		playerData.Update();
 		combat.Update();
+		//auto units = GameController::Units(MyTeam);
+		//for (auto& unit : units) {
+		//	if (unit.type == Worker) {
+		//		units::Worker worker{ bc_Unit_clone(unit.self) };
+		//		MapLocation location = unit.Loc().ToMapLocation();
+		//		auto toBuild = VecUnit::Wrap<units::Factory>(bc_GameController_sense_nearby_units_by_type(GameController::gc, location.self, 1, Factory));
+		//		if (toBuild.size() > 0) {
+		//			if (worker.CanBuild(toBuild[0])) {
+		//				worker.Build(toBuild[0]);
+		//			}
+		//		}
+		//		for (auto& direction : constants::directions_adjacent) {
+		//			if (worker.CanBlueprint(Factory, direction)) {
+		//				worker.Blueprint(Factory, direction);
+		//			}
+		//			MapLocation adjacent = MapLocation::Neighbor(location, direction);
+		//		}
+		//	}
+		//	else if (unit.type == Factory) {
+		//		units::Factory factory{ bc_Unit_clone(unit.self) };
+		//		if (factory.CanProduce(Knight)) {
+		//			factory.Produce(Knight);
+		//		}
+		//		for (auto& direction : constants::directions_adjacent) {
+		//			if (factory.CanUnload(direction)) {
+		//				factory.Unload(direction);
+		//			}
+		//		}
+		//	}
+		//}
 		GameController::EndTurn();
 	}
 }
