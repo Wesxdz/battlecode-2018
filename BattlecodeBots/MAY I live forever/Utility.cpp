@@ -1,8 +1,12 @@
 #include "Utility.h"
 
 #include <iostream>
+#include "GameMap.h"
+#include "GameController.h"
 
 namespace Utility{
+
+	
 
 	bc_Team GetOtherTeam(bc_Team team) {
 		return team == bc_Team::Red ? bc_Team::Blue : bc_Team::Red;
@@ -15,6 +19,8 @@ namespace Utility{
 	bool IsRobot(bc_UnitType type) {
 		return type < bc_UnitType::Rocket;
 	}
+
+
 
 	//MapLocation GetRandomPosition(GameInfo* info, MapLocation* temp) {
 	//	auto canPassTerrainAt = bc_PlanetMap_is_passable_terrain_at(info->planetMap.self, temp->self);

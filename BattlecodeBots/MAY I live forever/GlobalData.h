@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <memory>
+#include <map>
 
 class GlobalData
 {
@@ -51,9 +52,12 @@ public:
 	std::vector<units::Ranger> currRangers;
 	std::vector<units::Mage> currMages;
 	std::vector<units::Healer> currHealers;
+
+	
+
+	//This data goes in the builder overlord, as soon as you dont need it please remove it - Evan
 	std::vector<units::Factory> currFactorys;
 	std::vector<units::Rocket> currRockets;
-
 	std::vector<units::Factory> unBuiltFactorys;
 	std::vector<units::Rocket> unBuiltRockets;
 
