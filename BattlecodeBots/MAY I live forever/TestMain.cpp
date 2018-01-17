@@ -20,8 +20,6 @@
 #include "Utility.h"
 #include "MapUtil.h"
 
-
-
 GameController gc;
 
 Research research;

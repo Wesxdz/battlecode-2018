@@ -61,7 +61,7 @@ void BuilderOverlord::Update(uint32_t round)
 			{
 				build = false;
 				acted = true;
-				bc_Location* locationOfStructure;
+				bc_Location* locationOfStructure = nullptr;
 				int structureID;
 				bool factory = false;
 				bool foundAdjacentProject = false;
