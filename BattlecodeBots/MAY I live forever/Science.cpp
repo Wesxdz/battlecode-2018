@@ -124,8 +124,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::WorkerUpgrade2) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Worker] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Worker] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 1.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
@@ -147,8 +147,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::WorkerUpgrade3) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Worker] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Worker] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 1.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
@@ -170,8 +170,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::WorkerUpgrade3) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Worker] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Worker] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 5.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
@@ -193,8 +193,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::KnightUpgrade1) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Knight] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Knight] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Knight] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Knight] > 0.0f ? 1.0f : 0.0f;
 			score = 30.0f * hasUnits + 30.0f * willHaveUnits;
 		} 
 
@@ -215,8 +215,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::KnightUpgrade2) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Knight] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Knight] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Knight] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Knight] > 0.0f ? 1.0f : 0.0f;
 			score = 30.0f * hasUnits + 30.0f * willHaveUnits;
 		} 
 
@@ -238,8 +238,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::KnightUpgrade3) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Knight] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Knight] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Knight] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Knight] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = -.0000007f * pow(currRound, 3.0f) - pow(currRound, 2.0f) + 400.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
@@ -262,8 +262,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::RangerUpgrade1) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Ranger] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 60.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
@@ -285,8 +285,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::RangerUpgrade2) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Ranger] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 100.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} 
@@ -308,13 +308,13 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::RangerUpgrade3) {
 			score = .0f;
 		} else if(currRound < 400) {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Ranger] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 300.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Ranger] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Ranger] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Ranger] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = pow(.99f, currRound - 1000.0f);
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
@@ -336,8 +336,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::MageUpgrade1) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Mage] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Mage] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 30.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
@@ -359,8 +359,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::MageUpgrade2) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Mage] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Mage] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 30.0f;
 				score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
@@ -382,8 +382,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::MageUpgrade3) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Mage] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Mage] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 30.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
@@ -405,8 +405,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::MageUpgrade4) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Mage] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Mage] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Mage] > 0.0f ? 1.0f : 0.0f;
 			float tempScore =  -.07f * pow(currRound - 600.0f, 2.0f) + 500.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
@@ -428,8 +428,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::HealerUpgrade1) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Healer] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Healer] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 4.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
@@ -451,8 +451,8 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::HealerUpgrade2) {
 			score = .0f;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Healer] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Healer] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 10.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
@@ -476,13 +476,13 @@ void Science::Init(PlayerData* playerData)
 		if (currRound > 1000 - constants::HealerUpgrade3) {
 			score = .0f;
 		} else if(this->hasJavelin || this->hasSnipe || this->hasBlink){
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Healer] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer]> 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Healer] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = -.007f * pow(currRound - 500.0f, 2.0f) + 400.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		} else {
-			int hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0 ? 1 : 0;
-			float willHaveUnits = playerData->unitPriority[bc_UnitType::Healer] > 0 ? 1 : 0;
+			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Healer] > 0.0f ? 1.0f : 0.0f;
+			float willHaveUnits = playerData->unitPriority[bc_UnitType::Healer] > 0.0f ? 1.0f : 0.0f;
 			float tempScore = 100.0f;
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}

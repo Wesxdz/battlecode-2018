@@ -278,11 +278,14 @@ void CombatOverlord::DetermineDesiredUnits()
 		// They do good damage, limited range, high HP, good Defense
 		// If we lack a "Defense", aka Knights, then we should get a minimum in for sure.
 		// After that, we should only build more to recuperate our defense, rush, or strategise
-		int width = bc_PlanetMap_width_get(GameController::PlanetMap(bc_Planet::Earth));
+		uintptr_t width = bc_PlanetMap_width_get(GameController::PlanetMap(bc_Planet::Earth));
+		if(width < 1) { width = 0; }
 		float knightToMap = static_cast<float>(knightAmo) / width;
 
 		if (knightAmo < width) {
-			knightPriority = .5f - width / static_cast<float>(knightAmo);
+			float knightAmof = static_cast<float>(knightAmo);
+			if(knightAmof < 1) { knightAmof = .01f; }
+			knightPriority = .5f - (width / knightAmof);
 			if(knightPriority < .5f){knightPriority = .5f; }
 			if(knightPriority > width / 10.0f) { knightPriority = width / 10.0f; }
 		} else {
@@ -311,6 +314,7 @@ void CombatOverlord::DetermineDesiredUnits()
 		float magePriority = .0f;
 
 		float mapSize = MapUtil::earthPassableLocations.size() / 2.0f;
+		if(mapSize < 1) { mapSize = .0001f; }
 		float enemyToMap = totalEnemyAmo / mapSize;
 
 		// If enemy is grouped up, then we should use mages to deal a lot of damage;
@@ -322,7 +326,10 @@ void CombatOverlord::DetermineDesiredUnits()
 	// Healer Priority
 	{
 		float healerPriority = .0f;
-		float teamToEnemy = totalAmo / totalEnemyAmo;
+
+		float totalEnemyAmof = static_cast<float>(totalEnemyAmo);
+		if(totalEnemyAmof < 1.0f) { totalEnemyAmof = .001f; }
+		float teamToEnemy = totalAmo / totalEnemyAmof;
 
 		// If we are winning, snowball but keeping our units alive with healers...?
 		healerPriority = teamToEnemy;
