@@ -3,6 +3,8 @@
 
 #include "bc.h"
 
+#include <map>
+
 #include "Knight.h"
 #include "Ranger.h"
 #include "Mage.h"
@@ -32,6 +34,7 @@ public:
 	@return Potential damage that could be taken
 	*/
 	static uint32_t Danger(units::Unit& unit);
+
 	void DetermineDesiredUnits();
 };
 

@@ -14,21 +14,156 @@
 
 BuilderOverlord::BuilderOverlord()
 {
-	PlayerData::pd->desiredUnitCounts[Worker] = 8;
+	//PlayerData::pd->desiredUnitCounts[Worker] = 8;
 }
 
 void BuilderOverlord::Update()
 {
-	auto units = GameController::Units(MyTeam);
-	if (GameController::Round() > 50) {
-		PlayerData::pd->desiredUnitCounts[Factory] = 6;
-	}
+	//auto units = GameController::Units(MyTeam);
+	//if (GameController::Round() > 50) {
+	//	PlayerData::pd->desiredUnitCounts[Factory] = 6;
+	//}
+	DetermineDesiredUnits();
 }
 
-void BuilderOverlord::DetermineDesiredUnits()
-{
+void BuilderOverlord::DetermineDesiredUnits() {
 	// TODO Determine desired Workers, Factories, and Rockets
-	PlayerData::pd->desiredUnitCounts[Worker] = ((749.0f - GameController::Round()) * - bc_UnitType_replicate_cost(Worker) * 2) / 10;
+	//PlayerData::pd->desiredUnitCounts[Worker] = ((749.0f - GameController::Round()) * - bc_UnitType_replicate_cost(Worker) * 2) / 10;
+
+	uint32_t currRound = GameController::Round();
+
+	// Cant build
+	if (currRound > 749 || GameController::Planet() == bc_Planet::Mars) {
+		PlayerData::pd->unitPriority[bc_UnitType::Worker] = 1.0f; // Maybe change Worker Priority?
+		PlayerData::pd->unitPriority[bc_UnitType::Rocket] = .0f;
+		PlayerData::pd->unitPriority[bc_UnitType::Factory] = .0f;
+		return;
+	}
+
+	// Need to take into account Current, Future, and Enemy
+
+	// Knights are countered by Mage and Rangers...
+	// Mages are countered by Rangers
+	// 
+
+	int workerAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Worker];
+	int knightAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Knight];
+	int mageAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Mage];
+	int rangerAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Ranger];
+	int healerAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Healer];
+	int factoryAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Factory];
+	int rocketAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Rocket];
+	int totalAmo = workerAmo + knightAmo + mageAmo + rangerAmo + healerAmo + factoryAmo + rocketAmo;
+
+	int workerEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Worker];
+	int knightEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Knight];
+	int mageEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Mage];
+	int rangerEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Ranger];
+	int healerEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Healer];
+	int factoryEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Factory];
+	int rocketEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Rocket];
+	int totalEnemyAmo = workerEnemyAmo + knightEnemyAmo + mageEnemyAmo + rangerEnemyAmo + healerEnemyAmo + factoryEnemyAmo + rocketEnemyAmo;
+
+	int workerProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Worker];
+	int knightProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Knight];
+	int mageProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Mage];
+	int rangerProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Ranger];
+	int healerProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Healer];
+	int factoryProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Factory];
+	int rocketProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Rocket];
+	int totalProductionAmo = workerProductionAmo + knightProductionAmo + mageProductionAmo + rangerProductionAmo + healerProductionAmo + factoryProductionAmo + rocketProductionAmo;
+	/////////////// BUILDER
+
+	// < 0 = Too many
+	// 0 = Don't need
+	// 0 - 1 = Could use
+	//  > 1 = Need
+
+	// Workers are quite valuable early on for factory production, karb gathering, and / or scouting.
+	// However, they can replicate, do we need to buid them?
+	// Maybe if we have no workers. High priority then depending on round.
+
+	// Worker Priority
+	{
+		float workerPriority = .0f;
+
+		float currWorkers = static_cast<float>(workerAmo + workerProductionAmo);
+		float workerToTeam = currWorkers / (totalAmo + totalProductionAmo);
+		float workerToStructure = currWorkers / (factoryAmo + rocketAmo + factoryProductionAmo + rocketProductionAmo);
+		float workerToRockets = currWorkers / (rocketAmo + rocketProductionAmo);
+
+		// 100 = Bountiful
+		if (currRound < 100) {
+			// 10ish per structure
+			workerPriority = 1.0f - (workerToStructure / 10.0f);
+			if (workerPriority < .3f) {
+				workerPriority = .3f;
+			}
+		}
+		// 600 = Rockets
+		else if (currRound > 600) {
+			// 8 per rocket
+			workerPriority = 1.0f - (workerToRockets / 8.0f);
+		}
+		// Meh
+		else {
+			// Need
+			if (workerToTeam < .1f) {
+				// 10 per 100...
+				workerPriority = .1f / workerToTeam;
+			}
+			// Could use
+			else if (workerToTeam < .20f) {
+				// .1 - .2 = 1 - 0
+				// x - .1 * 10 = 0 - 1
+				workerPriority = 1.0f - ((workerToTeam - .1f) * 10.0f);
+				if (workerPriority > 1.0f) {
+					workerPriority = 1.0f;
+				}
+			}
+			// Not Needed
+			else {
+				workerPriority = .0f;
+			}
+		}
+		PlayerData::pd->unitPriority[bc_UnitType::Worker] = workerPriority;
+	}
+
+	// Rocket Priority
+	{
+		float rocketPriority = .0f;
+
+		// If lacking in Initial karbonite and Early
+		if (currRound < 200) {
+			// NEED
+			if (PlayerData::pd->earthStartingKarbonite < 1.0f) {
+				rocketPriority = 10000.0f;
+			}
+			// Need or could use
+			else if (PlayerData::pd->earthStartingKarbonite < 1000.0f) {
+				rocketPriority = 1000.0f / PlayerData::pd->earthStartingKarbonite;
+			} 
+			
+		} else {
+			// Linear to Round
+			rocketPriority = (currRound / 450.0f);
+		}
+
+		PlayerData::pd->unitPriority[bc_UnitType::Rocket] = rocketPriority;
+	}
+	
+	// Factory Priority
+	{
+		float factoryToTeam = static_cast<float>(factoryAmo) / (totalAmo + totalProductionAmo);
+
+		float factoryPriority = .0f;
+		
+		// Always want to be producing factories. Compare to Karb reserves
+		factoryPriority = (1.0f - (factoryToTeam * 10.0f)) * (GameController::Karbonite() / 100.0f);
+
+		PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
+	}
+
 }
 
 //void BuilderOverlord::WorkerAction(units::Worker worker)
