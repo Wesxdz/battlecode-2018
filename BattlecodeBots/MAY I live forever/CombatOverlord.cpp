@@ -8,6 +8,8 @@
 #include "Constants.h"
 #include "Pathfind.h"
 
+#include "MapUtil.h"
+
 CombatOverlord::CombatOverlord()
 {
 }
@@ -217,5 +219,114 @@ uint32_t CombatOverlord::Danger(units::Unit & unit)
 
 void CombatOverlord::DetermineDesiredUnits()
 {
-	PlayerData::pd->desiredUnitCounts[Knight]++;
+	//PlayerData::pd->desiredUnitCounts[Knight]++;
+
+	uint32_t currRound = GameController::Round();
+
+	// Cant build
+	if (currRound > 749 || GameController::Planet() == bc_Planet::Mars) {
+		PlayerData::pd->unitPriority[bc_UnitType::Worker] = 1.0f; // Maybe change Worker Priority?
+		PlayerData::pd->unitPriority[bc_UnitType::Rocket] = .0f;
+		PlayerData::pd->unitPriority[bc_UnitType::Factory] = .0f;
+		return;
+	}
+
+	// Need to take into account Current, Future, and Enemy
+
+	// Knights are countered by Mage and Rangers...
+	// Mages are countered by Rangers
+	// 
+
+	int workerAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Worker];
+	int knightAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Knight];
+	int mageAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Mage];
+	int rangerAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Ranger];
+	int healerAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Healer];
+	int factoryAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Factory];
+	int rocketAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Rocket];
+	int totalAmo = workerAmo + knightAmo + mageAmo + rangerAmo + healerAmo + factoryAmo + rocketAmo;
+
+	int workerEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Worker];
+	int knightEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Knight];
+	int mageEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Mage];
+	int rangerEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Ranger];
+	int healerEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Healer];
+	int factoryEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Factory];
+	int rocketEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Rocket];
+	int totalEnemyAmo = workerEnemyAmo + knightEnemyAmo + mageEnemyAmo + rangerEnemyAmo + healerEnemyAmo + factoryEnemyAmo + rocketEnemyAmo;
+
+	int workerProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Worker];
+	int knightProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Knight];
+	int mageProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Mage];
+	int rangerProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Ranger];
+	int healerProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Healer];
+	int factoryProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Factory];
+	int rocketProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Rocket];
+	int totalProductionAmo = workerProductionAmo + knightProductionAmo + mageProductionAmo + rangerProductionAmo + healerProductionAmo + factoryProductionAmo + rocketProductionAmo;
+	/////////////// BUILDER
+
+	// < 0 = Too many
+	// 0 = Don't need
+	// 0 - 1 = Could use
+	//  > 1 = Need
+
+	// Knight Priority
+	{
+		float knightPriority = .0f;
+
+		// Knights will always be somewhat valuable
+		// They do good damage, limited range, high HP, good Defense
+		// If we lack a "Defense", aka Knights, then we should get a minimum in for sure.
+		// After that, we should only build more to recuperate our defense, rush, or strategise
+		int width = bc_PlanetMap_width_get(GameController::PlanetMap(bc_Planet::Earth));
+		float knightToMap = static_cast<float>(knightAmo) / width;
+
+		if (knightAmo < width) {
+			knightPriority = .5f - width / static_cast<float>(knightAmo);
+			if(knightPriority < .5f){knightPriority = .5f; }
+			if(knightPriority > width / 10.0f) { knightPriority = width / 10.0f; }
+		} else {
+			knightPriority = .3f;
+		}
+
+		PlayerData::pd->unitPriority[bc_UnitType::Knight] = knightPriority;
+	}
+
+	// Ranger Priority
+	{
+		float rangerPriority = .0f;
+
+		// Rangers can never go wrong
+		// Good health, long range, good damage
+
+		// Unless another unit has a specific reason to be built, we should always build Ranger's
+		rangerPriority = .7f;
+		
+
+		PlayerData::pd->unitPriority[bc_UnitType::Ranger] = rangerPriority;
+	}
+
+	// Mage Priority
+	{
+		float magePriority = .0f;
+
+		float mapSize = MapUtil::earthPassableLocations.size() / 2.0f;
+		float enemyToMap = totalEnemyAmo / mapSize;
+
+		// If enemy is grouped up, then we should use mages to deal a lot of damage;
+		magePriority = enemyToMap;
+
+		PlayerData::pd->unitPriority[bc_UnitType::Mage] = magePriority;
+	}
+
+	// Healer Priority
+	{
+		float healerPriority = .0f;
+		float teamToEnemy = totalAmo / totalEnemyAmo;
+
+		// If we are winning, snowball but keeping our units alive with healers...?
+		healerPriority = teamToEnemy;
+
+		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
+	}
 }

@@ -97,7 +97,7 @@ namespace policy {
 		units::Worker worker = bc_Unit_clone(unit.self);
 		if (worker.HasActed()) return 0.0f;
 		if (GameController::Karbonite() >= bc_UnitType_blueprint_cost(Factory) &&
-			PlayerData::pd->desiredUnitCounts[Factory] > PlayerData::pd->teamUnitCounts[Factory]) {
+			PlayerData::pd->unitPriority[Factory] > PlayerData::pd->teamUnitCounts[Factory]) {
 			for (bc_Direction direction : constants::directions_adjacent) {
 				if (worker.CanBlueprint(Factory, direction)) {
 					PolicyOverlord::storeDirection = direction;
