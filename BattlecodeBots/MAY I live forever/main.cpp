@@ -21,6 +21,8 @@
 
 #include "Science.h"
 #include "CombatOverlord.h"
+#include "BuilderOverlord.h"
+#include "PolicyOverlord.h"
 
 GameController gc;
 OrbitPattern orbitPattern;
@@ -31,7 +33,10 @@ MapUtil mapUtil;
 PlayerData playerData;
 
 Science science;
-CombatOverlord combat;
+BuilderOverlord evan;
+CombatOverlord josh;
+PolicyOverlord wesley;
+
 
 int main()
 {
@@ -49,14 +54,15 @@ int main()
 			std::cout << "Round: " << round << std::endl;
 		}
 		playerData.Update();
-
 		if (GameController::Planet() == bc_Planet::Earth) {
 			science.Update();
-		} else if(round > 749){
+		}
+		else if (round > 749) {
 			science.Update();
 		}
-
-		combat.Update();
+		evan.Update();
+		josh.Update();
+		wesley.Update();
 		GameController::EndTurn();
 	}
 }

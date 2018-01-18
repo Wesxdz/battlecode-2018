@@ -81,6 +81,7 @@ PolicyOverlord::PolicyOverlord()
 	policies[Worker].push_back(worker2);
 
 	auto worker4 = std::make_shared<Policy>("replicate");
+	// Move towards nearby Karbonite deposits
 	auto worker5 = std::make_shared<Policy>("seek_karbonite");
 	auto worker6 = std::make_shared<Policy>("build");
 	auto worker7 = std::make_shared<Policy>("repair");
@@ -91,7 +92,9 @@ PolicyOverlord::PolicyOverlord()
 	auto rocket1 = std::make_shared<Policy>("unload_rocket");
 	auto rocket2 = std::make_shared<Policy>("launch");
 
-	auto fighter1 = std::make_shared<Policy>("courage"); // Move towards enemies
+	// Move towards enemies if there are enough friendly units nearby
+	auto fighter1 = std::make_shared<Policy>("courage");
+	// Attack best target
 	auto fighter2 = std::make_shared<Policy>("attack");
 
 	auto mage1 = std::make_shared<Policy>("splash_attack");
@@ -99,6 +102,9 @@ PolicyOverlord::PolicyOverlord()
 
 	auto ranger1 = std::make_shared<Policy>("scout");
 	auto ranger2 = std::make_shared<Policy>("snipe");
+
+	// Stay out of vision range of enemy units, avoid letting units into MinAttackRange, stay in sight of enemy target
+	auto ranger3 = std::make_shared<Policy>("kite");
 
 	auto knight1 = std::make_shared<Policy>("javelin");
 
