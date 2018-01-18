@@ -24,6 +24,8 @@
 #include "BuilderOverlord.h"
 #include "PolicyOverlord.h"
 
+#include <chrono>
+
 GameController gc;
 OrbitPattern orbitPattern;
 AsteroidPattern asteroidPattern;
@@ -45,7 +47,7 @@ int main()
 
 	// Init Science
 	science.Init(&playerData);
-
+	std::chrono::duration<double> totalTime;
 
 	while (true)
 	{
@@ -62,7 +64,12 @@ int main()
 		}
 		evan.Update();
 		josh.Update();
+		auto start = std::chrono::system_clock::now();
 		wesley.Update();
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> roundTime = end - start;
+		totalTime += roundTime;
+		//std::cout << "Total time used: " << totalTime.count() << "\nPolicy time used: " << roundTime.count() << "\n";
 		GameController::EndTurn();
 	}
 }

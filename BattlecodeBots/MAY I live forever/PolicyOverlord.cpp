@@ -10,19 +10,20 @@
 #include "Log.h"
 #include "PolicyOverlord.h"
 #include "UnitPolicies.h"
+#include <algorithm>
 
 bc_Direction PolicyOverlord::storeDirection;
 units::Unit PolicyOverlord::storeUnit;
-bc_UnitType PolicyOverlord::storeUnitType;
 
 void PolicyOverlord::Update()
 {
-	std::cout << HighestPriority() << " is highest priority\n";
+	//std::cout << HighestPriority() << " is highest priority\n";
 	bool policyTaken = false;
 	do { // Loop through all units evaluating policies until no policy is executed
 		policyTaken = false;
-		auto units = GameController::Units(MyTeam);
+		std::vector<units::Unit> units = GameController::Units(MyTeam);
 		for (auto& unit : units) {
+			if (unit.Loc().IsInGarrison()) continue;
 			std::sort(policies[unit.type].begin(), policies[unit.type].end(), [&unit](std::shared_ptr<Policy>& a, std::shared_ptr<Policy>& b) {
 				return a->Evaluate(unit) > b->Evaluate(unit); // reverse sort
 			});
@@ -82,7 +83,7 @@ PolicyOverlord::PolicyOverlord()
 	policies[Knight].push_back(robot3);
 	policies[Ranger].push_back(robot3);
 	policies[Mage].push_back(robot3);
-	policies[Worker].push_back(robot3);
+	//policies[Worker].push_back(robot3);
 
 	auto worker1 = std::make_shared<Policy>("harvest_karbonite");
 	worker1->Evaluate = policy::WorkerHarvestKarboniteEvaluate;
@@ -94,14 +95,21 @@ PolicyOverlord::PolicyOverlord()
 	worker2->Execute = policy::WorkerBlueprintExecute;
 	policies[Worker].push_back(worker2);
 
-	auto worker4 = std::make_shared<Policy>("replicate");
-	worker4->Evaluate = policy::WorkerReplicateEvaluate;
-	worker4->Execute = policy::WorkerReplicateExecute;
-	policies[Worker].push_back(worker4);
+	auto worker3 = std::make_shared<Policy>("replicate");
+	worker3->Evaluate = policy::WorkerReplicateEvaluate;
+	worker3->Execute = policy::WorkerReplicateExecute;
+	policies[Worker].push_back(worker3);
+
+	auto worker4 = std::make_shared<Policy>("seek_build");
 
 	// Move towards nearby Karbonite deposits
 	auto worker5 = std::make_shared<Policy>("seek_karbonite");
+
 	auto worker6 = std::make_shared<Policy>("build");
+	worker6->Evaluate = policy::WorkerBuildEvaluate;
+	worker6->Execute = policy::WorkerBuildExecute;
+	policies[Worker].push_back(worker6);
+
 	auto worker7 = std::make_shared<Policy>("repair");
 
 	auto factory1 = std::make_shared<Policy>("unload_factory");
@@ -119,19 +127,35 @@ PolicyOverlord::PolicyOverlord()
 
 	// Move towards enemies if there are enough friendly units nearby
 	auto fighter1 = std::make_shared<Policy>("courage");
-	// Attack best target
-	auto fighter2 = std::make_shared<Policy>("attack");
 
-	auto mage1 = std::make_shared<Policy>("splash_attack");
+	// Determine if moving towards enemies before attacking would provide a higher value target
+	auto fighter3 = std::make_shared<Policy>("move_attack_advantage");
+
+	auto mage1 = std::make_shared<Policy>("mage_splash_attack");
+	mage1->Evaluate = policy::MageAttackEvaluate;
+	mage1->Execute = policy::AttackExecute;
+	policies[Mage].push_back(mage1);
+
 	auto mage2 = std::make_shared<Policy>("blink");
 
-	auto ranger1 = std::make_shared<Policy>("scout");
-	auto ranger2 = std::make_shared<Policy>("snipe");
+	auto ranger1 = std::make_shared<Policy>("ranger_attack");
+	ranger1->Evaluate = policy::RangerAttackEvaluate;
+	ranger1->Execute = policy::AttackExecute;
+	policies[Ranger].push_back(ranger1);
 
-	// Stay out of vision range of enemy units, avoid letting units into MinAttackRange, stay in sight of enemy target
-	auto ranger3 = std::make_shared<Policy>("kite");
+	auto ranger2 = std::make_shared<Policy>("scout");
+	auto ranger3 = std::make_shared<Policy>("snipe");
 
-	auto knight1 = std::make_shared<Policy>("javelin");
+	// Stay out of vision range of enemy units, avoid letting units into MinAttackRange
+	auto ranger4 = std::make_shared<Policy>("kite");
+
+	// Attack best target
+	auto knight1 = std::make_shared<Policy>("knight_attack");
+	knight1->Evaluate = policy::KnightAttackEvaluate;
+	fighter1->Execute = policy::AttackExecute;
+	policies[Knight].push_back(knight1);
+
+	auto knight2 = std::make_shared<Policy>("javelin");
 
 	auto healer1 = std::make_shared<Policy>("heal");
 	auto healer2 = std::make_shared<Policy>("overcharge");

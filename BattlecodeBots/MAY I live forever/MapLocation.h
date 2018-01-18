@@ -41,11 +41,11 @@ public:
 	/*
 	@return The location one square from #origin in the given direction.
 	*/
-	static MapLocation Neighbor(MapLocation& origin, bc_Direction direction);
+	static MapLocation Neighbor(MapLocation origin, bc_Direction direction);
 	/*
 	@return The location translated from #origin by #dx and #dy
 	*/
-	static MapLocation Translate(MapLocation& origin, int32_t dx, int32_t dy);
+	static MapLocation Translate(MapLocation origin, int32_t dx, int32_t dy);
 	/*
 	@return The square of the distance from this to #location.
 	*/

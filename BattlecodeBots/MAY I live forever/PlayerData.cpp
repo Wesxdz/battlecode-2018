@@ -30,11 +30,11 @@ PlayerData::PlayerData()
 		MapLocation deposit{ bc_MapLocation_clone(location) };
 		int karb = earth.InitialKarbonite(deposit);
 		if (karb > 0) {
-			initialKarboniteLocations.push_back(deposit);
+			karboniteDeposits.push_back(deposit);
 			earthStartingKarbonite += karb;
 		}
 	}
-	std::cout << initialKarboniteLocations.size() << " initial Karbonite deposits totaling " << earthStartingKarbonite << "\n";
+	std::cout << karboniteDeposits.size() << " initial Karbonite deposits totaling " << earthStartingKarbonite << "\n";
 
 	PlanetMap map{ GameController::PlanetMap(Earth) };
 	for (auto& worker : map.InitialWorkers()) {

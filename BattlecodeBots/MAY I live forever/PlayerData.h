@@ -35,7 +35,7 @@ public:
 	void ClearUnitCounts();
 	
 	int earthStartingKarbonite;
-	std::vector<MapLocation> initialKarboniteLocations;
+	std::vector<MapLocation> karboniteDeposits;
 	std::vector<MapLocation> enemySpawnPositions;
 
 	int optimalFlightTime;

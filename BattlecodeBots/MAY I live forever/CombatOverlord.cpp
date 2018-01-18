@@ -9,6 +9,7 @@
 #include "Pathfind.h"
 
 #include "MapUtil.h"
+#include <iostream>
 
 CombatOverlord::CombatOverlord()
 {
@@ -141,27 +142,29 @@ std::vector<units::Unit> CombatOverlord::EnemiesInRange(units::Robot& robot, uin
 
 float CombatOverlord::AttackValue(units::Robot& attacker, units::Unit& enemy)
 {
-	float score = 0.0f;
-	uint32_t actualDamage = attacker.Damage();
-	if (enemy.type == Knight) {
-		units::Knight knight = units::Knight(bc_Unit_clone(enemy.self));
-		actualDamage -= knight.Defense();
-	}
-	if (actualDamage > enemy.Health()) {
-		if (enemy.type == Worker) {
-			units::Worker worker = units::Worker(bc_Unit_clone(enemy.self));
-			score += worker.ReplicateCost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
-		}
-		else {
-			score += enemy.Cost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
-		}
-		uint32_t overkill = actualDamage - enemy.Health();
-		score -= overkill / 5.0f;
-	}
-	float percentDamage = (float)enemy.MaxHealth() / actualDamage;
-	score += enemy.Cost() * percentDamage * AttackCoordinator::multipliers[enemy.type];
-	// TODO: If the attacking unit is in danger of death prioritize attacking fighter units
-	return score;
+	return 1.0f;
+	//float score = 0.0f;
+	//uint32_t actualDamage = attacker.Damage();
+	//if (enemy.type == Knight) {
+	//	units::Knight knight = units::Knight(bc_Unit_clone(enemy.self));
+	//	actualDamage -= knight.Defense();
+	//}
+	//if (actualDamage > enemy.Health()) {
+	//	if (enemy.type == Worker) {
+	//		units::Worker worker = units::Worker(bc_Unit_clone(enemy.self));
+	//		score += worker.ReplicateCost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
+	//	}
+	//	else {
+	//		score += enemy.Cost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
+	//	}
+	//	uint32_t overkill = actualDamage - enemy.Health();
+	//	score -= overkill / 5.0f;
+	//}
+	//float percentDamage = (float)enemy.MaxHealth() / actualDamage;
+
+	//score += enemy.Cost() * percentDamage * AttackCoordinator::multipliers[enemy.type];
+	//// TODO: If the attacking unit is in danger of death prioritize attacking fighter units
+	//return score;
 }
 
 float CombatOverlord::SplashValue(units::Mage & mage, units::Unit & target)
@@ -186,7 +189,7 @@ float CombatOverlord::SplashValue(units::Mage & mage, units::Unit & target)
 float CombatOverlord::HealValue(units::Healer& healer, units::Unit& target)
 {
 	float score = 0.0f;
-	uint32_t danger = Danger(target.Loc().ToMapLocation(), Utility::GetOtherTeam(target.Team()));
+	float danger = Danger(target.Loc().ToMapLocation(), Utility::GetOtherTeam(target.Team()));
 	float deathChance = (float)danger/target.Health();
 	float deathChanceWithHeal = (float)danger/target.Health();
 	if (deathChanceWithHeal < 1 && deathChance > 1) {
