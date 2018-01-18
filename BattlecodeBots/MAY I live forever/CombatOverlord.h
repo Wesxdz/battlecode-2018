@@ -33,7 +33,7 @@ public:
 	Doesn't take into account mage splash, knight jav, or possible movement of enemies, only a heuristic
 	@return Potential damage that could be taken
 	*/
-	static uint32_t Danger(units::Unit& unit);
+	static float Danger(MapLocation location, bc_Team damageSource);
 
 	void DetermineDesiredUnits();
 };

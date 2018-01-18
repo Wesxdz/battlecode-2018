@@ -102,7 +102,7 @@ void BuilderOverlord::DetermineDesiredUnits() {
 		// 100 = Bountiful
 		if (currRound < 100) {
 			// 10ish per structure
-			workerPriority = 1.0f - (workerToStructure / 10.0f);
+			workerPriority = 2.0f - (workerToStructure / 10.0f);
 			if (workerPriority < .3f) {
 				workerPriority = .3f;
 			}
@@ -141,7 +141,7 @@ void BuilderOverlord::DetermineDesiredUnits() {
 		float rocketPriority = .0f;
 
 		// If lacking in Initial karbonite and Early
-		if (currRound < 200) {
+		if (currRound > 40 && currRound < 200) {
 			// NEED
 			if (PlayerData::pd->earthStartingKarbonite < 1.0f) {
 				rocketPriority = 10000.0f;
@@ -150,12 +150,12 @@ void BuilderOverlord::DetermineDesiredUnits() {
 			else if (PlayerData::pd->earthStartingKarbonite < 1000.0f) {
 				int startKarb = PlayerData::pd->earthStartingKarbonite;
 				if(startKarb < 1) { startKarb = 1; }
-				rocketPriority = 1000.0f / startKarb;
+				rocketPriority = 2000.0f / startKarb;
 			} 
 			
 		} else {
 			// Linear to Round
-			rocketPriority = (currRound / 450.0f);
+			rocketPriority += (currRound / 450.0f);
 		}
 
 		PlayerData::pd->unitPriority[bc_UnitType::Rocket] = rocketPriority;
@@ -163,12 +163,13 @@ void BuilderOverlord::DetermineDesiredUnits() {
 	
 	// Factory Priority
 	{
-		float factoryToTeam = static_cast<float>(factoryAmo) / (totalAmo + totalProductionAmo);
+		float factoryToTeam = static_cast<float>(factoryAmo) / (totalAmo + totalProductionAmo + 1);
 
 		float factoryPriority = .0f;
 		
 		// Always want to be producing factories. Compare to Karb reserves
 		factoryPriority = (1.0f - (factoryToTeam * 10.0f)) * (GameController::Karbonite() / 100.0f);
+		std::cout << "Factory priority " << factoryPriority << "\n";
 
 		PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
 	}

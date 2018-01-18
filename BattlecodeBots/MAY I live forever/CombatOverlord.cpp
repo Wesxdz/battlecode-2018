@@ -186,7 +186,7 @@ float CombatOverlord::SplashValue(units::Mage & mage, units::Unit & target)
 float CombatOverlord::HealValue(units::Healer& healer, units::Unit& target)
 {
 	float score = 0.0f;
-	uint32_t danger = Danger(target);
+	uint32_t danger = Danger(target.Loc().ToMapLocation(), Utility::GetOtherTeam(target.Team()));
 	float deathChance = (float)danger/target.Health();
 	float deathChanceWithHeal = (float)danger/target.Health();
 	if (deathChanceWithHeal < 1 && deathChance > 1) {
@@ -201,16 +201,25 @@ float CombatOverlord::OverchargeValue(units::Healer & healer, units::Unit & targ
 	return 0.0f;
 }
 
-uint32_t CombatOverlord::Danger(units::Unit & unit)
+float CombatOverlord::Danger(MapLocation location, bc_Team damageSource)
 {
-	uint32_t potentialDamage = 0;
-	MapLocation unitLocation = unit.Loc().ToMapLocation();
-	auto dmgSources = unitLocation.NearbyUnits(50, Utility::GetOtherTeam(unit.Team())); // Max attack range, ranger
+	float potentialDamage = 0;
+	auto dmgSources = location.NearbyUnits(64, damageSource); // Max attack range, ranger
 	for (auto& source : dmgSources) {
 		if (source.type == Knight || source.type == Mage || source.type == Ranger) {
 			units::Robot attacker{ bc_Unit_clone(source.self) };
-			if (attacker.AttackRange() < attacker.Loc().ToMapLocation().DistanceTo(unitLocation)) {
-				potentialDamage += attacker.Damage();
+			uint32_t attackRange = attacker.AttackRange();
+			bool couldMove = attacker.MovementHeat() <= 10;
+			uint32_t distance = attacker.Loc().ToMapLocation().DistanceTo(location);
+			potentialDamage += 64 - distance;
+			if (couldMove) attackRange += 10; // Heuristic :P
+			if (attackRange < distance) {
+				if (attacker.AttackHeat() <= 10) {
+					potentialDamage += attacker.Damage();
+				}
+				else {
+					potentialDamage += attacker.Damage() / 2;
+				}
 			}
 		}
 	}
@@ -292,7 +301,8 @@ void CombatOverlord::DetermineDesiredUnits()
 			knightPriority = .3f;
 		}
 
-		PlayerData::pd->unitPriority[bc_UnitType::Knight] = knightPriority;
+		PlayerData::pd->unitPriority[bc_UnitType::Knight] = 0.5f;
+		//PlayerData::pd->unitPriority[bc_UnitType::Knight] = knightPriority;
 	}
 
 	// Ranger Priority
@@ -329,11 +339,12 @@ void CombatOverlord::DetermineDesiredUnits()
 
 		float totalEnemyAmof = static_cast<float>(totalEnemyAmo);
 		if(totalEnemyAmof < 1.0f) { totalEnemyAmof = .001f; }
-		float teamToEnemy = totalAmo / totalEnemyAmof;
+		//float teamToEnemy = totalAmo / totalEnemyAmo;
 
 		// If we are winning, snowball but keeping our units alive with healers...?
-		healerPriority = teamToEnemy;
+		//healerPriority = (knightAmo + rangerAmo) / 5.0f;
 
-		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
+		PlayerData::pd->unitPriority[bc_UnitType::Healer] = 0.1f;
+		//PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
 	}
 }

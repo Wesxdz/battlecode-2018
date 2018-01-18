@@ -8,14 +8,39 @@
 #include "Worker.h"
 #include "Constants.h"
 #include "PlayerData.h"
+#include "CombatOverlord.h"
+#include "Utility.h"
+#include <algorithm>
+#include <iostream>
+#include "Factory.h"
 
 namespace policy {
 
 	float AvoidDamageEval(units::Unit unit) {
+		units::Robot robot{ bc_Unit_clone(unit.self) };
+		if (!robot.IsMoveReady()) return 0.0f;
+		MapLocation location = robot.Loc().ToMapLocation();
+		bc_Team enemyTeam = Utility::GetOtherTeam(robot.Team());
+		uint32_t currentDanger = CombatOverlord::Danger(location, enemyTeam);
+		if (currentDanger == 0) return 0.0f;
+		auto run = constants::directions_adjacent;
+		std::remove_if(run.begin(), run.end(), [&robot](bc_Direction direction) {
+			return !robot.CanMove(direction);
+		});
+		auto escape = std::min_element(run.begin(), run.end(), [&location, &enemyTeam](bc_Direction a, bc_Direction b) {
+			return CombatOverlord::Danger(MapLocation::Neighbor(location, a), enemyTeam) < CombatOverlord::Danger(MapLocation::Neighbor(location, b), enemyTeam);
+		});
+		if (escape != run.end()) {
+			float dangerReduction = (float)currentDanger - CombatOverlord::Danger(MapLocation::Neighbor(location, *escape), enemyTeam);
+			PolicyOverlord::storeDirection = *escape;
+			return dangerReduction / 10;
+		}
 		return 0.0f;
 	}
 
 	bool AvoidDamageExecute(units::Unit unit) {
+		units::Robot robot{ bc_Unit_clone(unit.self) };
+		robot.Move(PolicyOverlord::storeDirection);
 		return true;
 	}
 
@@ -83,26 +108,29 @@ namespace policy {
 		return true;
 	}
 
-	//float WorkerSeekKarboniteEvaluate(units::Unit unit) {
-	//	units::Worker worker = bc_Unit_clone(unit.self);
-	//	if (!worker.IsMoveReady()) return 0.0f;
-	//}
+	float WorkerSeekKarboniteEvaluate(units::Unit unit) {
+		units::Worker worker = bc_Unit_clone(unit.self);
+		if (!worker.IsMoveReady()) return 0.0f;
+		return 0.0f;
+	}
 
-	//bool WorkerSeekKarboniteExecute(units::Unit unit) {
-	//	units::Worker worker = bc_Unit_clone(unit.self);
-
-	//}
+	bool WorkerSeekKarboniteExecute(units::Unit unit) {
+		units::Worker worker = bc_Unit_clone(unit.self);
+		worker.Move(PolicyOverlord::storeDirection);
+		return true;
+	}
 
 	float WorkerBlueprintEvaluate(units::Unit unit) {
 		units::Worker worker = bc_Unit_clone(unit.self);
 		if (worker.HasActed()) return 0.0f;
-		if (GameController::Karbonite() >= bc_UnitType_blueprint_cost(Factory) &&
-			PlayerData::pd->unitPriority[Factory] > PlayerData::pd->teamUnitCounts[Factory]) {
-			for (bc_Direction direction : constants::directions_adjacent) {
-				if (worker.CanBlueprint(Factory, direction)) {
-					PolicyOverlord::storeDirection = direction;
-					return 3.0f;
-				}
+		bc_UnitType priority = PolicyOverlord::HighestPriority();
+		if (!(priority == Factory || priority == Rocket)) return 0.0f;
+		if (GameController::Karbonite() < bc_UnitType_blueprint_cost(priority)) return 0.0f;
+		for (bc_Direction direction : constants::directions_adjacent) {
+			if (worker.CanBlueprint(priority, direction)) {
+				PolicyOverlord::storeDirection = direction;
+				PolicyOverlord::storeUnitType = priority;
+				return 3.0f;
 			}
 		}
 		return 0.0f;
@@ -110,7 +138,63 @@ namespace policy {
 
 	bool WorkerBlueprintExecute(units::Unit unit) {
 		units::Worker worker = bc_Unit_clone(unit.self);
-		worker.Blueprint(Factory, PolicyOverlord::storeDirection);
+		worker.Blueprint(PolicyOverlord::storeUnitType, PolicyOverlord::storeDirection);
+		return true;
+	}
+
+	float WorkerReplicateEvaluate(units::Unit unit) {
+		units::Worker worker = bc_Unit_clone(unit.self);
+		if (worker.HasActed()) return 0.0f;
+		if (GameController::Karbonite() < worker.ReplicateCost()) return 0.0f;
+		if (PolicyOverlord::HighestPriority() != Worker) return 0.0f;
+		for (bc_Direction direction : constants::directions_adjacent) {
+			if (worker.CanReplicate(direction)) {
+				PolicyOverlord::storeDirection = direction;
+				return 5.0f;
+			}
+		}
+		return 0.0f;
+	}
+
+	bool WorkerReplicateExecute(units::Unit unit) {
+		units::Worker worker = bc_Unit_clone(unit.self);
+		worker.Replicate(PolicyOverlord::storeDirection);
+		return true;
+	}
+
+	float FactoryProduceEvaluate(units::Unit unit) {
+		units::Factory factory = bc_Unit_clone(unit.self);
+		if (!factory.IsBuilt()) return 0.0f;
+		bc_UnitType priority = PolicyOverlord::HighestPriority();
+		if (!Utility::IsRobot(priority)) return 0.0f;
+		if (priority == Worker && PlayerData::pd->teamUnitCounts[Worker] > 2) return 0.0f;
+		if (factory.CanProduce(priority)) {
+			PolicyOverlord::storeUnitType = priority;
+			return PlayerData::pd->unitPriority[priority];
+		}
+	}
+
+	bool FactoryProduceExecute(units::Unit unit) {
+		units::Factory factory = bc_Unit_clone(unit.self);
+		factory.Produce(PolicyOverlord::storeUnitType);
+		return true;
+	}
+
+	float FactoryUnloadEvaluate(units::Unit unit) {
+		units::Factory factory = bc_Unit_clone(unit.self);
+		if (!factory.IsBuilt()) return 0.0f;
+		for (bc_Direction direction : constants::directions_adjacent) {
+			if (factory.CanUnload(direction)) {
+				PolicyOverlord::storeDirection = direction;
+				return 1.0f;
+			}
+		}
+		return 0.0f;
+	}
+
+	bool FactoryUnloadExecute(units::Unit unit) {
+		units::Factory factory = bc_Unit_clone(unit.self);
+		factory.Unload(PolicyOverlord::storeDirection);
 		return true;
 	}
 

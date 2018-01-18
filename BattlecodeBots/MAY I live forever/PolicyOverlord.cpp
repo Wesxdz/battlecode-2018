@@ -13,9 +13,11 @@
 
 bc_Direction PolicyOverlord::storeDirection;
 units::Unit PolicyOverlord::storeUnit;
+bc_UnitType PolicyOverlord::storeUnitType;
 
 void PolicyOverlord::Update()
 {
+	std::cout << HighestPriority() << " is highest priority\n";
 	bool policyTaken = false;
 	do { // Loop through all units evaluating policies until no policy is executed
 		policyTaken = false;
@@ -44,9 +46,23 @@ void PolicyOverlord::Update()
 	} while (policyTaken);
 }
 
+bc_UnitType PolicyOverlord::HighestPriority()
+{
+	bc_UnitType priority;
+	float highest = 0.0f;
+	for (auto& unitPrio : PlayerData::pd->unitPriority) {
+		//std::cout << unitPrio.first << " unit type has priority " << unitPrio.second << "\n";
+		if (unitPrio.second > highest) {
+			priority = unitPrio.first;
+			highest = unitPrio.second;
+		}
+	}
+	return priority;
+}
+
 PolicyOverlord::PolicyOverlord()
 {
-	auto robot1 = std::make_shared<Policy>("fear");
+	auto robot1 = std::make_shared<Policy>("fear"); // TODO Run towards friendly units
 	robot1->Evaluate = policy::AvoidDamageEval;
 	robot1->Execute = policy::AvoidDamageExecute;
 	policies[Worker].push_back(robot1);
@@ -68,8 +84,6 @@ PolicyOverlord::PolicyOverlord()
 	policies[Mage].push_back(robot3);
 	policies[Worker].push_back(robot3);
 
-	auto robot4 = std::make_shared<Policy>("diversion");
-
 	auto worker1 = std::make_shared<Policy>("harvest_karbonite");
 	worker1->Evaluate = policy::WorkerHarvestKarboniteEvaluate;
 	worker1->Execute = policy::WorkerHarvestKarboniteExecute;
@@ -81,13 +95,24 @@ PolicyOverlord::PolicyOverlord()
 	policies[Worker].push_back(worker2);
 
 	auto worker4 = std::make_shared<Policy>("replicate");
+	worker4->Evaluate = policy::WorkerReplicateEvaluate;
+	worker4->Execute = policy::WorkerReplicateExecute;
+	policies[Worker].push_back(worker4);
+
 	// Move towards nearby Karbonite deposits
 	auto worker5 = std::make_shared<Policy>("seek_karbonite");
 	auto worker6 = std::make_shared<Policy>("build");
 	auto worker7 = std::make_shared<Policy>("repair");
 
 	auto factory1 = std::make_shared<Policy>("unload_factory");
+	factory1->Evaluate = policy::FactoryUnloadEvaluate;
+	factory1->Execute = policy::FactoryUnloadExecute;
+	policies[Factory].push_back(factory1);
+
 	auto factory2 = std::make_shared<Policy>("produce_unit");
+	factory2->Evaluate = policy::FactoryProduceEvaluate;
+	factory2->Execute = policy::FactoryProduceExecute;
+	policies[Factory].push_back(factory2);
 
 	auto rocket1 = std::make_shared<Policy>("unload_rocket");
 	auto rocket2 = std::make_shared<Policy>("launch");
