@@ -7,6 +7,7 @@
 #include "Robot.h"
 #include "Factory.h"
 #include "Robot.h"
+#include "Rocket.h"
 #include "Worker.h"
 #include "Healer.h"
 #include "Knight.h"
@@ -104,6 +105,28 @@ namespace VecUnit
 		auto units = std::vector<units::Ranger>();
 		for (uintptr_t i = 0; i < bc_VecUnit_len(bcUnits); i++) {
 			units.push_back(units::Ranger(bc_VecUnit_index(bcUnits, i)));
+		}
+		delete_bc_VecUnit(bcUnits);
+		return units;
+	}
+
+	template<>
+	inline std::vector<units::Factory> Wrap(bc_VecUnit* bcUnits)
+	{
+		auto units = std::vector<units::Factory>();
+		for (uintptr_t i = 0; i < bc_VecUnit_len(bcUnits); i++) {
+			units.push_back(units::Factory(bc_VecUnit_index(bcUnits, i)));
+		}
+		delete_bc_VecUnit(bcUnits);
+		return units;
+	}
+
+	template<>
+	inline std::vector<units::Rocket> Wrap(bc_VecUnit* bcUnits)
+	{
+		auto units = std::vector<units::Rocket>();
+		for (uintptr_t i = 0; i < bc_VecUnit_len(bcUnits); i++) {
+			units.push_back(units::Rocket(bc_VecUnit_index(bcUnits, i)));
 		}
 		delete_bc_VecUnit(bcUnits);
 		return units;
