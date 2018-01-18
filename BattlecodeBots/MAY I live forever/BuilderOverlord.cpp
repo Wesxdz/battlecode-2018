@@ -63,6 +63,7 @@ void BuilderOverlord::DetermineDesiredUnits() {
 	int factoryEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Factory];
 	int rocketEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Rocket];
 	int totalEnemyAmo = workerEnemyAmo + knightEnemyAmo + mageEnemyAmo + rangerEnemyAmo + healerEnemyAmo + factoryEnemyAmo + rocketEnemyAmo;
+	if(totalEnemyAmo < 1){ totalEnemyAmo = 1; }
 
 	int workerProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Worker];
 	int knightProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Knight];
@@ -89,8 +90,14 @@ void BuilderOverlord::DetermineDesiredUnits() {
 
 		float currWorkers = static_cast<float>(workerAmo + workerProductionAmo);
 		float workerToTeam = currWorkers / (totalAmo + totalProductionAmo);
-		float workerToStructure = currWorkers / (factoryAmo + rocketAmo + factoryProductionAmo + rocketProductionAmo);
-		float workerToRockets = currWorkers / (rocketAmo + rocketProductionAmo);
+
+		float structureAmo = static_cast<float>(factoryAmo + rocketAmo + factoryProductionAmo + rocketProductionAmo);
+		if(structureAmo < 1) { structureAmo = 1; }
+		float workerToStructure = currWorkers / structureAmo;
+
+		float rocketAmof = static_cast<float>(rocketAmo + rocketProductionAmo);
+		if(rocketAmof < 1) { rocketAmof = 1; }
+		float workerToRockets = currWorkers / rocketAmof;
 
 		// 100 = Bountiful
 		if (currRound < 100) {
@@ -141,7 +148,9 @@ void BuilderOverlord::DetermineDesiredUnits() {
 			}
 			// Need or could use
 			else if (PlayerData::pd->earthStartingKarbonite < 1000.0f) {
-				rocketPriority = 1000.0f / PlayerData::pd->earthStartingKarbonite;
+				int startKarb = PlayerData::pd->earthStartingKarbonite;
+				if(startKarb < 1) { startKarb = 1; }
+				rocketPriority = 1000.0f / startKarb;
 			} 
 			
 		} else {
