@@ -143,25 +143,23 @@ std::vector<units::Unit> CombatOverlord::EnemiesInRange(units::Robot& robot, uin
 float CombatOverlord::AttackValue(units::Robot& attacker, units::Unit& enemy)
 {
 	float score = 1.0f;
-	//uint32_t actualDamage = attacker.Damage();
-	//if (enemy.type == Knight) {
-	//	units::Knight knight = units::Knight(bc_Unit_clone(enemy.self));
-	//	actualDamage -= knight.Defense();
-	//}
-	//if (actualDamage > enemy.Health()) {
-	//	if (enemy.type == Worker) {
-	//		units::Worker worker = units::Worker(bc_Unit_clone(enemy.self));
-	//		score += worker.ReplicateCost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
-	//	}
-	//	else {
-	//		score += enemy.Cost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
-	//	}
-	//	uint32_t overkill = actualDamage - enemy.Health();
-	//	score -= overkill / 5.0f;
-	//}
-	//float percentDamage = (float)enemy.MaxHealth() / actualDamage;
+	uint32_t actualDamage = attacker.Damage();
+	if (enemy.type == Knight) {
+		units::Knight knight = units::Knight(bc_Unit_clone(enemy.self));
+		actualDamage -= knight.Defense();
+	}
+	if (actualDamage > enemy.Health()) {
+		if (enemy.type == Worker) {
+			units::Worker worker = units::Worker(bc_Unit_clone(enemy.self));
+			score += worker.ReplicateCost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
+		}
+		else {
+			score += enemy.Cost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
+		}
+	}
+	float percentDamage = (float)enemy.MaxHealth() / actualDamage;
 
-	//score += enemy.Cost() * percentDamage * AttackCoordinator::multipliers[enemy.type];
+	score += enemy.Cost() * percentDamage * AttackCoordinator::multipliers[enemy.type];
 	// TODO: If the attacking unit is in danger of death prioritize attacking fighter units
 	return score;
 }

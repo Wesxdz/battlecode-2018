@@ -17,7 +17,7 @@ MapLocation PolicyOverlord::storeLocation;
 
 void PolicyOverlord::Update()
 {
-	std::cout << HighestPriority() << " is highest priority\n";
+	//std::cout << HighestPriority() << " is highest priority\n";
 	//std::map<uint16_t, std::vector<std::string>> failedPolicies;
 	bool policyTaken = false;
 	do { // Loop through all units evaluating policies until no policy is executed
@@ -70,6 +70,7 @@ PolicyOverlord::PolicyOverlord()
 	robot1->Evaluate = policy::AvoidDamageEvaluate;
 	robot1->Execute = policy::AvoidDamageExecute;
 	policies[Worker].push_back(robot1);
+	policies[Ranger].push_back(robot1);
 
 	auto robot2 = std::make_shared<Policy>("load_rocket");
 	robot2->Evaluate = policy::LoadRocketEval;
@@ -170,7 +171,7 @@ PolicyOverlord::PolicyOverlord()
 	// Attack best target
 	auto knight1 = std::make_shared<Policy>("knight_attack");
 	knight1->Evaluate = policy::KnightAttackEvaluate;
-	fighter1->Execute = policy::AttackExecute;
+	knight1->Execute = policy::AttackExecute;
 	policies[Knight].push_back(knight1);
 
 	auto knight2 = std::make_shared<Policy>("javelin");

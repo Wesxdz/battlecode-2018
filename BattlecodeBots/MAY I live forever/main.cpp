@@ -64,6 +64,9 @@ int main()
 		}
 		evan.Update();
 		josh.Update();
+		if (round < 5) playerData.unitPriority[Worker] = 10.0f; // TODO Temporary, make better unitPriority evaluations elsewhere :P
+		if (round > 5 && round < 25) playerData.unitPriority[Factory] = 10.0f;
+		if (round > 25) playerData.unitPriority[Ranger] = 10.0f;
 		auto start = std::chrono::system_clock::now();
 		wesley.Update();
 		auto end = std::chrono::system_clock::now();

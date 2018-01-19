@@ -26,16 +26,15 @@ namespace policy {
 		float currentDanger = CombatOverlord::Danger(location, enemyTeam);
 		if (currentDanger == 0) return 0.0f;
 		auto run = constants::directions_adjacent;
-		std::remove_if(run.begin(), run.end(), [&robot](bc_Direction direction) {
-			return !robot.CanMove(direction);
-		});
-		auto escape = std::min_element(run.begin(), run.end(), [&location, &enemyTeam](bc_Direction a, bc_Direction b) {
+		std::sort(run.begin(), run.end(), [&location, &enemyTeam](bc_Direction a, bc_Direction b) {
 			return CombatOverlord::Danger(MapLocation::Neighbor(location, a), enemyTeam) < CombatOverlord::Danger(MapLocation::Neighbor(location, b), enemyTeam);
 		});
-		if (escape != run.end()) {
-			float dangerReduction = (float)currentDanger - CombatOverlord::Danger(MapLocation::Neighbor(location, *escape), enemyTeam);
-			PolicyOverlord::storeDirection = *escape;
-			return dangerReduction / 10;
+		for (bc_Direction direction : run) {
+			float dangerReduction = (float)currentDanger - CombatOverlord::Danger(MapLocation::Neighbor(location, direction), enemyTeam);
+			if (robot.CanMove(direction)) {
+				PolicyOverlord::storeDirection = direction;
+				return dangerReduction / 20;
+			}
 		}
 		return 0.0f;
 	}
@@ -309,7 +308,7 @@ return true;
 			});
 			if (best != nearby.end()) {
 				if (robot.CanAttack(*best)) {
-					PolicyOverlord::storeUnit = *best;
+					PolicyOverlord::storeUnit.id = (*best).id;
 					return CombatOverlord::AttackValue(robot, *best);
 				}
 			}
@@ -326,7 +325,7 @@ return true;
 			});
 			if (best != nearby.end()) {
 				if (mage.CanAttack(*best)) {
-					PolicyOverlord::storeUnit = *best;
+					PolicyOverlord::storeUnit.id = (*best).id;
 					return CombatOverlord::AttackValue(mage, *best);
 				}
 			}
@@ -366,7 +365,7 @@ return true;
 		units::Robot robot = bc_Unit_clone(unit.self);
 		if (!robot.IsMoveReady()) return 0.0f;
 		std::vector<units::Unit> nearbyEnemies;
-		for (int i = 1; i <= 100; i = (i + 1) * (i + 1)) {
+		for (int i = 1; i <= 1000; i = (i + 1) * (i + 1)) {
 			nearbyEnemies = robot.Loc().ToMapLocation().NearbyUnits(i, Utility::GetOtherTeam(robot.Team()));
 			if (nearbyEnemies.size() > 0) {
 				PolicyOverlord::storeDirection = robot.Loc().ToMapLocation().DirectionTo(nearbyEnemies[0].Loc().ToMapLocation());
