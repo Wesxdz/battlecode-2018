@@ -66,3 +66,16 @@ int main()
 		GameController::EndTurn();
 	}
 }
+
+// Especially on the smaller maps, rush is valuable and dangerous. Should definately focus on defense, at least somewhat.
+// Grabbing Karbonite, removing it from total and Initial.
+// Be VERY wary of crash and computation
+// Test against a lot of bots.
+
+//Less workers
+
+// Duplicate, Sorround, Mars. - Round 2
+// Turtling, building up until we encounter enemy, then group and attack
+// Rangers... Rangers.
+// 3 Factories, 20 cost / 5 turns = 4 Karb / turn. 4 * 3 = 12;
+// Courage / Fear - Backing up, pushing forward, waiting.

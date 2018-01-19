@@ -234,9 +234,10 @@ void CombatOverlord::DetermineDesiredUnits()
 
 	// Cant build
 	if (currRound > 749 || GameController::Planet() == bc_Planet::Mars) {
-		PlayerData::pd->unitPriority[bc_UnitType::Worker] = 1.0f; // Maybe change Worker Priority?
-		PlayerData::pd->unitPriority[bc_UnitType::Rocket] = .0f;
-		PlayerData::pd->unitPriority[bc_UnitType::Factory] = .0f;
+		PlayerData::pd->unitPriority[bc_UnitType::Knight] = .0f; // Maybe change Worker Priority?
+		PlayerData::pd->unitPriority[bc_UnitType::Ranger] = .0f;
+		PlayerData::pd->unitPriority[bc_UnitType::Mage] = .0f;
+		PlayerData::pd->unitPriority[bc_UnitType::Healer] = .0f;
 		return;
 	}
 
@@ -337,14 +338,22 @@ void CombatOverlord::DetermineDesiredUnits()
 	{
 		float healerPriority = .0f;
 
-		float totalEnemyAmof = static_cast<float>(totalEnemyAmo);
-		if(totalEnemyAmof < 1.0f) { totalEnemyAmof = .001f; }
-		//float teamToEnemy = totalAmo / totalEnemyAmo;
+		float armyMinSize = static_cast<float>(PlayerData::pd->enemySpawnPositions.size());
 
-		// If we are winning, snowball but keeping our units alive with healers...?
+		float currArmy = knightAmo + rangerAmo + mageAmo;
+		if(currArmy < armyMinSize){ currArmy = armyMinSize; }
+
+		float enemyArmy = knightEnemyAmo + rangerEnemyAmo + mageEnemyAmo;
+		if(enemyArmy < armyMinSize) { enemyArmy = armyMinSize; }
+
+		float teamToEnemy = currArmy / enemyArmy;
+
+		// If we are winning, snowball by keeping our units alive with healers...?
+		healerPriority = teamToEnemy;
+
+		// Have healers relevant to main combat units.
 		//healerPriority = (knightAmo + rangerAmo) / 5.0f;
 
-		PlayerData::pd->unitPriority[bc_UnitType::Healer] = 0.1f;
-		//PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
+		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
 	}
 }
