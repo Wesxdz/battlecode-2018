@@ -12,13 +12,19 @@
 #include <algorithm>
 #include "VecUnit.h"
 
+std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
+
 BuilderOverlord::BuilderOverlord()
 {
-	//PlayerData::pd->desiredUnitCounts[Worker] = 8;
 }
 
 void BuilderOverlord::Update()
 {
+	// TODO Fix!!
+	//std::remove_if(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), [](MapLocation& location) {
+	//	return location.IsVisible() && location.Karbonite() > 0;
+	//});
+	//std::cout << PlayerData::pd->karboniteDeposits.size() << " karbonite deposits\n";
 	//auto units = GameController::Units(MyTeam);
 	//if (GameController::Round() > 50) {
 	//	PlayerData::pd->desiredUnitCounts[Factory] = 6;
@@ -169,7 +175,6 @@ void BuilderOverlord::DetermineDesiredUnits() {
 		
 		// Always want to be producing factories. Compare to Karb reserves
 		factoryPriority = (1.0f - (factoryToTeam * 10.0f)) * (GameController::Karbonite() / 100.0f);
-		std::cout << "Factory priority " << factoryPriority << "\n";
 
 		PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
 	}

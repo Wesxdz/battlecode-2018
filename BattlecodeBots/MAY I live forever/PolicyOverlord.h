@@ -18,7 +18,6 @@ public:
 	
 	static bc_Direction storeDirection;
 	static units::Unit storeUnit;
-	static bc_UnitType storeUnitType;
 
 	static bc_UnitType HighestPriority();
 };

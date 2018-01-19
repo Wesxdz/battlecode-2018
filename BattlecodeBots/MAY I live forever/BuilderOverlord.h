@@ -15,7 +15,7 @@ public:
 	BuilderOverlord();
 	void Update();
 	void DetermineDesiredUnits();
-
+	static std::map<uint16_t, std::vector<uint16_t>> buildProjects; // Structure ids, workers building ids
 };
 
 #endif

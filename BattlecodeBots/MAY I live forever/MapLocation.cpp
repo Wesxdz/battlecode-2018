@@ -68,12 +68,12 @@ int32_t MapLocation::Y()
 	return bc_MapLocation_y_get(self);
 }
 
-MapLocation MapLocation::Neighbor(MapLocation& origin, bc_Direction direction)
+MapLocation MapLocation::Neighbor(MapLocation origin, bc_Direction direction)
 {
 	return MapLocation(bc_MapLocation_add(origin.self, direction));
 }
 
-MapLocation MapLocation::Translate(MapLocation& origin, int32_t dx, int32_t dy)
+MapLocation MapLocation::Translate(MapLocation origin, int32_t dx, int32_t dy)
 {
 	return MapLocation(bc_MapLocation_translate(origin.self, dx, dy));
 }
