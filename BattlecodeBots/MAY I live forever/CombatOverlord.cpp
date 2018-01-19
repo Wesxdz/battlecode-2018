@@ -142,8 +142,7 @@ std::vector<units::Unit> CombatOverlord::EnemiesInRange(units::Robot& robot, uin
 
 float CombatOverlord::AttackValue(units::Robot& attacker, units::Unit& enemy)
 {
-	return 1.0f;
-	//float score = 0.0f;
+	float score = 1.0f;
 	//uint32_t actualDamage = attacker.Damage();
 	//if (enemy.type == Knight) {
 	//	units::Knight knight = units::Knight(bc_Unit_clone(enemy.self));
@@ -163,8 +162,8 @@ float CombatOverlord::AttackValue(units::Robot& attacker, units::Unit& enemy)
 	//float percentDamage = (float)enemy.MaxHealth() / actualDamage;
 
 	//score += enemy.Cost() * percentDamage * AttackCoordinator::multipliers[enemy.type];
-	//// TODO: If the attacking unit is in danger of death prioritize attacking fighter units
-	//return score;
+	// TODO: If the attacking unit is in danger of death prioritize attacking fighter units
+	return score;
 }
 
 float CombatOverlord::SplashValue(units::Mage & mage, units::Unit & target)

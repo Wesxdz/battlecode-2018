@@ -49,19 +49,19 @@ public:
 	/*
 	@return The square of the distance from this to #location.
 	*/
-	uint32_t DistanceTo(MapLocation& location);
+	uint32_t DistanceTo(MapLocation location);
 	/*
 	@return The Direction from this location to the specified location.
 	*/
-	bc_Direction DirectionTo(MapLocation& location);
+	bc_Direction DirectionTo(MapLocation location);
 	/*
 	@return This location is adjacent to #location.
 	*/
-	uint8_t IsAdjacentTo(MapLocation& location);
+	uint8_t IsAdjacentTo(MapLocation location);
 	/*
 	@return This location is within the distance squared range of #location, inclusive.
 	*/
-	uint8_t IsWithinRange(MapLocation& location, uint32_t range);
+	uint8_t IsWithinRange(MapLocation location, uint32_t range);
 	/*
 	@return The current amount of karbonite at this location
 	*/

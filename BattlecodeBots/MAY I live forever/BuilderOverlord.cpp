@@ -20,15 +20,11 @@ BuilderOverlord::BuilderOverlord()
 
 void BuilderOverlord::Update()
 {
-	// TODO Fix!!
+	// TODO Fix
 	//std::remove_if(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), [](MapLocation& location) {
 	//	return location.IsVisible() && location.Karbonite() > 0;
 	//});
 	//std::cout << PlayerData::pd->karboniteDeposits.size() << " karbonite deposits\n";
-	//auto units = GameController::Units(MyTeam);
-	//if (GameController::Round() > 50) {
-	//	PlayerData::pd->desiredUnitCounts[Factory] = 6;
-	//}
 	DetermineDesiredUnits();
 }
 

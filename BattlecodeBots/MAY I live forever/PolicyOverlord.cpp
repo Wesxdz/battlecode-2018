@@ -2,7 +2,6 @@
 
 #include "Policy.h"
 #include "Pathfind.h"
-#include "MapUtil.h"
 
 #include <iostream>
 #include <algorithm>
@@ -14,10 +13,12 @@
 
 bc_Direction PolicyOverlord::storeDirection;
 units::Unit PolicyOverlord::storeUnit;
+MapLocation PolicyOverlord::storeLocation;
 
 void PolicyOverlord::Update()
 {
-	//std::cout << HighestPriority() << " is highest priority\n";
+	std::cout << HighestPriority() << " is highest priority\n";
+	//std::map<uint16_t, std::vector<std::string>> failedPolicies;
 	bool policyTaken = false;
 	do { // Loop through all units evaluating policies until no policy is executed
 		policyTaken = false;
@@ -28,8 +29,11 @@ void PolicyOverlord::Update()
 				return a->Evaluate(unit) > b->Evaluate(unit); // reverse sort
 			});
 			auto policyChosen = policies[unit.type].begin(); // Choose the max policy
-			bool searchingForPolicyChoice = policyChosen != policies[unit.type].end();
-			while (searchingForPolicyChoice) { // Loop through the policies until one is successfully executed or there are no more left
+			while (true) { // Loop through the policies until one is successfully executed or there are no more left
+				bool isValidPolicy = policyChosen != policies[unit.type].end();
+				if (!isValidPolicy) {
+					break;
+				}
 				if ((*policyChosen)->Evaluate(unit) <= 0.0f) { // Eval stores variables!!
 					break;
 				}
@@ -37,11 +41,10 @@ void PolicyOverlord::Update()
 					policyTaken = true;
 					break;
 				}
-				policyChosen++;
-				bool isValidPolicy = policyChosen != policies[unit.type].end();
-				if (!isValidPolicy) {
-					searchingForPolicyChoice = false;
+				else {
+					//failedPolicies[unit.id].push_back((*policyChosen)->name);
 				}
+				policyChosen++;
 			}
 		}
 	} while (policyTaken);
@@ -64,7 +67,7 @@ bc_UnitType PolicyOverlord::HighestPriority()
 PolicyOverlord::PolicyOverlord()
 {
 	auto robot1 = std::make_shared<Policy>("fear"); // TODO Run towards friendly units
-	robot1->Evaluate = policy::AvoidDamageEval;
+	robot1->Evaluate = policy::AvoidDamageEvaluate;
 	robot1->Execute = policy::AvoidDamageExecute;
 	policies[Worker].push_back(robot1);
 
@@ -101,9 +104,15 @@ PolicyOverlord::PolicyOverlord()
 	policies[Worker].push_back(worker3);
 
 	auto worker4 = std::make_shared<Policy>("seek_build");
+	worker4->Evaluate = policy::WorkerSeekBuildEvaluate;
+	worker4->Execute = policy::WorkerSeekBuildExecute;
+	policies[Worker].push_back(worker4);
 
 	// Move towards nearby Karbonite deposits
 	auto worker5 = std::make_shared<Policy>("seek_karbonite");
+	worker5->Evaluate = policy::WorkerSeekKarboniteEvaluate;
+	worker5->Execute = policy::WorkerSeekKarboniteExecute;
+	policies[Worker].push_back(worker5);
 
 	auto worker6 = std::make_shared<Policy>("build");
 	worker6->Evaluate = policy::WorkerBuildEvaluate;
@@ -125,8 +134,15 @@ PolicyOverlord::PolicyOverlord()
 	auto rocket1 = std::make_shared<Policy>("unload_rocket");
 	auto rocket2 = std::make_shared<Policy>("launch");
 
-	// Move towards enemies if there are enough friendly units nearby
+	// Charge towards enemies if there are enough friendly units nearby
 	auto fighter1 = std::make_shared<Policy>("courage");
+
+	auto fighter2 = std::make_shared<Policy>("seek_enemy");
+	fighter2->Evaluate = policy::SeekEnemyEvaluate;
+	fighter2->Execute = policy::SeekEnemyExecute;
+	policies[Knight].push_back(fighter2);
+	policies[Mage].push_back(fighter2);
+	policies[Ranger].push_back(fighter2);
 
 	// Determine if moving towards enemies before attacking would provide a higher value target
 	auto fighter3 = std::make_shared<Policy>("move_attack_advantage");
@@ -136,6 +152,7 @@ PolicyOverlord::PolicyOverlord()
 	mage1->Execute = policy::AttackExecute;
 	policies[Mage].push_back(mage1);
 
+	// Request
 	auto mage2 = std::make_shared<Policy>("blink");
 
 	auto ranger1 = std::make_shared<Policy>("ranger_attack");
@@ -148,6 +165,7 @@ PolicyOverlord::PolicyOverlord()
 
 	// Stay out of vision range of enemy units, avoid letting units into MinAttackRange
 	auto ranger4 = std::make_shared<Policy>("kite");
+
 
 	// Attack best target
 	auto knight1 = std::make_shared<Policy>("knight_attack");

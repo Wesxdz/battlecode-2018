@@ -14,8 +14,7 @@ public:
 	static std::vector<MapLocation> Moveable(MapLocation& start);
 	static MapLocation PickRandom(std::vector<MapLocation>& locations);
 	static bool MoveRandom(units::Robot& robot);
-	static MapLocation PickGreedy(MapLocation& origin, MapLocation& destination);
-	static bool MoveGreedy(units::Robot& robot, MapLocation& destination);
+	static bool MoveFuzzy(units::Robot& robot, bc_Direction direction);
 };
 
 #endif

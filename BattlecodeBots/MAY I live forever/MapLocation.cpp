@@ -78,22 +78,22 @@ MapLocation MapLocation::Translate(MapLocation origin, int32_t dx, int32_t dy)
 	return MapLocation(bc_MapLocation_translate(origin.self, dx, dy));
 }
 
-uint32_t MapLocation::DistanceTo(MapLocation& location)
+uint32_t MapLocation::DistanceTo(MapLocation location)
 {
 	return bc_MapLocation_distance_squared_to(self, location.self);
 }
 
-bc_Direction MapLocation::DirectionTo(MapLocation& location)
+bc_Direction MapLocation::DirectionTo(MapLocation location)
 {
 	return bc_MapLocation_direction_to(self, location.self);
 }
 
-uint8_t MapLocation::IsAdjacentTo(MapLocation& location)
+uint8_t MapLocation::IsAdjacentTo(MapLocation location)
 {
 	return bc_MapLocation_is_adjacent_to(self, location.self);
 }
 
-uint8_t MapLocation::IsWithinRange(MapLocation& location, uint32_t range)
+uint8_t MapLocation::IsWithinRange(MapLocation location, uint32_t range)
 {
 	return bc_MapLocation_is_within_range(self, range, location.self);
 }

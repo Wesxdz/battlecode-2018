@@ -17,6 +17,7 @@ public:
 	void Update();
 	
 	static bc_Direction storeDirection;
+	static MapLocation storeLocation;
 	static units::Unit storeUnit;
 
 	static bc_UnitType HighestPriority();

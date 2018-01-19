@@ -22,7 +22,9 @@ Policy::~Policy()
 bool Policy::Command(units::Unit unit)
 {
 	bool successful = Execute(unit);
-	//std::cout << "r:" << GameController::Round() << " p:" <<  name << " s:" << successful << "\n";
+	if (bc_has_err()) {
+		std::cout << "r:" << GameController::Round() << " p:" <<  name << " s:" << successful << std::endl;
+	}
 	CHECK_ERRORS();
 	return successful;
 }

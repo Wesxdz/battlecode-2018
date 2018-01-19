@@ -58,22 +58,31 @@ bool Pathfind::MoveRandom(units::Robot& robot)
 	return false;
 }
 
-MapLocation Pathfind::PickGreedy(MapLocation& origin, MapLocation& destination)
+bool Pathfind::MoveFuzzy(units::Robot & robot, bc_Direction direction)
 {
-	auto moveable = Moveable(origin);
-	if (moveable.size() == 0) return nullptr;
-	bc_Direction ideal = origin.DirectionTo(destination);
-	std::sort(std::begin(moveable), std::end(moveable), [&origin, &ideal](MapLocation& a, MapLocation& b) {
-		return abs(ideal - origin.DirectionTo(a)) < abs(ideal - origin.DirectionTo(b));
-	});
-	return moveable[0];
-}
-
-bool Pathfind::MoveGreedy(units::Robot& robot, MapLocation& destination)
-{
-	if (!robot.IsMoveReady() || !robot.Loc().IsOnMap()) return false;
-	MapLocation location = robot.Loc().ToMapLocation();
-	MapLocation move = PickGreedy(location, destination);
-	robot.Move(location.DirectionTo(move));
-	return true;
+	if (robot.CanMove(direction)) {
+		robot.Move(direction);
+		return true;
+	}
+	bc_Direction right1 = bc_Direction_rotate_right(direction);
+	if (robot.CanMove(right1)) {
+		robot.Move(right1);
+		return true;
+	}
+	bc_Direction left1 = bc_Direction_rotate_left(direction);
+	if (robot.CanMove(left1)) {
+		robot.Move(left1);
+		return true;
+	}
+	bc_Direction right2 = bc_Direction_rotate_right(right1);
+	if (robot.CanMove(right2)) {
+		robot.Move(right2);
+		return true;
+	}
+	bc_Direction left2 = bc_Direction_rotate_left(left1);
+	if (robot.CanMove(left2)) {
+		robot.Move(left2);
+		return true;
+	}
+	return false;
 }
