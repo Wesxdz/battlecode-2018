@@ -51,9 +51,6 @@
     <ClCompile Include="Ranger.cpp">
       <Filter>Wrapper</Filter>
     </ClCompile>
-    <ClCompile Include="Research.cpp">
-      <Filter>Wrapper</Filter>
-    </ClCompile>
     <ClCompile Include="Robot.cpp">
       <Filter>Wrapper</Filter>
     </ClCompile>
@@ -162,9 +159,6 @@
     <ClInclude Include="Ranger.h">
       <Filter>Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="Research.h">
-      <Filter>Wrapper</Filter>
-    </ClInclude>
     <ClInclude Include="Robot.h">
       <Filter>Wrapper</Filter>
     </ClInclude>
@@ -232,5 +226,10 @@
     <ClInclude Include="Policy.h">
       <Filter>Controller</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Notes.txt.obj">
+      <Filter>Util</Filter>
+    </None>
   </ItemGroup>
 </Project>

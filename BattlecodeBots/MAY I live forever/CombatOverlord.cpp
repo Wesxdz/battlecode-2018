@@ -341,21 +341,19 @@ void CombatOverlord::DetermineDesiredUnits()
 	{
 		float healerPriority = .0f;
 
-		float armyMinSize = static_cast<float>(PlayerData::pd->enemySpawnPositions.size());
+		// Our Army to theirs is wrong and inaccurate. Snowballing doesnt work like that.
 
-		float currArmy = knightAmo + rangerAmo + mageAmo;
-		if(currArmy < armyMinSize){ currArmy = armyMinSize; }
-
-		float enemyArmy = knightEnemyAmo + rangerEnemyAmo + mageEnemyAmo;
-		if(enemyArmy < armyMinSize) { enemyArmy = armyMinSize; }
-
-		float teamToEnemy = currArmy / enemyArmy;
-
-		// If we are winning, snowball by keeping our units alive with healers...?
-		healerPriority = teamToEnemy;
+		//float armyMinSize = static_cast<float>(PlayerData::pd->enemySpawnPositions.size());
+		//float currArmy = knightAmo + rangerAmo + mageAmo;
+		//if(currArmy < armyMinSize){ currArmy = armyMinSize; }
+		//float enemyArmy = knightEnemyAmo + rangerEnemyAmo + mageEnemyAmo;
+		//if(enemyArmy < armyMinSize) { enemyArmy = armyMinSize; }
+		//float teamToEnemy = currArmy / enemyArmy;
+		//healerPriority = teamToEnemy;
 
 		// Have healers relevant to main combat units.
-		//healerPriority = (knightAmo + rangerAmo) / 5.0f;
+		int healerCount = healerAmo < 1 ? 1 : healerAmo;
+		healerPriority = (knightAmo + rangerAmo) / (5.0f * healerCount);
 
 		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
 	}

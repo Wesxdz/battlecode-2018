@@ -42,12 +42,12 @@ PolicyOverlord wesley;
 
 int main()
 {
-	//bc_GameController_get_time_left_ms(); This gets the time remaining supposedly. Header file doesnt have it
+	//bc_GameController_get_time_left_ms(); This gets the time remaining.
 	srand(0);
 
 	// Init Science
 	science.Init(&playerData);
-	std::chrono::duration<double> totalTime;
+	//std::chrono::duration<double> totalTime;
 
 	while (true)
 	{
@@ -55,34 +55,43 @@ int main()
 		if (round % 10 == 0) {
 			std::cout << "Round: " << round << std::endl;
 		}
+
+		//auto start = std::chrono::system_clock::now();
 		playerData.Update();
+		//auto end = std::chrono::system_clock::now();
+		//std::chrono::duration<double> roundTime = end - start;
+		//std::cout << "Data Time: " << roundTime.count() << std::endl;
+
+		//start = std::chrono::system_clock::now();
 		if (GameController::Planet() == bc_Planet::Earth) {
 			science.Update();
 		}
 		else if (round > 749) {
 			science.Update();
 		}
+		//end = std::chrono::system_clock::now();
+		//roundTime = end - start;
+		//std::cout << "Science Time: " << roundTime.count() << std::endl;
+
+		//start = std::chrono::system_clock::now();
 		evan.Update();
+		//end = std::chrono::system_clock::now();
+		//roundTime = end - start;
+		//std::cout << "Builder Time: " << roundTime.count() << std::endl;
+
+		//start = std::chrono::system_clock::now();
 		josh.Update();
-		auto start = std::chrono::system_clock::now();
+		//end = std::chrono::system_clock::now();
+		//roundTime = end - start;
+		//std::cout << "Combater Time: " << roundTime.count() << std::endl;
+		
+		//start = std::chrono::system_clock::now();
 		wesley.Update();
-		auto end = std::chrono::system_clock::now();
-		std::chrono::duration<double> roundTime = end - start;
-		totalTime += roundTime;
-		//std::cout << "Total time used: " << totalTime.count() << "\nPolicy time used: " << roundTime.count() << "\n";
+		//end = std::chrono::system_clock::now();
+		//roundTime = end - start;
+		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
+
+		std::cout << "Total time used: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;;
 		GameController::EndTurn();
 	}
 }
-
-// Especially on the smaller maps, rush is valuable and dangerous. Should definately focus on defense, at least somewhat.
-// Grabbing Karbonite, removing it from total and Initial.
-// Be VERY wary of crash and computation
-// Test against a lot of bots.
-
-//Less workers
-
-// Duplicate, Sorround, Mars. - Round 2
-// Turtling, building up until we encounter enemy, then group and attack
-// Rangers... Rangers.
-// 3 Factories, 20 cost / 5 turns = 4 Karb / turn. 4 * 3 = 12;
-// Courage / Fear - Backing up, pushing forward, waiting.
