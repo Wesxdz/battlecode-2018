@@ -101,7 +101,7 @@ uint32_t height;
 
 bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	if (robot.MovementHeat() > 9) { return false; } // Can't move
-
+	
 	bc_Planet planet = GameController::Planet();
 	if (planet == bc_Planet::Earth) {
 		width = MapUtil::EARTH_MAP_WIDTH;
@@ -114,6 +114,7 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	int destXY = width * destY + destX; // Get Map Pos Total
 
 	auto chartPtr = flowCharts.find(destXY); // Check if We already have a flowchart for this dest
+	
 	if (chartPtr != flowCharts.end()) {
 		auto flowChart = &chartPtr->second;
 
@@ -121,37 +122,36 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 		int currX = mapLoc.X();
 		int currY = mapLoc.Y();
 
-		uint32_t width = GameController::Planet() == bc_Planet::Earth ? width : MapUtil::MARS_MAP_WIDTH; // Get width of planet
-
 		int currXY = width * currY + currX; // Robot Position ID 
 					   
 		auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
 		return Pathfind::MoveFuzzy(robot, dir);
 	} else {
-		auto flowChart = &flowCharts[destXY];	
+		
+		auto flowChart = &flowCharts[destXY];
 
 		//// Create the Maps that will store the data
 		flowChart->pointsMap = new short[width * height];
 		flowChart->directionMap = new bc_Direction[width * height];
-
+		
 		// Only make Terrain once??
 		if (terrainMap == nullptr) {
 			terrainMap = new short[width * height];
 
 			// Get a map of terrain representing A* or how expensive each tile is.
-			std::cout << "Terrain Map" << std::endl;
+			//std::cout << "Terrain Map" << std::endl;
 			bc_PlanetMap* planetMapPtr = GameController::PlanetMap(planet);
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {
 					short ID = y * width + x;
 					terrainMap[ID] = GenerateFlowPathTerrain(ID, planetMapPtr);
-					std::cout << terrainMap[ID] << " ";
+					//std::cout << terrainMap[ID] << " ";
 				}
-				std::cout << std::endl;
+				//std::cout << std::endl;
 			}
 			delete_bc_PlanetMap(planetMapPtr);
 		}
-
+		
 		// Initialize Point Map
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -163,14 +163,14 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 		//// Generate a map based off the terrain and destination
 		GenerateFlowPathPoints(terrainMap, flowChart->pointsMap, destX, destY);
 
-		std::cout << "Points Map" << std::endl;
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::setw(0) << "\n\n" << std::endl;
+		//std::cout << "Points Map" << std::endl;
+		//for (int y = 0; y < height; y++) {
+		//	for (int x = 0; x < width; x++) {
+		//		std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
+		//	}
+		//	std::cout << std::endl;
+		//}
+		//std::cout << std::setw(0) << "\n\n" << std::endl;
 
 		// Generate a map of directions based off surrounding points...
 		for (int y = 0; y < height; y++) {
@@ -179,26 +179,29 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 				flowChart->directionMap[ID] = GenerateFlowPathDirection(flowChart->pointsMap, x, y, destX, destY);
 			}
 		}
+		
 
-		std::cout << "Direction Map" << std::endl;
-		std::cout << "Destination is " << destX << ", " << destY << std::endl;
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				std::cout << flowChart->directionMap[y * width + x] << " ";
-			}
-			std::cout << std::endl;
-		}
-		std::cout << "\n\n" << std::endl;
+		//std::cout << "Direction Map" << std::endl;
+		//std::cout << "Destination is " << destX << ", " << destY << std::endl;
+		//for (int y = 0; y < height; y++) {
+		//	for (int x = 0; x < width; x++) {
+		//		std::cout << flowChart->directionMap[y * width + x] << " ";
+		//	}
+		//	std::cout << std::endl;
+		//}
+		//std::cout << "\n\n" << std::endl;
 
+		
 		//Move
 		auto mapLoc = robot.Loc().ToMapLocation(); // Get Curr Map Pos Total
 		int currX = mapLoc.X();
 		int currY = mapLoc.Y();
 		int currXY = width * currY + currX; // Robot Position ID 
-
+		
 		auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
 		return Pathfind::MoveFuzzy(robot, dir);
 	}
+	
 	return false;
 }
 
@@ -228,9 +231,6 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 		short currY = currentID / width;
 
 		int newValue = pointsMap[currentID] + 1; // New value for surrounding points
-
-		//std::cout << "Current ID is " << currentID << " at " << currX << ", " << currY << std::endl;
-
 
 		// UP
 		{
@@ -418,7 +418,6 @@ bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
 
 	// If center, then source == dest
 	if(mapDir == bc_Direction::Center){ 
-		//std::cout << "Source is Destination" << std::endl;
 		return mapDir; 
 	} 
 
@@ -438,18 +437,13 @@ bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
 		if (newY < height && newY > -1 && newX < width && newY > -1) {
 			// Get new ID
 			int dirID = newY * width + newX;
-			//std::cout << "Source: " << sourceX << ", " << sourceY << " and Dir: " << currX << ", " << currY << " is " << dirID << std::endl;
 
 			// If lower, new Direction
 			if (pointsMap[dirID] < lowestValue) {
-				//std::cout << pointsMap[dirID] << " is lower than " << lowestValue << " Direction is " << currDir << std::endl;
 
 				mapDir = currDir;
 				lowestValue = pointsMap[dirID];
 			}
-
-		} else {
-			//std::cout << "Position " << newX << ", " << newY << " is off the map " << std::endl;
 		}
 	}
 	return mapDir;

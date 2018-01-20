@@ -58,10 +58,10 @@ int main()
 		if (round % 10 == 0) {
 			std::cout << "Round: " << round << std::endl;
 		}
-		auto timeLeft = std::chrono::duration<double>(10 + .05 * round) - totalTime;
-		if (timeLeft < roundTime * 3) {
-			std::cout << "Almost out of time: Halt turn" << std::endl;
-			GameController::EndTurn(); // last round;
+		auto timeLeft = bc_GameController_get_time_left_ms(GameController::gc);
+		if (timeLeft < roundTime.count() * 3) {
+			std::cout << "ENDING TURN EARLY (Time remaining limited)" << std::endl;
+			GameController::EndTurn();
 			continue;
 		}
 		playerData.Update();
@@ -90,27 +90,30 @@ int main()
 		roundTime = end - start;
 		//std::cout << "Combater Time: " << roundTime.count() << std::endl;
 	
+		// Pathfind Test
+		{
+			start = std::chrono::system_clock::now();
+			auto units = GameController::Units(bc_Selection::MyTeam);
+			for (int i = 0; i < units.size(); i++) {
+				units::Unit* unit = &units[i];
+				if (Utility::IsAttackRobot(unit->type)) {
+					Location loc = unit->Loc();
+					if (loc.IsOnMap()) {
+						MapLocation mapLoc = loc.ToMapLocation();
+						units::Robot robot(bc_Unit_clone(unit->self));
 
-		start = std::chrono::system_clock::now();
-		auto units = GameController::Units(bc_Selection::MyTeam);
-		for (int i = 0; i < units.size(); i++) {
-			units::Unit* unit = &units[i];
-			if (Utility::IsAttackRobot(unit->type)) {
-				Location loc = unit->Loc();
-				if (loc.IsOnMap()) {
-					MapLocation mapLoc = loc.ToMapLocation();
-					units::Robot robot(bc_Unit_clone(unit->self));
+						// Change pathfind to the specific place
+						// For example, a karb deposit or enemy position
 
-					//MapLocation centerPoint(bc_Planet::Earth, MapUtil::MAP_WIDTH / 2, MapUtil::MAP_HEIGHT / 2);
+						Pathfind::MoveFuzzyFlow(robot, PlayerData::pd->enemySpawnPositions[0]);
+					}
 					
-					Pathfind::MoveFuzzyFlow(robot, PlayerData::pd->enemySpawnPositions[0]);
 				}
-				
 			}
+			end = std::chrono::system_clock::now();
+			roundTime = end - start;
+			std::cout << "Path Finding Time: " << roundTime.count() << std::endl;
 		}
-		end = std::chrono::system_clock::now();
-		roundTime = end - start;
-		//std::cout << "Path Finding Time: " << roundTime.count() << std::endl;
 
 		start = std::chrono::system_clock::now();
 		policyLord.Update();

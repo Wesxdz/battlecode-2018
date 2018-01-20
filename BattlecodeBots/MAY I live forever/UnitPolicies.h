@@ -47,33 +47,25 @@ namespace policy {
 
 	float LoadRocketEvaluate(units::Unit unit) {
 		float score = 0.0f;
-		bc_Location* location = bc_Unit_location(unit.self);
-		bool isOnMap = bc_Location_is_on_map(location);
-		if (!isOnMap) return 0.0f;
-		bc_MapLocation* mapLocation = bc_Location_map_location(location);
-		delete_bc_Location(location);
-		bc_VecUnit* nearbyRockets = bc_GameController_sense_nearby_units_by_type(GameController::gc, mapLocation, 1, Rocket);
+		units::Robot robot = bc_Unit_clone(unit.self);
+		bc_VecUnit* nearbyRockets = bc_GameController_sense_nearby_units_by_type(GameController::gc, robot.Loc().ToMapLocation().self, 1, Rocket);
 		for (uintptr_t i = 0; i < bc_VecUnit_len(nearbyRockets); i++) {
-			auto rocket = bc_VecUnit_index(nearbyRockets, 0);
-			if (bc_Unit_team(rocket) == GameController::Team() && bc_Unit_structure_is_built(rocket)) {
-				PolicyOverlord::storeUnit = bc_Unit_clone(rocket);
+			units::Rocket rocket = bc_VecUnit_index(nearbyRockets, 0);
+			if (rocket.Team() == GameController::Team() && rocket.CanLoad(robot)) {
+				PolicyOverlord::storeUnit.id = rocket.id;
 				score += 40.0f;
+				break;
 			}
-			delete_bc_Unit(rocket);
 		}
 		delete_bc_VecUnit(nearbyRockets);
-		delete_bc_MapLocation(mapLocation);
 		return score;
 	}
 
 	bool LoadRocketExecute(units::Unit unit) {
-		units::Rocket rocket = bc_Unit_clone(PolicyOverlord::storeUnit.self);
-		units::Robot robot = bc_Unit_clone(robot.self);
-		if (rocket.CanLoad(robot)) {
-			rocket.Load(robot);
-			return true;
-		}
-		return false;
+		units::Robot robot = bc_Unit_clone(unit.self);
+		units::Rocket rocket = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
+		rocket.Load(robot);
+		return true;
 	}
 
 	float WanderEvaluate(units::Unit unit) {

@@ -78,12 +78,6 @@
     <ClCompile Include="Pathfind.cpp">
       <Filter>Pathfinding</Filter>
     </ClCompile>
-    <ClCompile Include="AStar.cpp">
-      <Filter>Pathfinding</Filter>
-    </ClCompile>
-    <ClCompile Include="Node.cpp">
-      <Filter>Pathfinding</Filter>
-    </ClCompile>
     <ClCompile Include="AttackCoordinator.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
@@ -113,6 +107,9 @@
       <Filter>Controller</Filter>
     </ClCompile>
     <ClCompile Include="Policy.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="MapControl.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
   </ItemGroup>
@@ -187,12 +184,6 @@
     <ClInclude Include="Pathfind.h">
       <Filter>Pathfinding</Filter>
     </ClInclude>
-    <ClInclude Include="AStar.h">
-      <Filter>Pathfinding</Filter>
-    </ClInclude>
-    <ClInclude Include="Node.h">
-      <Filter>Pathfinding</Filter>
-    </ClInclude>
     <ClInclude Include="AttackCoordinator.h">
       <Filter>Controller</Filter>
     </ClInclude>
@@ -224,6 +215,9 @@
       <Filter>Controller</Filter>
     </ClInclude>
     <ClInclude Include="Policy.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="MapControl.h">
       <Filter>Controller</Filter>
     </ClInclude>
   </ItemGroup>
