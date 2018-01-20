@@ -78,12 +78,6 @@
     <ClCompile Include="Pathfind.cpp">
       <Filter>Pathfinding</Filter>
     </ClCompile>
-    <ClCompile Include="AStar.cpp">
-      <Filter>Pathfinding</Filter>
-    </ClCompile>
-    <ClCompile Include="Node.cpp">
-      <Filter>Pathfinding</Filter>
-    </ClCompile>
     <ClCompile Include="AttackCoordinator.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
@@ -185,12 +179,6 @@
     </ClInclude>
     <ClInclude Include="bc.h" />
     <ClInclude Include="Pathfind.h">
-      <Filter>Pathfinding</Filter>
-    </ClInclude>
-    <ClInclude Include="AStar.h">
-      <Filter>Pathfinding</Filter>
-    </ClInclude>
-    <ClInclude Include="Node.h">
       <Filter>Pathfinding</Filter>
     </ClInclude>
     <ClInclude Include="AttackCoordinator.h">

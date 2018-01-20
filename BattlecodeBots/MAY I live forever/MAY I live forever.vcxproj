@@ -115,7 +115,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AStar.cpp" />
     <ClCompile Include="AsteroidPattern.cpp" />
     <ClCompile Include="AsteroidStrike.cpp" />
     <ClCompile Include="AttackCoordinator.cpp" />
@@ -130,7 +129,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapLocation.cpp" />
     <ClCompile Include="MapUtil.cpp" />
-    <ClCompile Include="Node.cpp" />
     <ClCompile Include="OrbitPattern.cpp" />
     <ClCompile Include="Pathfind.cpp" />
     <ClCompile Include="Pegboard.cpp" />
@@ -151,7 +149,6 @@
     <ClCompile Include="Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AStar.h" />
     <ClInclude Include="AsteroidPattern.h" />
     <ClInclude Include="AsteroidStrike.h" />
     <ClInclude Include="AttackCoordinator.h" />
@@ -168,7 +165,6 @@
     <ClInclude Include="Mage.h" />
     <ClInclude Include="MapLocation.h" />
     <ClInclude Include="MapUtil.h" />
-    <ClInclude Include="Node.h" />
     <ClInclude Include="OrbitPattern.h" />
     <ClInclude Include="Pathfind.h" />
     <ClInclude Include="Pegboard.h" />

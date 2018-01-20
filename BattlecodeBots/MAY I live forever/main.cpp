@@ -58,10 +58,10 @@ int main()
 		if (round % 10 == 0) {
 			std::cout << "Round: " << round << std::endl;
 		}
-		auto timeLeft = std::chrono::duration<double>(10 + .05 * round) - totalTime;
-		if (timeLeft < roundTime * 3) {
-			std::cout << "Almost out of time: Halt turn" << std::endl;
-			GameController::EndTurn(); // last round;
+		auto timeLeft = bc_GameController_get_time_left_ms(GameController::gc);
+		if (timeLeft < roundTime.count() * 3) {
+			std::cout << "ENDING TURN EARLY (Time remaining limited)" << std::endl;
+			GameController::EndTurn();
 			continue;
 		}
 		playerData.Update();
@@ -118,7 +118,7 @@ int main()
 		roundTime = end - start;
 		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
 
-		std::cout << "Total time left: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;
+		//std::cout << "Total time left: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;
 		GameController::EndTurn();
 	}
 }

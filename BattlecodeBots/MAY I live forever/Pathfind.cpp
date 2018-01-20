@@ -117,7 +117,7 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 		auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
 		return Pathfind::MoveFuzzy(robot, dir);
 	} else {
-		auto flowChart = &flowCharts[destXY];	
+		auto flowChart = &flowCharts[destXY];
 
 		uint32_t width;
 		uint32_t height;
@@ -145,7 +145,7 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 				for (int x = 0; x < MapUtil::EARTH_MAP_WIDTH; x++) {
 					short ID = y * MapUtil::EARTH_MAP_WIDTH + x;
 					terrainMap[ID] = GenerateFlowPathTerrain(ID, planetMapPtr);
-					//std::cout << earthTerrainMap[y * MapUtil::EARTH_MAP_WIDTH + x] << " ";
+					//std::cout << terrainMap[ID] << " ";
 				}
 				//std::cout << std::endl;
 			}
