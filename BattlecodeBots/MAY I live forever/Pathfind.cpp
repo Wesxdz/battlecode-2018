@@ -65,7 +65,7 @@ bool Pathfind::MoveRandom(units::Robot& robot)
 
 bool Pathfind::MoveFuzzy(units::Robot & robot, bc_Direction direction)
 {
-	if(robot.MovementHeat() > 9){ return false; }
+	if (!robot.IsMoveReady() || direction == Center) return false;
 	if (robot.CanMove(direction)) {
 		robot.Move(direction);
 		return true;

@@ -18,7 +18,8 @@ public:
 	
 	static bc_Direction storeDirection;
 	static MapLocation storeLocation;
-	static units::Unit storeUnit;
+	static uint16_t storeId;
+	static bc_UnitType storeUnitType;
 
 	static bc_UnitType HighestPriority();
 };

@@ -59,7 +59,7 @@ int main()
 			std::cout << "Round: " << round << std::endl;
 		}
 		auto timeLeft = bc_GameController_get_time_left_ms(GameController::gc);
-		if (timeLeft < roundTime.count() * 3) {
+		if (timeLeft < 1000) {
 			std::cout << "ENDING TURN EARLY (Time remaining limited)" << std::endl;
 			GameController::EndTurn();
 			continue;
@@ -92,22 +92,22 @@ int main()
 	
 
 		start = std::chrono::system_clock::now();
-		auto units = GameController::Units(bc_Selection::MyTeam);
-		for (int i = 0; i < units.size(); i++) {
-			units::Unit* unit = &units[i];
-			if (Utility::IsAttackRobot(unit->type)) {
-				Location loc = unit->Loc();
-				if (loc.IsOnMap()) {
-					MapLocation mapLoc = loc.ToMapLocation();
-					units::Robot robot(bc_Unit_clone(unit->self));
+		//auto units = GameController::Units(bc_Selection::MyTeam);
+		//for (int i = 0; i < units.size(); i++) {
+		//	units::Unit* unit = &units[i];
+		//	if (Utility::IsAttackRobot(unit->type)) {
+		//		Location loc = unit->Loc();
+		//		if (loc.IsOnMap()) {
+		//			MapLocation mapLoc = loc.ToMapLocation();
+		//			units::Robot robot(bc_Unit_clone(unit->self));
 
-					//MapLocation centerPoint(bc_Planet::Earth, MapUtil::MAP_WIDTH / 2, MapUtil::MAP_HEIGHT / 2);
-					
-					Pathfind::MoveFuzzyFlow(robot, PlayerData::pd->enemySpawnPositions[0]);
-				}
-				
-			}
-		}
+		//			//MapLocation centerPoint(bc_Planet::Earth, MapUtil::MAP_WIDTH / 2, MapUtil::MAP_HEIGHT / 2);
+		//			
+		//			Pathfind::MoveFuzzyFlow(robot, PlayerData::pd->enemySpawnPositions[0]);
+		//		}
+		//		
+		//	}
+		//}
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
 		//std::cout << "Path Finding Time: " << roundTime.count() << std::endl;

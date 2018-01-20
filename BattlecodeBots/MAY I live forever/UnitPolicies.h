@@ -15,6 +15,7 @@
 #include "Factory.h"
 #include "BuilderOverlord.h"
 #include "MapUtil.h"
+#include "Pegboard.h"
 
 namespace policy {
 
@@ -48,11 +49,13 @@ namespace policy {
 	float LoadRocketEvaluate(units::Unit unit) {
 		float score = 0.0f;
 		units::Robot robot = bc_Unit_clone(unit.self);
-		bc_VecUnit* nearbyRockets = bc_GameController_sense_nearby_units_by_type(GameController::gc, robot.Loc().ToMapLocation().self, 1, Rocket);
+		MapLocation robotLocation = robot.Loc().ToMapLocation();
+		if (!robot.IsMoveReady()) return 0.0f;
+		bc_VecUnit* nearbyRockets = bc_GameController_sense_nearby_units_by_type(GameController::gc, robotLocation.self, 2, Rocket);
 		for (uintptr_t i = 0; i < bc_VecUnit_len(nearbyRockets); i++) {
-			units::Rocket rocket = bc_VecUnit_index(nearbyRockets, 0);
-			if (rocket.Team() == GameController::Team() && rocket.CanLoad(robot)) {
-				PolicyOverlord::storeUnit.id = rocket.id;
+			units::Rocket rocket{ bc_VecUnit_index(nearbyRockets, i) };
+			if (rocket.CanLoad(robot)) {
+				PolicyOverlord::storeId = bc_Unit_id(rocket.self);
 				score += 40.0f;
 				break;
 			}
@@ -63,7 +66,7 @@ namespace policy {
 
 	bool LoadRocketExecute(units::Unit unit) {
 		units::Robot robot = bc_Unit_clone(unit.self);
-		units::Rocket rocket = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
+		units::Rocket rocket = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		rocket.Load(robot);
 		return true;
 	}
@@ -110,7 +113,7 @@ namespace policy {
 		for (bc_Direction direction : constants::directions_adjacent) {
 			if (worker.CanBlueprint(priority, direction)) {
 				PolicyOverlord::storeDirection = direction;
-				PolicyOverlord::storeUnit.type = priority;
+				PolicyOverlord::storeUnitType = priority;
 				return 3.0f;
 			}
 		}
@@ -119,7 +122,7 @@ namespace policy {
 
 	bool WorkerBlueprintExecute(units::Unit unit) {
 		units::Worker worker = bc_Unit_clone(unit.self);
-		worker.Blueprint(PolicyOverlord::storeUnit.type, PolicyOverlord::storeDirection);
+		worker.Blueprint(PolicyOverlord::storeUnitType, PolicyOverlord::storeDirection);
 		MapLocation buildLocation = MapLocation::Neighbor(worker.Loc().ToMapLocation(), PolicyOverlord::storeDirection);
 		units::Structure build = buildLocation.Occupant();
 		BuilderOverlord::buildProjects[build.id].push_back(worker.id);
@@ -189,7 +192,7 @@ namespace policy {
 			auto self = std::find(project.second.begin(), project.second.begin(), worker.id);
 			if (self != project.second.end()) {
 				if (bc_GameController_can_build(GameController::gc, worker.id, project.first)) {
-					PolicyOverlord::storeUnit.id = project.first;
+					PolicyOverlord::storeId = project.first;
 					return 10.0f;
 				}
 			}
@@ -199,9 +202,9 @@ namespace policy {
 
 	bool WorkerBuildExecute(units::Unit unit) {
 		units::Worker worker = bc_Unit_clone(unit.self);
-		units::Structure build = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
+		units::Structure build = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		worker.Build(build);
-		units::Structure updatedBuild = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
+		units::Structure updatedBuild = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		if (updatedBuild.IsBuilt()) {
 			BuilderOverlord::buildProjects.erase(BuilderOverlord::buildProjects.find(updatedBuild.id)); //Remove build project
 		}
@@ -260,7 +263,7 @@ namespace policy {
 		if (!Utility::IsRobot(priority)) return 0.0f;
 		if (priority == Worker && PlayerData::pd->teamUnitCounts[Worker] > 2) return 0.0f;
 		if (factory.CanProduce(priority)) {
-			PolicyOverlord::storeUnit.type = priority;
+			PolicyOverlord::storeUnitType = priority;
 			return PlayerData::pd->unitPriority[priority];
 		}
 		return 0.0f;
@@ -268,7 +271,7 @@ namespace policy {
 
 	bool FactoryProduceExecute(units::Unit unit) {
 		units::Factory factory = bc_Unit_clone(unit.self);
-		factory.Produce(PolicyOverlord::storeUnit.type);
+		factory.Produce(PolicyOverlord::storeUnitType);
 		return true;
 	}
 
@@ -299,7 +302,7 @@ namespace policy {
 			});
 			if (best != nearby.end()) {
 				if (robot.CanAttack(*best)) {
-					PolicyOverlord::storeUnit.id = (*best).id;
+					PolicyOverlord::storeId = (*best).id;
 					return CombatOverlord::AttackValue(robot, *best);
 				}
 			}
@@ -316,7 +319,7 @@ namespace policy {
 			});
 			if (best != nearby.end()) {
 				if (knight.CanJavelin(*best)) {
-					PolicyOverlord::storeUnit = *best;
+					PolicyOverlord::storeId = (*best).id;
 					return CombatOverlord::AttackValue(knight, *best) - 0.1f; // Attack before Javelin 
 				}
 			}
@@ -326,7 +329,8 @@ namespace policy {
 
 	bool KnightJavelinExecute(units::Unit unit) {
 		units::Knight knight = bc_Unit_clone(unit.self);
-		knight.Javelin(PolicyOverlord::storeUnit);
+		units::Unit target = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
+		knight.Javelin(target);
 		return true;
 	}
 
@@ -339,7 +343,7 @@ namespace policy {
 			});
 			if (best != nearby.end()) {
 				if (mage.CanAttack(*best)) {
-					PolicyOverlord::storeUnit.id = (*best).id;
+					PolicyOverlord::storeId= (*best).id;
 					return CombatOverlord::AttackValue(mage, *best);
 				}
 			}
@@ -358,7 +362,7 @@ namespace policy {
 		while (true) {
 			if (best == nearby.end()) break; // Probably too close D:
 			if (ranger.CanAttack(*best)) {
-				PolicyOverlord::storeUnit.id = (*best).id;
+				PolicyOverlord::storeId = (*best).id;
 				return CombatOverlord::AttackValue(ranger, *best);
 			}
 			else {
@@ -370,28 +374,50 @@ namespace policy {
 
 	bool AttackExecute(units::Unit unit) {
 		units::Robot robot = bc_Unit_clone(unit.self);
-		units::Robot toAttack = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
-		robot.Attack(PolicyOverlord::storeUnit);
+		units::Robot toAttack = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
+		robot.Attack(toAttack);
 		return true;
 	}
 
 	float SeekEnemyEvaluate(units::Unit unit) {
 		units::Robot robot = bc_Unit_clone(unit.self);
+		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (!robot.IsMoveReady()) return 0.0f;
-		std::vector<units::Unit> nearbyEnemies;
-		for (int i = 1; i <= 1000; i = (i + 1) * (i + 1)) {
-			nearbyEnemies = robot.Loc().ToMapLocation().NearbyUnits(i, Utility::GetOtherTeam(robot.Team()));
-			if (nearbyEnemies.size() > 0) {
-				PolicyOverlord::storeDirection = robot.Loc().ToMapLocation().DirectionTo(nearbyEnemies[0].Loc().ToMapLocation());
-				return 10.0f;
+		bc_Team otherTeam = Utility::GetOtherTeam(GameController::Team());
+		for (int i = 1; i <= 100; i = (i + 1) * (i + 1)) {
+			bc_VecUnit* nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, i*i, otherTeam);
+			if (bc_VecUnit_len(nearbyEnemies) > 0) {
+				units::Unit seek = bc_VecUnit_index(nearbyEnemies, 0);
+				PolicyOverlord::storeLocation = seek.Loc().ToMapLocation();
+				delete_bc_VecUnit(nearbyEnemies);
+				return 20.0f;
 			}
+			delete_bc_VecUnit(nearbyEnemies);
 		}
 		return 0.0f;
 	}
 
 	bool SeekEnemyExecute(units::Unit unit) {
 		units::Robot robot = bc_Unit_clone(unit.self);
-		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
+		return Pathfind::MoveFuzzyFlow(robot, PolicyOverlord::storeLocation);
+	}
+
+	float SeekControlEvaluate(units::Unit unit) {
+		units::Robot robot = bc_Unit_clone(unit.self);
+		MapLocation robotLocation = robot.Loc().ToMapLocation();
+		if (CombatOverlord::controlPoints.size() > 0) { // Move towards the closest control point
+			auto move = std::max_element(CombatOverlord::controlPoints.begin(), CombatOverlord::controlPoints.end(), [&robotLocation](MapLocation& a, MapLocation& b) {
+				return a.DistanceTo(robotLocation) < b.DistanceTo(robotLocation);
+			});
+			PolicyOverlord::storeLocation = *move;
+			return 1.0f;
+		}
+		return 0.0f;
+	}
+
+	bool SeekControlExecute(units::Unit unit) {
+		units::Robot robot = bc_Unit_clone(unit.self);
+		return Pathfind::MoveFuzzyFlow(robot, PolicyOverlord::storeLocation);
 	}
 
 	float HealerHealEvaluate(units::Unit unit) {
@@ -410,7 +436,7 @@ namespace policy {
 				return false;
 			});
 			if (found != nearby.end()) {
-				PolicyOverlord::storeUnit.id = (*found).id;
+				PolicyOverlord::storeId = (*found).id;
 				return 30.0f;
 			}
 		}
@@ -419,7 +445,7 @@ namespace policy {
 
 	bool HealerHealExecute(units::Unit unit) {
 		units::Healer healer = bc_Unit_clone(unit.self);
-		units::Robot toHeal = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
+		units::Robot toHeal = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		healer.Heal(toHeal);
 		return true;
 	}
@@ -434,7 +460,7 @@ namespace policy {
 		});
 		units::Robot toOvercharge = bc_Unit_clone((*best).self);
 		if (healer.CanOvercharge(toOvercharge.self)) {
-			PolicyOverlord::storeUnit = bc_Unit_clone(toOvercharge.self);
+			PolicyOverlord::storeId = bc_Unit_id(toOvercharge.self);
 			return CombatOverlord::OverchargeValue(healer, bc_Unit_clone((*best).self));
 		}
 		return 0.0f;
@@ -443,7 +469,7 @@ namespace policy {
 
 	bool HealerOverchargeExecute(units::Unit unit) {
 		units::Healer healer = bc_Unit_clone(unit.self);
-		units::Robot toOvercharge = bc_Unit_clone(PolicyOverlord::storeUnit.self);
+		units::Robot toOvercharge = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		healer.Overcharge(toOvercharge);
 		return true;
 	}
@@ -482,6 +508,40 @@ namespace policy {
 		units::Rocket rocket = bc_Unit_clone(unit.self);
 		rocket.Launch(PolicyOverlord::storeLocation);
 		return true;
+	}
+
+	float KiteEvaluate(units::Unit unit) {
+		units::Robot robot = bc_Unit_clone(unit.self);
+		if (!robot.IsMoveReady()) return 0.0f;
+		MapLocation robotLocation = robot.Loc().ToMapLocation();
+		auto nearbyUnits = robotLocation.NearbyUnits(robot.AttackRange(), Utility::GetOtherTeam(GameController::Team()));
+		if (nearbyUnits.size() == 0) return 0.0f;
+		Force f;
+		for (units::Unit& nearby : nearbyUnits) {
+			MapLocation nearbyLocation = nearby.Loc().ToMapLocation();
+			if ((robotLocation.DistanceTo(nearbyLocation) + 10) < robot.AttackRange()) {
+				bc_Direction run = nearbyLocation.DirectionTo(robotLocation);
+				if (Utility::IsAttackRobot(nearby.type)) {
+					f = f + Force((float)bc_Direction_dx(run) * 3, (float)bc_Direction_dy(run) * 3);
+				}
+				else {
+					f = f + Force((float)bc_Direction_dx(run), (float)bc_Direction_dy(run));
+				}
+			}
+		}
+		if (f.Power() >= 1) {
+			bc_Direction move = f.Direction();
+			if (move != Center) {
+				PolicyOverlord::storeDirection = move;
+				return 1000.0f;
+			}
+		}
+		return 0.0f;
+	}
+
+	bool KiteExecute(units::Unit unit) {
+		units::Robot robot = bc_Unit_clone(unit.self);
+		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
 }

@@ -164,7 +164,7 @@ std::vector<units::Unit> MapLocation::NearbyUnits(uint32_t radius_squared)
 std::vector<units::Unit> MapLocation::NearbyUnits(uint32_t radius_squared, bc_Team team)
 {
 	std::vector<units::Unit> nearbyUnits;
-	bc_VecUnit * nearby = bc_GameController_sense_nearby_units_by_team(GameController::gc, self, radius_squared, team);
+	bc_VecUnit* nearby = bc_GameController_sense_nearby_units_by_team(GameController::gc, self, radius_squared, team);
 	for (uintptr_t i = 0; i < bc_VecUnit_len(nearby); i++) {
 		nearbyUnits.push_back(bc_VecUnit_index(nearby, i));
 	}

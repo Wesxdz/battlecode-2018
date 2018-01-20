@@ -37,6 +37,8 @@ public:
 
 	// The units that require healing, sorted by order of most needed first
 	static std::vector<uint16_t> requestHeal;
+	// These are points that have concentrated enemies and must be destroyed
+	static std::vector<MapLocation> controlPoints;
 };
 
 #endif
