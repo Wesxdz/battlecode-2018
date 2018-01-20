@@ -14,27 +14,27 @@
 #include <iostream>
 #include "Factory.h"
 #include "BuilderOverlord.h"
+#include "MapUtil.h"
 
 namespace policy {
 
-	float AvoidDamageEval(units::Unit unit) {
+	float AvoidDamageEvaluate(units::Unit unit) {
 		units::Robot robot{ bc_Unit_clone(unit.self) };
 		if (!robot.IsMoveReady()) return 0.0f;
 		MapLocation location = robot.Loc().ToMapLocation();
 		bc_Team enemyTeam = Utility::GetOtherTeam(robot.Team());
-		uint32_t currentDanger = CombatOverlord::Danger(location, enemyTeam);
+		float currentDanger = CombatOverlord::Danger(location, enemyTeam);
 		if (currentDanger == 0) return 0.0f;
 		auto run = constants::directions_adjacent;
-		std::remove_if(run.begin(), run.end(), [&robot](bc_Direction direction) {
-			return !robot.CanMove(direction);
-		});
-		auto escape = std::min_element(run.begin(), run.end(), [&location, &enemyTeam](bc_Direction a, bc_Direction b) {
+		std::sort(run.begin(), run.end(), [&location, &enemyTeam](bc_Direction a, bc_Direction b) {
 			return CombatOverlord::Danger(MapLocation::Neighbor(location, a), enemyTeam) < CombatOverlord::Danger(MapLocation::Neighbor(location, b), enemyTeam);
 		});
-		if (escape != run.end()) {
-			float dangerReduction = (float)currentDanger - CombatOverlord::Danger(MapLocation::Neighbor(location, *escape), enemyTeam);
-			PolicyOverlord::storeDirection = *escape;
-			return dangerReduction / 10;
+		for (bc_Direction direction : run) {
+			float dangerReduction = (float)currentDanger - CombatOverlord::Danger(MapLocation::Neighbor(location, direction), enemyTeam);
+			if (robot.CanMove(direction)) {
+				PolicyOverlord::storeDirection = direction;
+				return dangerReduction / 20;
+			}
 		}
 		return 0.0f;
 	}
@@ -70,8 +70,8 @@ namespace policy {
 		units::Rocket rocket = bc_Unit_clone(PolicyOverlord::storeUnit.self);
 		units::Robot robot = bc_Unit_clone(robot.self);
 		if (rocket.CanLoad(robot)) {
-			rocket.Load(robot);
-			return true;
+rocket.Load(robot);
+return true;
 		}
 		return false;
 	}
@@ -106,18 +106,6 @@ namespace policy {
 	bool WorkerHarvestKarboniteExecute(units::Unit unit) {
 		units::Worker worker = bc_Unit_clone(unit.self);
 		worker.Harvest(PolicyOverlord::storeDirection);
-		return true;
-	}
-
-	float WorkerSeekKarboniteEvaluate(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
-		if (!worker.IsMoveReady()) return 0.0f;
-		return 0.0f;
-	}
-
-	bool WorkerSeekKarboniteExecute(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
-		worker.Move(PolicyOverlord::storeDirection);
 		return true;
 	}
 
@@ -166,6 +154,42 @@ namespace policy {
 		return true;
 	}
 
+	float WorkerSeekKarboniteEvaluate(units::Unit unit) {
+		units::Worker worker = bc_Unit_clone(unit.self);
+		MapLocation workerLocation = worker.Loc().ToMapLocation();
+		if (!worker.IsMoveReady()) return 0.0f;
+		for (auto& project : BuilderOverlord::buildProjects) {
+			auto self = std::find(project.second.begin(), project.second.begin(), worker.id);
+			bool workingOnProject = self != project.second.end();
+			if (workingOnProject) return 0.0f;
+		}
+		std::vector<bc_MapLocation*> nearbyDeposits;
+		for (uintptr_t i = 0; i < 100; i = (i + 1) * (i + 1)) { // TODO Optimize with PlayerData karboniteDeposits
+			bc_VecMapLocation* nearby = bc_GameController_all_locations_within(GameController::gc, workerLocation.self, i);
+			nearbyDeposits = MapUtil::FilteredLocations(nearby, [](bc_MapLocation* potentialDeposit) {
+				return bc_GameController_can_sense_location(GameController::gc, potentialDeposit) && bc_GameController_karbonite_at(GameController::gc, potentialDeposit) > 0;
+			});
+			delete_bc_VecMapLocation(nearby);
+			if (nearbyDeposits.size() > 0) break;
+		}
+		if (nearbyDeposits.size() == 0) return 0.0f;
+		auto closestDeposit = std::min_element(std::begin(nearbyDeposits), std::end(nearbyDeposits), [&workerLocation](bc_MapLocation* a, bc_MapLocation* b) {
+			return
+				abs(bc_MapLocation_x_get(workerLocation.self) - bc_MapLocation_x_get(a)) + abs(bc_MapLocation_y_get(workerLocation.self) - bc_MapLocation_y_get(a)) <
+				abs(bc_MapLocation_x_get(workerLocation.self) - bc_MapLocation_x_get(b)) + abs(bc_MapLocation_y_get(workerLocation.self) - bc_MapLocation_y_get(b));
+		});
+		PolicyOverlord::storeLocation = MapLocation(bc_MapLocation_clone(*closestDeposit));
+		for (bc_MapLocation* location : nearbyDeposits) {
+			delete_bc_MapLocation(location);
+		}
+		return 5.0f;
+	}
+
+	bool WorkerSeekKarboniteExecute(units::Unit unit) {
+		units::Robot robot = bc_Unit_clone(unit.self);
+		return Pathfind::MoveFuzzy(robot, robot.Loc().ToMapLocation().DirectionTo(PolicyOverlord::storeLocation));
+	}
+
 	float WorkerBuildEvaluate(units::Unit unit) {
 		units::Worker worker = bc_Unit_clone(unit.self);
 		if (worker.HasActed()) return 0.0f;
@@ -185,21 +209,57 @@ namespace policy {
 		units::Worker worker = bc_Unit_clone(unit.self);
 		units::Structure build = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
 		worker.Build(build);
+		delete_bc_Unit(build.self);
+		build.self = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
 		if (build.IsBuilt()) {
 			BuilderOverlord::buildProjects.erase(BuilderOverlord::buildProjects.find(build.id)); //Remove build project
 		}
 		return true;
 	}
 
-	float WorkerSeekBuildEvaluate(units::Unit unit) { // TODO Finish
+	float WorkerSeekBuildEvaluate(units::Unit unit) {
+		if (BuilderOverlord::buildProjects.size() == 0) return 0.0f;
 		units::Worker worker = bc_Unit_clone(unit.self);
 		if (!worker.IsMoveReady()) return 0.0f;
 		MapLocation workerLocation = worker.Loc().ToMapLocation();
+		bool workingOnProject = false;
+		uint16_t projId = 0;
+		for (auto& project : BuilderOverlord::buildProjects) {
+			auto self = std::find(project.second.begin(), project.second.begin(), worker.id);
+			workingOnProject = self != project.second.end();
+			if (workingOnProject) {
+				projId = project.first;
+				break;
+			}
+		}
+		if (!workingOnProject) { // Do we want to work on a project?
+			auto startWork = std::min_element(BuilderOverlord::buildProjects.begin(), BuilderOverlord::buildProjects.end(), [&workerLocation](auto& a, auto& b) { // std::pair<uint16_t, std::vector<uint16_t>>
+				units::Structure buildA = bc_GameController_unit(GameController::gc, a.first);
+				units::Structure buildB = bc_GameController_unit(GameController::gc, b.first);
+				return workerLocation.DistanceTo(buildA.Loc().ToMapLocation()) < workerLocation.DistanceTo(buildA.Loc().ToMapLocation());
+			});
+			if (startWork != BuilderOverlord::buildProjects.end() && (*startWork).second.size() < 4) {
+				std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
+				BuilderOverlord::buildProjects[(*startWork).first].push_back(worker.id); // Join the closest project if it has less than 4 workers!
+				workingOnProject = true;
+			}
+		}
+		if (workingOnProject) {
+			units::Structure build = bc_GameController_unit(GameController::gc, projId);
+			if (worker.Loc().ToMapLocation().IsAdjacentTo(build.Loc().ToMapLocation())) {
+				return 0.0f; // We don't need to move if already next to the build location
+			}
+			else {
+				PolicyOverlord::storeDirection = worker.Loc().ToMapLocation().DirectionTo(build.Loc().ToMapLocation());
+				return 10.0f;
+			}
+		}
 		return 0.0f;
 	}
 
 	bool WorkerSeekBuildExecute(units::Unit unit) {
-		return false;
+		units::Robot robot = bc_Unit_clone(unit.self);
+		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
 	float FactoryProduceEvaluate(units::Unit unit) {
@@ -248,7 +308,7 @@ namespace policy {
 			});
 			if (best != nearby.end()) {
 				if (robot.CanAttack(*best)) {
-					PolicyOverlord::storeUnit = *best;
+					PolicyOverlord::storeUnit.id = (*best).id;
 					return CombatOverlord::AttackValue(robot, *best);
 				}
 			}
@@ -265,7 +325,7 @@ namespace policy {
 			});
 			if (best != nearby.end()) {
 				if (mage.CanAttack(*best)) {
-					PolicyOverlord::storeUnit = *best;
+					PolicyOverlord::storeUnit.id = (*best).id;
 					return CombatOverlord::AttackValue(mage, *best);
 				}
 			}
@@ -278,18 +338,17 @@ namespace policy {
 		if (!ranger.IsAttackReady()) return 0.0f;
 		auto nearby = ranger.Loc().ToMapLocation().NearbyUnits(ranger.AttackRange(), Utility::GetOtherTeam(ranger.Team()));
 		if (nearby.size() == 0) return 0.0f;
-		std::remove_if(nearby.begin(), nearby.end(), [&ranger](units::Unit& unit) {
-			auto unitLocation = unit.Loc().ToMapLocation();
-			return ranger.Loc().ToMapLocation().DistanceTo(unitLocation) < ranger.AttackRangeMin();
-		});
 		auto best = std::max_element(nearby.begin(), nearby.end(), [&ranger](units::Unit& a, units::Unit& b) {
 			return CombatOverlord::AttackValue(ranger, a) < CombatOverlord::AttackValue(ranger, b);
 		});
-		if (best != nearby.end()) {
+		while (true) {
+			if (best == nearby.end()) break; // Probably too close D:
 			if (ranger.CanAttack(*best)) {
-				PolicyOverlord::storeUnit = *best;
-				std::cout << CombatOverlord::AttackValue(ranger, *best) << " attack value" << std::endl;
+				PolicyOverlord::storeUnit.id = (*best).id;
 				return CombatOverlord::AttackValue(ranger, *best);
+			}
+			else {
+				best++;
 			}
 		}
 		return 0.0f;
@@ -297,8 +356,28 @@ namespace policy {
 
 	bool AttackExecute(units::Unit unit) {
 		units::Robot robot = bc_Unit_clone(unit.self);
+		units::Robot toAttack = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
 		robot.Attack(PolicyOverlord::storeUnit);
 		return true;
+	}
+
+	float SeekEnemyEvaluate(units::Unit unit) {
+		units::Robot robot = bc_Unit_clone(unit.self);
+		if (!robot.IsMoveReady()) return 0.0f;
+		std::vector<units::Unit> nearbyEnemies;
+		for (int i = 1; i <= 1000; i = (i + 1) * (i + 1)) {
+			nearbyEnemies = robot.Loc().ToMapLocation().NearbyUnits(i, Utility::GetOtherTeam(robot.Team()));
+			if (nearbyEnemies.size() > 0) {
+				PolicyOverlord::storeDirection = robot.Loc().ToMapLocation().DirectionTo(nearbyEnemies[0].Loc().ToMapLocation());
+				return 10.0f;
+			}
+		}
+		return 0.0f;
+	}
+
+	bool SeekEnemyExecute(units::Unit unit) {
+		units::Robot robot = bc_Unit_clone(unit.self);
+		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
 }

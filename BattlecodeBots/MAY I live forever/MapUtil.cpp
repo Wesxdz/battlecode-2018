@@ -7,8 +7,6 @@
 const uint32_t MapUtil::MIN_MAP_SIZE = 400;
 const uint32_t MapUtil::MAX_MAP_SIZE = 2500;
 
-std::vector<bc_Direction> MapUtil::Adjacent = { North, Northeast, East, Southeast, South, Southwest, West, Northwest };
-
 std::vector<bc_MapLocation*> MapUtil::earthLocations;
 std::vector<bc_MapLocation*> MapUtil::earthPassableLocations;
 std::vector<bc_MapLocation*> MapUtil::marsLocations;
