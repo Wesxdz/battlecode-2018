@@ -8,10 +8,10 @@
 const uint32_t MapUtil::MIN_MAP_SIZE = 400;
 const uint32_t MapUtil::MAX_MAP_SIZE = 2500;
 
-uint32_t MapUtil::EARTH_MAP_WIDTH = 20;
-uint32_t MapUtil::EARTH_MAP_HEIGHT = 20;
-uint32_t MapUtil::MARS_MAP_WIDTH = 20;
-uint32_t MapUtil::MARS_MAP_HEIGHT = 20;
+uintptr_t MapUtil::EARTH_MAP_WIDTH = 20;
+uintptr_t MapUtil::EARTH_MAP_HEIGHT = 20;
+uintptr_t MapUtil::MARS_MAP_WIDTH = 20;
+uintptr_t MapUtil::MARS_MAP_HEIGHT = 20;
 
 std::vector<bc_MapLocation*> MapUtil::earthLocations;
 std::vector<bc_MapLocation*> MapUtil::earthPassableLocations;

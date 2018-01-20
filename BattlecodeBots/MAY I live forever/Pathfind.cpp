@@ -102,11 +102,10 @@ uint32_t height;
 bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	if (robot.MovementHeat() > 9) { return false; } // Can't move
 
-
 	bc_Planet planet = GameController::Planet();
 	if (planet == bc_Planet::Earth) {
-		width = width;
-		height = height;
+		width = MapUtil::EARTH_MAP_WIDTH;
+		height = MapUtil::EARTH_MAP_HEIGHT;
 	} else {
 		width = MapUtil::MARS_MAP_WIDTH;
 		height = MapUtil::MARS_MAP_HEIGHT;
@@ -131,7 +130,7 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	} else {
 		auto flowChart = &flowCharts[destXY];	
 
-		// Create the Maps that will store the data
+		//// Create the Maps that will store the data
 		flowChart->pointsMap = new short[width * height];
 		flowChart->directionMap = new bc_Direction[width * height];
 
@@ -146,7 +145,7 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 				for (int x = 0; x < width; x++) {
 					short ID = y * width + x;
 					terrainMap[ID] = GenerateFlowPathTerrain(ID, planetMapPtr);
-					std::cout << terrainMap[y * width + x] << " ";
+					std::cout << terrainMap[ID] << " ";
 				}
 				std::cout << std::endl;
 			}
@@ -161,7 +160,7 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 			}
 		}
 
-		// Generate a map based off the terrain and destination
+		//// Generate a map based off the terrain and destination
 		GenerateFlowPathPoints(terrainMap, flowChart->pointsMap, destX, destY);
 
 		std::cout << "Points Map" << std::endl;
@@ -232,6 +231,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 
 		//std::cout << "Current ID is " << currentID << " at " << currX << ", " << currY << std::endl;
 
+
 		// UP
 		{
 			// Check if space is acceptable
@@ -245,13 +245,13 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					auto iterPtr = std::find(openNodes.begin(), openNodes.end(), upID);
 					if (iterPtr == openNodes.end()) {
 						openNodes.push_back(upID);
-					} 
+					}
 					// Set value
-					pointsMap[upID] = newValue;	
+					pointsMap[upID] = newValue;
 					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
-			
+
 		}
 
 		// Up Right
@@ -267,9 +267,9 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					auto iterPtr = std::find(openNodes.begin(), openNodes.end(), upID);
 					if (iterPtr == openNodes.end()) {
 						openNodes.push_back(upID);
-					} 
+					}
 					// Set value
-					pointsMap[upID] = newValue;	
+					pointsMap[upID] = newValue;
 					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
@@ -281,7 +281,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 			// Check if space is acceptable
 			if (currX + 1 < width) {
 				// Get new ID
-				int upID = (currY) * width + (currX + 1);
+				int upID = (currY)* width + (currX + 1);
 
 				// Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -289,7 +289,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					auto iterPtr = std::find(openNodes.begin(), openNodes.end(), upID);
 					if (iterPtr == openNodes.end()) {
 						openNodes.push_back(upID);
-					} 
+					}
 					// Set value
 					pointsMap[upID] = newValue;
 					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
@@ -311,9 +311,9 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					auto iterPtr = std::find(openNodes.begin(), openNodes.end(), upID);
 					if (iterPtr == openNodes.end()) {
 						openNodes.push_back(upID);
-					} 
+					}
 					// Set value
-					pointsMap[upID] = newValue;	
+					pointsMap[upID] = newValue;
 					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
@@ -333,7 +333,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					auto iterPtr = std::find(openNodes.begin(), openNodes.end(), upID);
 					if (iterPtr == openNodes.end()) {
 						openNodes.push_back(upID);
-					}  
+					}
 					// Set value
 					pointsMap[upID] = newValue;
 					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
@@ -354,9 +354,9 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					auto iterPtr = std::find(openNodes.begin(), openNodes.end(), upID);
 					if (iterPtr == openNodes.end()) {
 						openNodes.push_back(upID);
-					} 
+					}
 					// Set value
-					pointsMap[upID] = newValue;	
+					pointsMap[upID] = newValue;
 					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
@@ -368,7 +368,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 			// Check if space is acceptable
 			if (currX - 1 > -1) {
 				// Get new ID
-				int upID = (currY) * width + (currX - 1);
+				int upID = (currY)* width + (currX - 1);
 
 				// Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -376,9 +376,9 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					auto iterPtr = std::find(openNodes.begin(), openNodes.end(), upID);
 					if (iterPtr == openNodes.end()) {
 						openNodes.push_back(upID);
-					} 
+					}
 					// Set value
-					pointsMap[upID] = newValue;		
+					pointsMap[upID] = newValue;
 					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
@@ -398,14 +398,16 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					auto iterPtr = std::find(openNodes.begin(), openNodes.end(), upID);
 					if (iterPtr == openNodes.end()) {
 						openNodes.push_back(upID);
-					} 
+					}
 					// Set value
 					pointsMap[upID] = newValue;
 					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
 		}
+
 	}
+
 }
 
 bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
