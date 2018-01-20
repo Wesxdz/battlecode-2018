@@ -3,9 +3,15 @@
 #include "Section.h"
 #include <iostream>
 #include "GameController.h"
+#include "PlanetMap.h"
 
 const uint32_t MapUtil::MIN_MAP_SIZE = 400;
 const uint32_t MapUtil::MAX_MAP_SIZE = 2500;
+
+uint32_t MapUtil::EARTH_MAP_WIDTH = 20;
+uint32_t MapUtil::EARTH_MAP_HEIGHT = 20;
+uint32_t MapUtil::MARS_MAP_WIDTH = 20;
+uint32_t MapUtil::MARS_MAP_HEIGHT = 20;
 
 std::vector<bc_MapLocation*> MapUtil::earthLocations;
 std::vector<bc_MapLocation*> MapUtil::earthPassableLocations;
@@ -28,15 +34,24 @@ std::vector<bc_MapLocation*> MapUtil::AllLocations(bc_PlanetMap* map)
 
 MapUtil::MapUtil()
 {
-	MapUtil::earthLocations = MapUtil::AllLocations(GameController::PlanetMap(Earth));
+	PlanetMap earth(GameController::PlanetMap(Earth));
+	MapUtil::earthLocations = MapUtil::AllLocations(earth.self);
 	MapUtil::earthPassableLocations = MapUtil::FilteredLocations(MapUtil::earthLocations, [](bc_MapLocation* location) {
 		return bc_PlanetMap_is_passable_terrain_at(GameController::PlanetMap(Earth), location);
 	});
 
-	MapUtil::marsLocations = MapUtil::AllLocations(GameController::PlanetMap(Mars));
+	EARTH_MAP_WIDTH = earth.width;
+	EARTH_MAP_HEIGHT = earth.height;
+
+	PlanetMap mars(GameController::PlanetMap(Mars));
+	MapUtil::marsLocations = MapUtil::AllLocations(mars.self);
 	MapUtil::marsPassableLocations = MapUtil::FilteredLocations(MapUtil::marsLocations, [](bc_MapLocation* location) {
 		return bc_PlanetMap_is_passable_terrain_at(GameController::PlanetMap(Mars), location);
 	});
+
+	MARS_MAP_HEIGHT = mars.height;
+	MARS_MAP_WIDTH = mars.width;
+
 	Section::earthSections = Section::GenSections(MapUtil::earthPassableLocations);
 	Section::marsSections = Section::GenSections(MapUtil::marsPassableLocations);
 }

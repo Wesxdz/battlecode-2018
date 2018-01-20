@@ -11,6 +11,10 @@ public:
 	MapUtil();
 	static const uint32_t MIN_MAP_SIZE;
 	static const uint32_t MAX_MAP_SIZE;
+	static uint32_t EARTH_MAP_WIDTH;
+	static uint32_t EARTH_MAP_HEIGHT;
+	static uint32_t MARS_MAP_WIDTH;
+	static uint32_t MARS_MAP_HEIGHT;
 	static std::vector<bc_MapLocation*> earthLocations;
 	static std::vector<bc_MapLocation*> earthPassableLocations;
 	static std::vector<bc_MapLocation*> marsLocations;

@@ -24,6 +24,8 @@
 #include "BuilderOverlord.h"
 #include "PolicyOverlord.h"
 
+#include "Pathfind.h"
+
 #include <chrono>
 
 GameController gc;
@@ -56,46 +58,69 @@ int main()
 			std::cout << "Round: " << round << std::endl;
 		}
 
-		//auto start = std::chrono::system_clock::now();
+		auto start = std::chrono::system_clock::now();
 		playerData.Update();
-		//auto end = std::chrono::system_clock::now();
-		//std::chrono::duration<double> roundTime = end - start;
-		//std::cout << "Data Time: " << roundTime.count() << std::endl;
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> roundTime = end - start;
+		std::cout << "Data Time: " << roundTime.count() << std::endl;
 
-		//start = std::chrono::system_clock::now();
+		start = std::chrono::system_clock::now();
 		if (GameController::Planet() == bc_Planet::Earth) {
 			science.Update();
 		}
 		else if (round > 749) {
 			science.Update();
 		}
-		//end = std::chrono::system_clock::now();
-		//roundTime = end - start;
-		//std::cout << "Science Time: " << roundTime.count() << std::endl;
+		end = std::chrono::system_clock::now();
+		roundTime = end - start;
+		std::cout << "Science Time: " << roundTime.count() << std::endl;
 
-		//start = std::chrono::system_clock::now();
+		start = std::chrono::system_clock::now();
 		evan.Update();
-		//end = std::chrono::system_clock::now();
-		//roundTime = end - start;
-		//std::cout << "Builder Time: " << roundTime.count() << std::endl;
+		end = std::chrono::system_clock::now();
+		roundTime = end - start;
+		std::cout << "Builder Time: " << roundTime.count() << std::endl;
 
-		//start = std::chrono::system_clock::now();
-		josh.Update();
+		start = std::chrono::system_clock::now();
+		//josh.Update();
+
 		if (round < 5) playerData.unitPriority[Worker] = 10.0f; // TODO Temporary, make better unitPriority evaluations elsewhere :P
 		if (round > 5 && round < 25) playerData.unitPriority[Factory] = 10.0f;
 		if (round > 25) playerData.unitPriority[Ranger] = 10.0f;
-		auto start = std::chrono::system_clock::now();
-		//end = std::chrono::system_clock::now();
-		//roundTime = end - start;
-		//std::cout << "Combater Time: " << roundTime.count() << std::endl;
-		
-		//start = std::chrono::system_clock::now();
-		wesley.Update();
-		//end = std::chrono::system_clock::now();
-		//roundTime = end - start;
-		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
 
-		std::cout << "Total time used: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;;
+		end = std::chrono::system_clock::now();
+		roundTime = end - start;
+		std::cout << "Combater Time: " << roundTime.count() << std::endl;
+	
+
+		start = std::chrono::system_clock::now();
+		auto units = GameController::Units(bc_Selection::MyTeam);
+		for (int i = 0; i < units.size(); i++) {
+			units::Unit* unit = &units[i];
+			if (Utility::IsAttackRobot(unit->type)) {
+				Location loc = unit->Loc();
+				if (loc.IsOnMap()) {
+					MapLocation mapLoc = loc.ToMapLocation();
+					units::Robot robot(bc_Unit_clone(unit->self));
+
+					//MapLocation centerPoint(bc_Planet::Earth, MapUtil::MAP_WIDTH / 2, MapUtil::MAP_HEIGHT / 2);
+					
+					Pathfind::MoveFuzzyFlow(robot, PlayerData::pd->enemySpawnPositions[0]);
+				}
+				
+			}
+		}
+		end = std::chrono::system_clock::now();
+		roundTime = end - start;
+		std::cout << "Path Finding Time: " << roundTime.count() << std::endl;
+
+		start = std::chrono::system_clock::now();
+		wesley.Update();
+		end = std::chrono::system_clock::now();
+		roundTime = end - start;
+		std::cout << "Policy Time: " << roundTime.count() << std::endl;
+
+		std::cout << "Total time used: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;
 		GameController::EndTurn();
 	}
 }
