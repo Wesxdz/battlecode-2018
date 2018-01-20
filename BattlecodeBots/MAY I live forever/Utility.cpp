@@ -19,6 +19,46 @@ namespace Utility{
 		return type < bc_UnitType::Rocket;
 	}
 
+	bool IsAttackRobot(bc_UnitType type) {
+		return type > bc_UnitType::Worker && type < bc_UnitType::Healer;
+	}
+
+	bc_Direction DirectionTo(int sourceX, int sourceY, int destX, int destY) {
+		int resultX = destX - sourceX;
+		int resultY = destY - sourceY;
+		
+		// Right
+		if (resultX > 0) {
+			if (resultY > 0) {
+				return bc_Direction::Northeast;
+			} else if (resultY < 0) {
+				return bc_Direction::Southeast;
+			} else {
+				return bc_Direction::East;
+			}
+		} 
+		// Left
+		else if (resultX < 0) {
+			if (resultY > 0) {
+				return bc_Direction::Northwest;
+			} else if (resultY < 0) {
+				return bc_Direction::Southwest;
+			} else {
+				return bc_Direction::West;
+			}
+		} 
+		// Center
+		else {
+			if (resultY > 0) {
+				return bc_Direction::North;
+			} else if (resultY < 0) {
+				return bc_Direction::South;
+			} else {
+				return bc_Direction::Center;
+			}
+		}
+	}
+
 
 
 	//MapLocation GetRandomPosition(GameInfo* info, MapLocation* temp) {

@@ -81,51 +81,110 @@ void BuilderOverlord::DesireUnits() {
 	{
 		float workerPriority = .0f;
 
-		float currWorkers = static_cast<float>(workerAmo + workerProductionAmo);
-		float workerToTeam = currWorkers / (totalAmo + totalProductionAmo);
+		/// We only need workers for Karb and Structures
+		/*
+			I think we don't need too many for Structures actually. After we finish one, we can move the previous to the new.
+			CurrTeamSize should only lower worker count, never increase.
+			Adjust Karb gather ratio. Keep track of Karb Gather Amo
+			Workers shoul never exceed Other Units priority if possible
+		*/
 
-		float structureAmo = static_cast<float>(factoryAmo + rocketAmo + factoryProductionAmo + rocketProductionAmo);
-		if(structureAmo < 1) { structureAmo = 1; }
-		float workerToStructure = currWorkers / structureAmo;
+		// Determine how much karb is left to mine
+		// Determine how many structures need to be built
+		// Determine ratio to team. Don't make too many 
 
-		float rocketAmof = static_cast<float>(rocketAmo + rocketProductionAmo);
-		if(rocketAmof < 1) { rocketAmof = 1; }
-		float workerToRockets = currWorkers / rocketAmof;
+		float currKarbAmo = PlayerData::pd->earthStartingKarbonite;
+		float currUnbuiltStructureAmo = static_cast<float>(buildProjects.size());
+		float currTeamSize = totalAmo - workerAmo;
 
-		// 100 = Bountiful
-		if (round < 40) {
-			// 4 per structure
-			workerPriority = 1.0f - (workerToStructure / 4.0f);
-			if (workerPriority < .3f) {
-				workerPriority = .3f;
-			}
-		}
-		// 600 = Rockets
-		else if (round > 600) {
-			// 8 per rocket
-			workerPriority = 1.0f - (workerToRockets / 8.0f);
-		}
-		// Meh
+		// A worker can harvest 3 at a time
+		// 8 workers can work on a project
+
+		int unworkingWorkers = workerAmo - currUnbuiltStructureAmo * 8;
+		
+		// Enough Workers for Structures - Prioritize
+		if (unworkingWorkers < 0) {
+			workerPriority = .9f;
+		} 
+		// Enough Workers for Karb - Suggestion
 		else {
-			// Need
-			if (workerToTeam < .1f) {
-				// 10 per 100...
-				workerPriority = .1f / workerToTeam;
+			// 3 or 4 per turn
+
+			// What turn amount is acceptable for worker to karb gathering
+			// Lets say 100
+
+			// 500 / 3 * ? = 100
+			// 100 / (3 * ? / 5) = 100
+
+			// ASSUMING 3 KARB PER GATHER
+			float turnRecommend = 100.0f;
+			float currKarbGather = 3.0f;
+			float percent = currKarbAmo / currKarbGather; // Ratio of Karb to Turn with 1 unit
+
+			float currTotalWorkers = (workerAmo + workerProductionAmo);
+			float reccTotalWorkers = percent / turnRecommend;
+			if (reccTotalWorkers < currTotalWorkers) {
+				workerPriority = 1.0f;
 			}
-			// Could use
-			else if (workerToTeam < .20f) {
-				// .1 - .2 = 1 - 0
-				// x - .1 * 10 = 0 - 1
-				workerPriority = 1.0f - ((workerToTeam - .1f) * 10.0f);
-				if (workerPriority > 1.0f) {
-					workerPriority = 1.0f;
-				}
-			}
-			// Not Needed
-			else {
-				workerPriority = .0f;
-			}
+			workerPriority = reccTotalWorkers < currTotalWorkers ? .9f : .0f;
+
+			workerPriority -= currTotalWorkers / currTeamSize;
+			// 16 workers - 30 rangers = .5333
+			// 8 workers - 30 rangers = .2666
+			// Don't need that many workers
 		}
+
+		//// Unbuilt Structure Ratio
+		//float structureAmo = static_cast<float>(buildProjects.size());
+		//if(structureAmo < 1) { structureAmo = 1; }
+		//float workerToStructure = workerAmo / structureAmo;
+
+		//// Unmined Karb ratio
+		//float structureAmo = static_cast<float>(buildProjects.size());
+		//if(structureAmo < 1) { structureAmo = 1; }
+		//float workerToStructure = workerAmo / structureAmo;
+
+		//float currWorkers = static_cast<float>(workerAmo + workerProductionAmo);
+		//float workerToTeam = currWorkers / (totalAmo + totalProductionAmo);
+
+		//float rocketAmof = static_cast<float>(rocketAmo + rocketProductionAmo);
+		//if(rocketAmof < 1) { rocketAmof = 1; }
+		//float workerToRockets = currWorkers / rocketAmof;
+
+		//// 100 = Bountiful
+		//if (currRound < 100) {
+		//	// 10ish per structure
+		//	workerPriority = 2.0f - (workerToStructure / 10.0f);
+		//	if (workerPriority < .3f) {
+		//		workerPriority = .3f;
+		//	}
+		//}
+		//// 600 = Rockets
+		//else if (currRound > 600) {
+		//	// 8 per rocket
+		//	workerPriority = 1.0f - (workerToRockets / 8.0f);
+		//}
+		//// Meh
+		//else {
+		//	// Need
+		//	if (workerToTeam < .1f) {
+		//		// 10 per 100...
+		//		workerPriority = .1f / workerToTeam;
+		//	}
+		//	// Could use
+		//	else if (workerToTeam < .20f) {
+		//		// .1 - .2 = 1 - 0
+		//		// x - .1 * 10 = 0 - 1
+		//		workerPriority = 1.0f - ((workerToTeam - .1f) * 10.0f);
+		//		if (workerPriority > 1.0f) {
+		//			workerPriority = 1.0f;
+		//		}
+		//	}
+		//	// Not Needed
+		//	else {
+		//		workerPriority = .0f;
+		//	}
+		//}
 		PlayerData::pd->unitPriority[bc_UnitType::Worker] = workerPriority;
 	}
 

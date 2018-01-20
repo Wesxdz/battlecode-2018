@@ -24,6 +24,8 @@
 #include "BuilderOverlord.h"
 #include "PolicyOverlord.h"
 
+#include "Pathfind.h"
+
 #include <chrono>
 
 GameController gc;
@@ -42,6 +44,7 @@ PolicyOverlord policyLord;
 
 int main()
 {
+	//bc_GameController_get_time_left_ms(); This gets the time remaining supposedly. Header file doesnt have it
 	srand(0);
 
 	// Init Science
@@ -62,20 +65,63 @@ int main()
 			continue;
 		}
 		playerData.Update();
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> roundTime = end - start;
+		std::cout << "Data Time: " << roundTime.count() << std::endl;
+
+		start = std::chrono::system_clock::now();
 		if (GameController::Planet() == bc_Planet::Earth) {
 			science.Update();
 		}
 		else if (round > 749) {
 			science.Update();
 		}
-		builderLord.Update();
-		combatLord.Update();
-		auto start = std::chrono::system_clock::now();
-		policyLord.Update();
-		auto end = std::chrono::system_clock::now();
+		end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		totalTime += roundTime;
-		//std::cout << "Total time used: " << totalTime.count() << "\nPolicy time used: " << roundTime.count() << "\n";
+		std::cout << "Science Time: " << roundTime.count() << std::endl;
+
+		start = std::chrono::system_clock::now();
+		evan.Update();
+		end = std::chrono::system_clock::now();
+		roundTime = end - start;
+		std::cout << "Builder Time: " << roundTime.count() << std::endl;
+
+		start = std::chrono::system_clock::now();
+		//josh.Update();
+
+		end = std::chrono::system_clock::now();
+		roundTime = end - start;
+		std::cout << "Combater Time: " << roundTime.count() << std::endl;
+	
+
+		start = std::chrono::system_clock::now();
+		auto units = GameController::Units(bc_Selection::MyTeam);
+		for (int i = 0; i < units.size(); i++) {
+			units::Unit* unit = &units[i];
+			if (Utility::IsAttackRobot(unit->type)) {
+				Location loc = unit->Loc();
+				if (loc.IsOnMap()) {
+					MapLocation mapLoc = loc.ToMapLocation();
+					units::Robot robot(bc_Unit_clone(unit->self));
+
+					//MapLocation centerPoint(bc_Planet::Earth, MapUtil::MAP_WIDTH / 2, MapUtil::MAP_HEIGHT / 2);
+					
+					Pathfind::MoveFuzzyFlow(robot, PlayerData::pd->enemySpawnPositions[0]);
+				}
+				
+			}
+		}
+		end = std::chrono::system_clock::now();
+		roundTime = end - start;
+		std::cout << "Path Finding Time: " << roundTime.count() << std::endl;
+
+		start = std::chrono::system_clock::now();
+		wesley.Update();
+		end = std::chrono::system_clock::now();
+		roundTime = end - start;
+		std::cout << "Policy Time: " << roundTime.count() << std::endl;
+
+		std::cout << "Total time used: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;
 		GameController::EndTurn();
 	}
 }

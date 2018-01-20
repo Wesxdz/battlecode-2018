@@ -16,6 +16,10 @@ namespace Utility{
 
 	bool IsRobot(bc_UnitType type);
 
+	bool IsAttackRobot(bc_UnitType type);
+
+	bc_Direction DirectionTo(int sourceX, int sourceY, int destX, int destY);
+
 	
 
 	//MapLocation GetRandomPosition(GameInfo* info, MapLocation* temp);

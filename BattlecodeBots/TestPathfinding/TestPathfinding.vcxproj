@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{7FBB7BDA-7A63-4435-8AA5-B688E81C92CC}</ProjectGuid>
-    <RootNamespace>MAYIliveforever</RootNamespace>
+    <ProjectGuid>{30D160D6-CD02-45A2-A74A-BE2AE63693B9}</ProjectGuid>
+    <RootNamespace>TestPathfinding</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,20 +70,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -93,7 +91,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -107,7 +104,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -115,82 +111,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AStar.cpp" />
-    <ClCompile Include="AsteroidPattern.cpp" />
-    <ClCompile Include="AsteroidStrike.cpp" />
-    <ClCompile Include="AttackCoordinator.cpp" />
-    <ClCompile Include="BuilderOverlord.cpp" />
-    <ClCompile Include="CombatOverlord.cpp" />
-    <ClCompile Include="Factory.cpp" />
-    <ClCompile Include="GameController.cpp" />
-    <ClCompile Include="Healer.cpp" />
-    <ClCompile Include="Knight.cpp" />
-    <ClCompile Include="Location.cpp" />
-    <ClCompile Include="Mage.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MapLocation.cpp" />
-    <ClCompile Include="MapUtil.cpp" />
-    <ClCompile Include="Node.cpp" />
-    <ClCompile Include="OrbitPattern.cpp" />
-    <ClCompile Include="Pathfind.cpp" />
-    <ClCompile Include="Pegboard.cpp" />
-    <ClCompile Include="PlanetMap.cpp" />
-    <ClCompile Include="PlayerData.cpp" />
-    <ClCompile Include="Policy.cpp" />
-    <ClCompile Include="PolicyOverlord.cpp" />
-    <ClCompile Include="Ranger.cpp" />
-    <ClCompile Include="Robot.cpp" />
-    <ClCompile Include="Rocket.cpp" />
-    <ClCompile Include="Science.cpp" />
-    <ClCompile Include="Section.cpp" />
-    <ClCompile Include="Structure.cpp" />
-    <ClCompile Include="TeamArray.cpp" />
-    <ClCompile Include="Unit.cpp" />
-    <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="VecUnit.cpp" />
-    <ClCompile Include="Worker.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="AStar.h" />
-    <ClInclude Include="AsteroidPattern.h" />
-    <ClInclude Include="AsteroidStrike.h" />
-    <ClInclude Include="AttackCoordinator.h" />
-    <ClInclude Include="bc.h" />
-    <ClInclude Include="BuilderOverlord.h" />
-    <ClInclude Include="CombatOverlord.h" />
-    <ClInclude Include="Constants.h" />
-    <ClInclude Include="Factory.h" />
-    <ClInclude Include="GameController.h" />
-    <ClInclude Include="Healer.h" />
-    <ClInclude Include="Knight.h" />
-    <ClInclude Include="Location.h" />
-    <ClInclude Include="Log.h" />
-    <ClInclude Include="Mage.h" />
-    <ClInclude Include="MapLocation.h" />
-    <ClInclude Include="MapUtil.h" />
-    <ClInclude Include="Node.h" />
-    <ClInclude Include="OrbitPattern.h" />
-    <ClInclude Include="Pathfind.h" />
-    <ClInclude Include="Pegboard.h" />
-    <ClInclude Include="PlanetMap.h" />
-    <ClInclude Include="PlayerData.h" />
-    <ClInclude Include="Policy.h" />
-    <ClInclude Include="PolicyOverlord.h" />
-    <ClInclude Include="Ranger.h" />
-    <ClInclude Include="Robot.h" />
-    <ClInclude Include="Rocket.h" />
-    <ClInclude Include="Science.h" />
-    <ClInclude Include="Section.h" />
-    <ClInclude Include="Structure.h" />
-    <ClInclude Include="TeamArray.h" />
-    <ClInclude Include="Unit.h" />
-    <ClInclude Include="UnitPolicies.h" />
-    <ClInclude Include="Utility.h" />
-    <ClInclude Include="VecUnit.h" />
-    <ClInclude Include="Worker.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Notes.txt.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
