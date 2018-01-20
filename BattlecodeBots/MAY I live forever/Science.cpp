@@ -19,7 +19,7 @@ void Science::Update()
 		paths.erase(std::remove_if(std::begin(paths), std::end(paths), 
 			[researchInfoPtr, this](Upgrade& upgrade) {
 			auto val = bc_ResearchInfo_get_level(researchInfoPtr, upgrade.branch);
-
+			
 			if (max_level(upgrade.branch) == val) {
 				if (upgrade.branch == bc_UnitType::Knight) {
 					this->hasJavelin = true;

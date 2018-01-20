@@ -35,25 +35,31 @@ MapUtil mapUtil;
 PlayerData playerData;
 
 Science science;
-BuilderOverlord evan;
-CombatOverlord josh;
-PolicyOverlord wesley;
+BuilderOverlord builderLord;
+CombatOverlord combatLord;
+PolicyOverlord policyLord;
 
 
 int main()
 {
-	//bc_GameController_get_time_left_ms(); This gets the time remaining supposedly. Header file doesnt have it
 	srand(0);
 
 	// Init Science
 	science.Init(&playerData);
 	std::chrono::duration<double> totalTime;
+	std::chrono::duration<double> roundTime;
 
 	while (true)
 	{
 		uint32_t round = GameController::Round();
 		if (round % 10 == 0) {
 			std::cout << "Round: " << round << std::endl;
+		}
+		auto timeLeft = std::chrono::duration<double>(10 + .05 * round) - totalTime;
+		if (timeLeft < roundTime * 3) {
+			std::cout << "Almost out of time: Halt turn" << std::endl;
+			GameController::EndTurn(); // last round;
+			continue;
 		}
 		playerData.Update();
 		if (GameController::Planet() == bc_Planet::Earth) {
@@ -62,15 +68,12 @@ int main()
 		else if (round > 749) {
 			science.Update();
 		}
-		evan.Update();
-		josh.Update();
-		if (round < 5) playerData.unitPriority[Worker] = 10.0f; // TODO Temporary, make better unitPriority evaluations elsewhere :P
-		if (round > 5 && round < 25) playerData.unitPriority[Factory] = 10.0f;
-		if (round > 25) playerData.unitPriority[Ranger] = 10.0f;
+		builderLord.Update();
+		combatLord.Update();
 		auto start = std::chrono::system_clock::now();
-		wesley.Update();
+		policyLord.Update();
 		auto end = std::chrono::system_clock::now();
-		std::chrono::duration<double> roundTime = end - start;
+		roundTime = end - start;
 		totalTime += roundTime;
 		//std::cout << "Total time used: " << totalTime.count() << "\nPolicy time used: " << roundTime.count() << "\n";
 		GameController::EndTurn();

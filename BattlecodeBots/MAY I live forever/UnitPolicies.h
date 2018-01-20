@@ -45,7 +45,7 @@ namespace policy {
 		return true;
 	}
 
-	float LoadRocketEval(units::Unit unit) {
+	float LoadRocketEvaluate(units::Unit unit) {
 		float score = 0.0f;
 		bc_Location* location = bc_Unit_location(unit.self);
 		bool isOnMap = bc_Location_is_on_map(location);
@@ -70,8 +70,8 @@ namespace policy {
 		units::Rocket rocket = bc_Unit_clone(PolicyOverlord::storeUnit.self);
 		units::Robot robot = bc_Unit_clone(robot.self);
 		if (rocket.CanLoad(robot)) {
-rocket.Load(robot);
-return true;
+			rocket.Load(robot);
+			return true;
 		}
 		return false;
 	}
@@ -209,10 +209,9 @@ return true;
 		units::Worker worker = bc_Unit_clone(unit.self);
 		units::Structure build = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
 		worker.Build(build);
-		delete_bc_Unit(build.self);
-		build.self = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
-		if (build.IsBuilt()) {
-			BuilderOverlord::buildProjects.erase(BuilderOverlord::buildProjects.find(build.id)); //Remove build project
+		units::Structure updatedBuild = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
+		if (updatedBuild.IsBuilt()) {
+			BuilderOverlord::buildProjects.erase(BuilderOverlord::buildProjects.find(updatedBuild.id)); //Remove build project
 		}
 		return true;
 	}
@@ -316,6 +315,29 @@ return true;
 		return 0.0f;
 	}
 
+	float KnightJavelinEvaluate(units::Unit unit) {
+		units::Knight knight = bc_Unit_clone(unit.self);
+		if (knight.IsActiveUnlocked() && knight.IsJavelinReady()) {
+			auto nearby = CombatOverlord::EnemiesInRange(knight, knight.AbilityRange());
+			auto best = std::max_element(nearby.begin(), nearby.end(), [&knight](units::Unit& a, units::Unit& b) {
+				return CombatOverlord::AttackValue(knight, a) < CombatOverlord::AttackValue(knight, b);
+			});
+			if (best != nearby.end()) {
+				if (knight.CanJavelin(*best)) {
+					PolicyOverlord::storeUnit = *best;
+					return CombatOverlord::AttackValue(knight, *best) - 0.1f; // Attack before Javelin 
+				}
+			}
+		}
+		return 0.0f;
+	}
+
+	bool KnightJavelinExecute(units::Unit unit) {
+		units::Knight knight = bc_Unit_clone(unit.self);
+		knight.Javelin(PolicyOverlord::storeUnit);
+		return true;
+	}
+
 	float MageAttackEvaluate(units::Unit unit) {
 		units::Mage mage = bc_Unit_clone(unit.self);
 		if (mage.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
@@ -378,6 +400,96 @@ return true;
 	bool SeekEnemyExecute(units::Unit unit) {
 		units::Robot robot = bc_Unit_clone(unit.self);
 		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
+	}
+
+	float HealerHealEvaluate(units::Unit unit) {
+		units::Healer healer = bc_Unit_clone(unit.self);
+		if (!healer.IsHealReady()) return 0.0f;
+		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AttackRange(), healer.Team());
+		if (nearby.size() == 0) return 0.0f;
+		for (uint16_t id : CombatOverlord::requestHeal) {
+			auto found = std::find_if(nearby.begin(), nearby.end(), [&healer, &id](units::Unit& toHeal) {
+				if (id == toHeal.id) {
+					units::Robot healing = bc_Unit_clone(toHeal.self);
+					if (healer.CanHeal(healing)) {
+						return true;
+					}
+				}
+				return false;
+			});
+			if (found != nearby.end()) {
+				PolicyOverlord::storeUnit.id = (*found).id;
+				return 30.0f;
+			}
+		}
+		return 0.0f;
+	}
+
+	bool HealerHealExecute(units::Unit unit) {
+		units::Healer healer = bc_Unit_clone(unit.self);
+		units::Robot toHeal = bc_GameController_unit(GameController::gc, PolicyOverlord::storeUnit.id);
+		healer.Heal(toHeal);
+		return true;
+	}
+
+	float HealerOverchargeEvaluate(units::Unit unit) {
+		units::Healer healer = bc_Unit_clone(unit.self);
+		if (!healer.IsActiveUnlocked() || !healer.IsAttackReady()) return 0.0f;
+		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AbilityRange(), healer.Team());
+		if (nearby.size() == 0) return 0.0f;
+		auto best = std::max_element(nearby.begin(), nearby.end(), [&healer](units::Unit& a, units::Unit& b) {
+			return CombatOverlord::OverchargeValue(healer, bc_Unit_clone(a.self)) < CombatOverlord::OverchargeValue(healer, bc_Unit_clone(b.self));
+		});
+		units::Robot toOvercharge = bc_Unit_clone((*best).self);
+		if (healer.CanOvercharge(toOvercharge.self)) {
+			PolicyOverlord::storeUnit = bc_Unit_clone(toOvercharge.self);
+			return CombatOverlord::OverchargeValue(healer, bc_Unit_clone((*best).self));
+		}
+		return 0.0f;
+
+	}
+
+	bool HealerOverchargeExecute(units::Unit unit) {
+		units::Healer healer = bc_Unit_clone(unit.self);
+		units::Robot toOvercharge = bc_Unit_clone(PolicyOverlord::storeUnit.self);
+		healer.Overcharge(toOvercharge);
+		return true;
+	}
+
+	float RocketUnloadEvaluate(units::Unit unit) {
+		units::Rocket rocket = bc_Unit_clone(unit.self);
+		if (!rocket.IsBuilt()) return 0.0f;
+		for (bc_Direction direction : constants::directions_adjacent) {
+			if (rocket.CanUnload(direction)) {
+				PolicyOverlord::storeDirection = direction;
+				return 1.0f;
+			}
+		}
+		return 0.0f;
+	}
+
+	bool RocketUnloadExecute(units::Unit unit) {
+		units::Rocket rocket = bc_Unit_clone(unit.self);
+		rocket.Unload(PolicyOverlord::storeDirection);
+		// TODO Push the unit
+		return true;
+	}
+
+	float RocketLaunchEvaluate(units::Unit unit) {
+		units::Rocket rocket = bc_Unit_clone(unit.self);
+		if (!rocket.IsBuilt()) return 0.0f;
+		if (GameController::Round() == 749 || rocket.Health() < 100 || rocket.Garrison().size() == rocket.MaxCapacity()) {
+			// TODO Consider units damaged and push them away
+			PolicyOverlord::storeLocation = MapUtil::marsPassableLocations[rand() % MapUtil::marsPassableLocations.size()];
+			return 1.0f;
+		}
+		return 0.0f;
+	}
+
+	bool RocketLaunchExecute(units::Unit unit) {
+		units::Rocket rocket = bc_Unit_clone(unit.self);
+		rocket.Launch(PolicyOverlord::storeLocation);
+		return true;
 	}
 
 }

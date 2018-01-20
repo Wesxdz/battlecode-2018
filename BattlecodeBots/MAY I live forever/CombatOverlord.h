@@ -27,15 +27,16 @@ public:
 	static std::vector<units::Unit> EnemiesInRange(units::Robot& robot, uint32_t range);
 	static float AttackValue(units::Robot& attacker, units::Unit& target);
 	static float SplashValue(units::Mage& mage, units::Unit& target);
-	static float HealValue(units::Healer& healer, units::Unit& target);
-	static float OverchargeValue(units::Healer& healer, units::Unit& target);
+	static float HealValue(units::Healer& healer, units::Robot target);
+	static float OverchargeValue(units::Healer& healer, units::Robot target);
 	/*
 	Doesn't take into account mage splash, knight jav, or possible movement of enemies, only a heuristic
 	@return Potential damage that could be taken
 	*/
 	static float Danger(MapLocation location, bc_Team damageSource);
 
-	void DetermineDesiredUnits();
+	// The units that require healing, sorted by order of most needed first
+	static std::vector<uint16_t> requestHeal;
 };
 
 #endif
