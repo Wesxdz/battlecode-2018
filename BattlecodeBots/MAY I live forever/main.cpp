@@ -65,33 +65,30 @@ int main()
 			continue;
 		}
 		playerData.Update();
-		auto end = std::chrono::system_clock::now();
-		std::chrono::duration<double> roundTime = end - start;
-		std::cout << "Data Time: " << roundTime.count() << std::endl;
 
-		start = std::chrono::system_clock::now();
+		auto start = std::chrono::system_clock::now();
 		if (GameController::Planet() == bc_Planet::Earth) {
 			science.Update();
 		}
 		else if (round > 749) {
 			science.Update();
 		}
-		end = std::chrono::system_clock::now();
+		auto end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		std::cout << "Science Time: " << roundTime.count() << std::endl;
+		//std::cout << "Science Time: " << roundTime.count() << std::endl;
 
 		start = std::chrono::system_clock::now();
-		evan.Update();
+		builderLord.Update();
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		std::cout << "Builder Time: " << roundTime.count() << std::endl;
+		//std::cout << "Builder Time: " << roundTime.count() << std::endl;
 
 		start = std::chrono::system_clock::now();
-		//josh.Update();
+		combatLord.Update();
 
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		std::cout << "Combater Time: " << roundTime.count() << std::endl;
+		//std::cout << "Combater Time: " << roundTime.count() << std::endl;
 	
 
 		start = std::chrono::system_clock::now();
@@ -113,15 +110,15 @@ int main()
 		}
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		std::cout << "Path Finding Time: " << roundTime.count() << std::endl;
+		//std::cout << "Path Finding Time: " << roundTime.count() << std::endl;
 
 		start = std::chrono::system_clock::now();
-		wesley.Update();
+		policyLord.Update();
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		std::cout << "Policy Time: " << roundTime.count() << std::endl;
+		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
 
-		std::cout << "Total time used: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;
+		std::cout << "Total time left: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;
 		GameController::EndTurn();
 	}
 }

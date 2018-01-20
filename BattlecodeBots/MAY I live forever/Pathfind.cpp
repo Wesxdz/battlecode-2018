@@ -205,7 +205,7 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 bool Pathfind::MoveFuzzyFlow(units::Robot& robot, MapLocation& destination) {
 	int destX = destination.X();
 	int destY= destination.Y();
-	MoveFuzzyFlow(robot, destX, destY);
+	return MoveFuzzyFlow(robot, destX, destY);
 }
 
 short Pathfind::GenerateFlowPathTerrain(short ID, bc_PlanetMap* planetMapPtr) {
