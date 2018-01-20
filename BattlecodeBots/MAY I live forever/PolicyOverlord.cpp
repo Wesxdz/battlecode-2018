@@ -48,6 +48,7 @@ void PolicyOverlord::Update()
 			}
 		}
 	} while (policyTaken);
+	//std::cout << "Finished evaluating policies" << std::endl;
 }
 
 bc_UnitType PolicyOverlord::HighestPriority()
@@ -71,14 +72,7 @@ PolicyOverlord::PolicyOverlord()
 	robot1->Execute = policy::AvoidDamageExecute;
 	policies[Worker].push_back(robot1);
 	policies[Ranger].push_back(robot1);
-
-	auto robot2 = std::make_shared<Policy>("load_rocket");
-	robot2->Evaluate = policy::LoadRocketEval;
-	robot2->Execute = policy::LoadRocketExecute;
-	policies[Knight].push_back(robot2);
-	policies[Ranger].push_back(robot2);
-	policies[Mage].push_back(robot2);
-	policies[Worker].push_back(robot2);
+	policies[Healer].push_back(robot1);
 
 	auto robot3 = std::make_shared<Policy>("wander");
 	robot3->Evaluate = policy::WanderEvaluate;
@@ -87,6 +81,7 @@ PolicyOverlord::PolicyOverlord()
 	policies[Knight].push_back(robot3);
 	policies[Ranger].push_back(robot3);
 	policies[Mage].push_back(robot3);
+	policies[Healer].push_back(robot3);
 	//policies[Worker].push_back(robot3);
 
 	auto worker1 = std::make_shared<Policy>("harvest_karbonite");
@@ -94,46 +89,11 @@ PolicyOverlord::PolicyOverlord()
 	worker1->Execute = policy::WorkerHarvestKarboniteExecute;
 	policies[Worker].push_back(worker1);
 
-	auto worker2 = std::make_shared<Policy>("blueprint");
-	worker2->Evaluate = policy::WorkerBlueprintEvaluate;
-	worker2->Execute = policy::WorkerBlueprintExecute;
-	policies[Worker].push_back(worker2);
 
 	auto worker3 = std::make_shared<Policy>("replicate");
 	worker3->Evaluate = policy::WorkerReplicateEvaluate;
 	worker3->Execute = policy::WorkerReplicateExecute;
 	policies[Worker].push_back(worker3);
-
-	auto worker4 = std::make_shared<Policy>("seek_build");
-	worker4->Evaluate = policy::WorkerSeekBuildEvaluate;
-	worker4->Execute = policy::WorkerSeekBuildExecute;
-	policies[Worker].push_back(worker4);
-
-	// Move towards nearby Karbonite deposits
-	auto worker5 = std::make_shared<Policy>("seek_karbonite");
-	worker5->Evaluate = policy::WorkerSeekKarboniteEvaluate;
-	worker5->Execute = policy::WorkerSeekKarboniteExecute;
-	policies[Worker].push_back(worker5);
-
-	auto worker6 = std::make_shared<Policy>("build");
-	worker6->Evaluate = policy::WorkerBuildEvaluate;
-	worker6->Execute = policy::WorkerBuildExecute;
-	policies[Worker].push_back(worker6);
-
-	auto worker7 = std::make_shared<Policy>("repair");
-
-	auto factory1 = std::make_shared<Policy>("unload_factory");
-	factory1->Evaluate = policy::FactoryUnloadEvaluate;
-	factory1->Execute = policy::FactoryUnloadExecute;
-	policies[Factory].push_back(factory1);
-
-	auto factory2 = std::make_shared<Policy>("produce_unit");
-	factory2->Evaluate = policy::FactoryProduceEvaluate;
-	factory2->Execute = policy::FactoryProduceExecute;
-	policies[Factory].push_back(factory2);
-
-	auto rocket1 = std::make_shared<Policy>("unload_rocket");
-	auto rocket2 = std::make_shared<Policy>("launch");
 
 	// Charge towards enemies if there are enough friendly units nearby
 	auto fighter1 = std::make_shared<Policy>("courage");
@@ -144,6 +104,7 @@ PolicyOverlord::PolicyOverlord()
 	policies[Knight].push_back(fighter2);
 	policies[Mage].push_back(fighter2);
 	policies[Ranger].push_back(fighter2);
+	policies[Healer].push_back(fighter2); // TODO Custom healer seek behavior
 
 	// Determine if moving towards enemies before attacking would provide a higher value target
 	auto fighter3 = std::make_shared<Policy>("move_attack_advantage");
@@ -167,7 +128,6 @@ PolicyOverlord::PolicyOverlord()
 	// Stay out of vision range of enemy units, avoid letting units into MinAttackRange
 	auto ranger4 = std::make_shared<Policy>("kite");
 
-
 	// Attack best target
 	auto knight1 = std::make_shared<Policy>("knight_attack");
 	knight1->Evaluate = policy::KnightAttackEvaluate;
@@ -175,9 +135,73 @@ PolicyOverlord::PolicyOverlord()
 	policies[Knight].push_back(knight1);
 
 	auto knight2 = std::make_shared<Policy>("javelin");
+	knight2->Evaluate = policy::KnightJavelinEvaluate;
+	knight2->Execute = policy::KnightJavelinExecute;
+	policies[Knight].push_back(knight2);
 
 	auto healer1 = std::make_shared<Policy>("heal");
+	healer1->Evaluate = policy::HealerHealEvaluate;
+	healer1->Execute = policy::HealerHealExecute;
+	policies[Healer].push_back(healer1);
+
 	auto healer2 = std::make_shared<Policy>("overcharge");
+	healer2->Evaluate = policy::HealerOverchargeEvaluate;
+	healer2->Execute = policy::HealerOverchargeExecute;
+	policies[Healer].push_back(healer2);
+
+	if (GameController::Planet() == Earth) {
+		auto robot2 = std::make_shared<Policy>("load_rocket");
+		robot2->Evaluate = policy::LoadRocketEvaluate;
+		robot2->Execute = policy::LoadRocketExecute;
+		policies[Knight].push_back(robot2);
+		policies[Ranger].push_back(robot2);
+		policies[Mage].push_back(robot2);
+		policies[Worker].push_back(robot2);
+
+		auto worker2 = std::make_shared<Policy>("blueprint");
+		worker2->Evaluate = policy::WorkerBlueprintEvaluate;
+		worker2->Execute = policy::WorkerBlueprintExecute;
+		policies[Worker].push_back(worker2);
+
+		auto worker4 = std::make_shared<Policy>("seek_build");
+		worker4->Evaluate = policy::WorkerSeekBuildEvaluate;
+		worker4->Execute = policy::WorkerSeekBuildExecute;
+		policies[Worker].push_back(worker4);
+
+		// Move towards nearby Karbonite deposits
+		auto worker5 = std::make_shared<Policy>("seek_karbonite");
+		worker5->Evaluate = policy::WorkerSeekKarboniteEvaluate;
+		worker5->Execute = policy::WorkerSeekKarboniteExecute;
+		policies[Worker].push_back(worker5);
+
+		auto worker6 = std::make_shared<Policy>("build");
+		worker6->Evaluate = policy::WorkerBuildEvaluate;
+		worker6->Execute = policy::WorkerBuildExecute;
+		policies[Worker].push_back(worker6);
+
+		auto worker7 = std::make_shared<Policy>("repair");
+
+		auto factory1 = std::make_shared<Policy>("unload_factory");
+		factory1->Evaluate = policy::FactoryUnloadEvaluate;
+		factory1->Execute = policy::FactoryUnloadExecute;
+		policies[Factory].push_back(factory1);
+
+		auto factory2 = std::make_shared<Policy>("produce_unit");
+		factory2->Evaluate = policy::FactoryProduceEvaluate;
+		factory2->Execute = policy::FactoryProduceExecute;
+		policies[Factory].push_back(factory2);
+
+		auto rocket2 = std::make_shared<Policy>("launch");
+		rocket2->Evaluate = policy::RocketLaunchEvaluate;
+		rocket2->Execute = policy::RocketLaunchExecute;
+		policies[Rocket].push_back(rocket2);
+	}
+	else {
+		auto rocket1 = std::make_shared<Policy>("unload_rocket");
+		rocket1->Evaluate = policy::RocketUnloadEvaluate;
+		rocket1->Execute = policy::RocketUnloadExecute;
+		policies[Rocket].push_back(rocket1);
+	}
 
 }
 

@@ -25,28 +25,20 @@ void BuilderOverlord::Update()
 	//	return location.IsVisible() && location.Karbonite() > 0;
 	//});
 	//std::cout << PlayerData::pd->karboniteDeposits.size() << " karbonite deposits\n";
-	DetermineDesiredUnits();
+	DesireUnits();
 }
 
-void BuilderOverlord::DetermineDesiredUnits() {
-	// TODO Determine desired Workers, Factories, and Rockets
-	//PlayerData::pd->desiredUnitCounts[Worker] = ((749.0f - GameController::Round()) * - bc_UnitType_replicate_cost(Worker) * 2) / 10;
+void BuilderOverlord::DesireUnits() {
+	uint32_t round = GameController::Round();
 
-	uint32_t currRound = GameController::Round();
-
-	// Cant build
-	if (currRound > 749 || GameController::Planet() == bc_Planet::Mars) {
-		PlayerData::pd->unitPriority[bc_UnitType::Worker] = 1.0f; // Maybe change Worker Priority?
-		PlayerData::pd->unitPriority[bc_UnitType::Rocket] = .0f;
-		PlayerData::pd->unitPriority[bc_UnitType::Factory] = .0f;
+	// Cant build anything, so replicate workers
+	if (GameController::Planet() == Mars) {
+		for (auto& priority : PlayerData::pd->unitPriority) {
+			priority.second = 0.0f;
+		}
+		PlayerData::pd->unitPriority[bc_UnitType::Worker] = 1.0f;
 		return;
 	}
-
-	// Need to take into account Current, Future, and Enemy
-
-	// Knights are countered by Mage and Rangers...
-	// Mages are countered by Rangers
-	// 
 
 	int workerAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Worker];
 	int knightAmo = PlayerData::pd->teamUnitCounts[bc_UnitType::Knight];
@@ -75,12 +67,11 @@ void BuilderOverlord::DetermineDesiredUnits() {
 	int factoryProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Factory];
 	int rocketProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Rocket];
 	int totalProductionAmo = workerProductionAmo + knightProductionAmo + mageProductionAmo + rangerProductionAmo + healerProductionAmo + factoryProductionAmo + rocketProductionAmo;
-	/////////////// BUILDER
 
 	// < 0 = Too many
 	// 0 = Don't need
 	// 0 - 1 = Could use
-	//  > 1 = Need
+	//  > 1 = Need (highest priority)
 
 	// Workers are quite valuable early on for factory production, karb gathering, and / or scouting.
 	// However, they can replicate, do we need to buid them?
@@ -202,146 +193,111 @@ void BuilderOverlord::DetermineDesiredUnits() {
 		float rocketPriority = .0f;
 
 		// If lacking in Initial karbonite and Early
-		if (currRound > 40 && currRound < 200) {
-			// NEED
-			if (PlayerData::pd->earthStartingKarbonite < 1.0f) {
-				rocketPriority = 10000.0f;
-			}
-			// Need or could use
-			else if (PlayerData::pd->earthStartingKarbonite < 1000.0f) {
-				int startKarb = PlayerData::pd->earthStartingKarbonite;
-				if(startKarb < 1) { startKarb = 1; }
-				rocketPriority = 2000.0f / startKarb;
-			} 
-			
-		} else {
-			// Linear to Round
-			rocketPriority += (currRound / 450.0f);
-		}
-
-		PlayerData::pd->unitPriority[bc_UnitType::Rocket] = rocketPriority;
+		//if (round > 40 && round < 200) {
+		//	// NEED
+		//	if (PlayerData::pd->earthStartingKarbonite < 1.0f) {
+		//		rocketPriority = 10000.0f;
+		//	}
+		//	// Need or could use
+		//	else if (PlayerData::pd->earthStartingKarbonite < 1000.0f) {
+		//		rocketPriority = 2000.0f / PlayerData::pd->earthStartingKarbonite + 1;
+		//	}
+		//	else {
+		//		// Linear to Round
+		//	}
+			rocketPriority += (round / 450.0f)/(rocketAmo + 1); // More rocket amounts signify they have not been loaded
+			PlayerData::pd->unitPriority[bc_UnitType::Rocket] = rocketPriority;
 	}
-	
+
 	// Factory Priority
 	{
-		float factoryToTeam = static_cast<float>(factoryAmo) / (totalAmo + totalProductionAmo + 1);
+	float factoryToTeam = static_cast<float>(factoryAmo) / (totalAmo + totalProductionAmo + 1);
 
-		float factoryPriority = .0f;
-		
-		// Always want to be producing factories. Compare to Karb reserves
-		factoryPriority = (1.0f - (factoryToTeam * 10.0f)) * (GameController::Karbonite() / 100.0f);
+	float factoryPriority = .0f;
 
-		PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
+	// Always want to be producing factories. Compare to Karb reserves
+	factoryPriority = (1.0f - (factoryToTeam * 10.0f)) * (GameController::Karbonite() / 100.0f);
+
+	PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
 	}
 
-}
+	// Knight Priority
+	{
+		float knightPriority = .0f;
 
-//void BuilderOverlord::WorkerAction(units::Worker worker)
-//{
-//	if (PlayerData::pd->desiredUnitCounts[Worker] > PlayerData::pd->teamUnitCounts[Worker]) {
-//		for (auto direction : constants::directions_adjacent) {
-//			if (worker.CanReplicate(direction)) {
-//				worker.Replicate(direction);
-//			}
-//		}
-//	}
-//	if (PlayerData::pd->desiredUnitCounts[Factory] > PlayerData::pd->teamUnitCounts[Factory]) {
-//		for (auto direction : constants::directions_adjacent) {
-//			if (worker.CanBlueprint(Factory, direction)) {
-//				worker.Blueprint(Factory, direction);
-//			}
-//		}
-//	}
-//	if (PlayerData::pd->desiredUnitCounts[Rocket] > PlayerData::pd->teamUnitCounts[Rocket]) {
-//		for (auto direction : constants::directions_adjacent) {
-//			if (worker.CanBlueprint(Rocket, direction)) {
-//				worker.Blueprint(Rocket, direction);
-//			}
-//		}
-//	}
-//	MapLocation workerLocation = worker.Loc().ToMapLocation();
-//	bc_VecMapLocation* nearby = bc_GameController_all_locations_within(GameController::gc, workerLocation.self, 25);
-//	auto nearbyDeposits = MapUtil::FilteredLocations(nearby, [](bc_MapLocation* potentialDeposit) {
-//		return bc_GameController_karbonite_at(GameController::gc, potentialDeposit) > 0;
-//	});
-//	delete_bc_VecMapLocation(nearby);
-//	if (nearbyDeposits.size() == 0) {
-//		Pathfind::MoveRandom(worker);
-//	}
-//	for (int i = 1; i <= 100; i = (i + 1) * (i + 1)) {
-//		auto nearbyFactories = VecUnit::Wrap<units::Factory>(bc_GameController_sense_nearby_units_by_type(GameController::gc, workerLocation.self, i, Factory));
-//		if (nearbyFactories.size() > 0) {
-//			if (worker.CanBuild(nearbyFactories[0])) {
-//				worker.Build(nearbyFactories[0]);
-//			}
-//			MapLocation buildLocation = nearbyFactories[0].Loc().ToMapLocation();
-//			Pathfind::MoveGreedy(worker, buildLocation);
-//			break;
-//		}
-//	}
-//	//std::sort(nearbyDeposits.begin(), nearbyDeposits.end(), [&workerLocation, this](bc_MapLocation* a, bc_MapLocation* b) {
-//	//	return
-//	//		abs(bc_MapLocation_x_get(workerLocation.self) - bc_MapLocation_x_get(a)) + abs(bc_MapLocation_y_get(workerLocation.self) - bc_MapLocation_y_get(a)) <
-//	//		abs(bc_MapLocation_x_get(workerLocation.self) - bc_MapLocation_x_get(b)) + abs(bc_MapLocation_y_get(workerLocation.self) - bc_MapLocation_y_get(b));
-//	//});
-//	//bc_Direction probe = bc_MapLocation_direction_to(workerLocation.self, nearbyDeposits[0]);
-//	//if (worker.CanHarvest(probe)) {
-//	//	worker.Harvest(probe);
-//	//}
-//	//MapLocation toSeek{ bc_MapLocation_clone(nearbyDeposits[0]) };
-//	MapLocation test = MapLocation(Earth, 10, 10);
-//	Pathfind::MoveGreedy(worker, test);
-//}
-//
-//void BuilderOverlord::FactoryAction(units::Factory factory)
-//{
-//	if (factory.IsBuilt()) {
-//		for (auto direction : constants::directions_adjacent) {
-//			if (factory.CanUnload(direction)) {
-//				factory.Unload(direction);
-//			}
-//		}
-//		if (PlayerData::pd->desiredUnitCounts[Factory] <= PlayerData::pd->teamUnitCounts[Factory] && // Don't spend Karbonite if structures need to be build
-//			PlayerData::pd->desiredUnitCounts[Rocket] <= PlayerData::pd->teamUnitCounts[Rocket] &&
-//			factory.CanProduce(Knight)) {
-//			std::cout << "Actual Knights: " << PlayerData::pd->teamUnitCounts[Knight] << "\n";
-//			std::cout << "Desired Knights: " << PlayerData::pd->desiredUnitCounts[Knight] << "\n";
-//			if (PlayerData::pd->desiredUnitCounts[Knight] > PlayerData::pd->teamUnitCounts[Knight]) {
-//				std::cout << "Producing Knight\n";
-//				factory.Produce(Knight);
-//				PlayerData::pd->inProductionCounts[Knight]++;
-//			}
-//			else if (PlayerData::pd->desiredUnitCounts[Ranger] > PlayerData::pd->teamUnitCounts[Ranger]) {
-//				factory.Produce(Ranger);
-//			}
-//			else if (PlayerData::pd->desiredUnitCounts[Mage] > PlayerData::pd->teamUnitCounts[Mage]) {
-//				factory.Produce(Mage);
-//			}
-//			else if (PlayerData::pd->desiredUnitCounts[Healer] > PlayerData::pd->teamUnitCounts[Healer]) {
-//				factory.Produce(Healer);
-//			}
-//		}
-//	}
-//}
-//
-//void BuilderOverlord::RocketAction(units::Rocket rocket)
-//{
-//	if (rocket.IsBuilt()) {
-//		if (GameController::Planet() == Earth) {
-//			MapLocation random{ MapUtil::marsPassableLocations[rand() % MapUtil::marsPassableLocations.size()] };
-//			if (rocket.CanLaunch(random)) {
-//				if (GameController::Round() == 749 || rocket.Garrison().size() == rocket.MaxCapacity()) {
-//					rocket.Launch(random);
-//				}
-//			}
-//		}
-//		else {
-//			for (auto direction : constants::directions_adjacent) {
-//				if (rocket.CanUnload(direction)) {
-//					rocket.Unload(direction);
-//					// TODO Push unloaded unit and try unload again
-//				}
-//			}
-//		}
-//	}
-//}
+		// Knights will always be somewhat valuable
+		// They do good damage, limited range, high HP, good Defense
+		// If we lack a "Defense", aka Knights, then we should get a minimum in for sure.
+		// After that, we should only build more to recuperate our defense, rush, or strategise
+		uintptr_t width = bc_PlanetMap_width_get(GameController::PlanetMap(bc_Planet::Earth));
+		if (width < 1) { width = 0; }
+		float knightToMap = static_cast<float>(knightAmo) / width;
+
+		if (knightAmo < width) {
+			float knightAmof = static_cast<float>(knightAmo);
+			knightPriority = .5f - (width / knightAmof + 1);
+			if (knightPriority < .5f) { knightPriority = .5f; }
+			if (knightPriority > width / 10.0f) { knightPriority = width / 10.0f; }
+		}
+		else {
+			knightPriority = .3f;
+		}
+
+		PlayerData::pd->unitPriority[bc_UnitType::Knight] = knightPriority;
+	}
+
+	// Ranger Priority
+	{
+		float rangerPriority = .0f;
+
+		// Rangers can never go wrong (RANGERS NERFED IN SPRINT)
+		// Good health, long range, good damage
+
+		if (rangerAmo + rangerProductionAmo < 0) { // Build a scout first unless map is tiny
+			rangerPriority = .7f;
+		}
+		else {
+			rangerPriority = .1f;
+		}
+
+
+		PlayerData::pd->unitPriority[bc_UnitType::Ranger] = rangerPriority;
+	}
+
+	// Mage Priority
+	{
+		float magePriority = .0f;
+
+		float mapSize = MapUtil::earthPassableLocations.size() / 2.0f;
+		float enemyToMap = (totalEnemyAmo / mapSize) * 10;
+
+		// If enemy is grouped up, then we should use mages to deal a lot of damage;
+		magePriority = enemyToMap;
+
+		PlayerData::pd->unitPriority[bc_UnitType::Mage] = magePriority;
+	}
+
+	// Healer Priority
+	{
+		float healerPriority = .0f;
+
+		float ratio = (knightAmo + mageAmo + rangerAmo) / (healerAmo + 1);
+		healerPriority = ratio / 5;
+
+		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
+	}
+
+	if (factoryAmo + factoryProductionAmo == 0) {
+		PlayerData::pd->unitPriority[Knight] = 0.0f;
+		PlayerData::pd->unitPriority[Healer] = 0.0f;
+		PlayerData::pd->unitPriority[Ranger] = 0.0f;
+		PlayerData::pd->unitPriority[Mage] = 0.0f;
+	}
+
+	bc_ResearchInfo* info = bc_GameController_research_info(GameController::gc);
+	if (bc_ResearchInfo_get_level(info, Rocket) == 0) {
+		PlayerData::pd->unitPriority[Rocket] = 0.0f;
+	}
+	delete_bc_ResearchInfo(info);
+
+}
