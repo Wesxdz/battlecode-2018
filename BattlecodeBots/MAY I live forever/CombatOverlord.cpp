@@ -27,16 +27,18 @@ CombatOverlord::~CombatOverlord()
 
 void CombatOverlord::Update()
 {
-	std::remove_if(controlPoints.begin(), controlPoints.end(), [](MapLocation& point) {
+	auto end = std::remove_if(controlPoints.begin(), controlPoints.end(), [](MapLocation& point) {
 		if (point.IsVisible()) {
 			auto enemies = point.NearbyUnits(25, Utility::GetOtherTeam(GameController::Team()));
 			if (enemies.size() == 0) {
-				std::cout << "Remove control point" << std::endl;
 				return true;
 			}
 		}
 		return false;
 	});
+	if (end != controlPoints.end()) {
+		controlPoints.erase(end);
+	}
 	requestHeal.clear();
 	auto team = GameController::Units(MyTeam);
 	for (units::Unit& unit : team) {

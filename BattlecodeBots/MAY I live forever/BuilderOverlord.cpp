@@ -20,10 +20,11 @@ BuilderOverlord::BuilderOverlord()
 
 void BuilderOverlord::Update()
 {
-	// TODO Fix
-	//std::remove_if(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), [](MapLocation& location) {
-	//	return location.IsVisible() && location.Karbonite() > 0;
-	//});
+	if (PlayerData::pd->karboniteDeposits.size() > 0) {
+		PlayerData::pd->karboniteDeposits.erase(std::remove_if(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), [](MapLocation& location) {
+			return location.IsVisible() && location.Karbonite() == 0;
+		}));
+	}
 	//std::cout << PlayerData::pd->karboniteDeposits.size() << " karbonite deposits\n";
 	DesireUnits();
 }
@@ -154,7 +155,7 @@ void BuilderOverlord::DesireUnits() {
 		//}
 		//else {
 		//}
-		rangerPriority = .1f;
+		//rangerPriority = 2.0f;
 
 
 		PlayerData::pd->unitPriority[bc_UnitType::Ranger] = rangerPriority;

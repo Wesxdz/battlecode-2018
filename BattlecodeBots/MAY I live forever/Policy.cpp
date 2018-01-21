@@ -2,30 +2,34 @@
 #include <iostream>
 #include "Log.h"
 #include "GameController.h"
+#include <chrono>
+
+std::map<std::string, double> Policy::times;
 
 Policy::Policy(std::string name)
 {
 	this->name = name;
 }
 
-Policy::Policy(std::string name, std::function<float(units::Unit)> evaluate, std::function<bool(units::Unit)> execute)
-{
-	this->name = name;
-	Evaluate = evaluate;
-	Execute = execute;
-}
-
 Policy::~Policy()
 {
 }
 
-bool Policy::Command(units::Unit unit)
+float Policy::DebugEvaluate(bc_Unit* unit)
 {
-	//std::cout << "r:" << GameController::Round() << " p:" << name << std::endl;
+	auto start = std::chrono::system_clock::now();
+	float score = Evaluate(unit);
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> time = end - start;
+	times[name] += time.count();
+	return score;
+}
+
+bool Policy::DebugExecute(bc_Unit* unit)
+{
+	std::cout << "r:" << GameController::Round() << " p:" << name << std::endl;
 	bool successful = Execute(unit);
-	if (bc_has_err()) {
-		std::cout << "r:" << GameController::Round() << " p:" << name << " s:" << successful << std::endl;
-	}
 	CHECK_ERRORS();
+	std::cout << "s:" << successful << std::endl;
 	return successful;
 }

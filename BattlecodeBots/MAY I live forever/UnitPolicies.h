@@ -19,8 +19,8 @@
 
 namespace policy {
 
-	float AvoidDamageEvaluate(units::Unit unit) {
-		units::Robot robot{ bc_Unit_clone(unit.self) };
+	float AvoidDamageEvaluate(bc_Unit* unit) {
+		units::Robot robot{ bc_Unit_clone(unit) };
 		if (!robot.IsMoveReady()) return 0.0f;
 		MapLocation location = robot.Loc().ToMapLocation();
 		bc_Team enemyTeam = Utility::GetOtherTeam(robot.Team());
@@ -40,15 +40,15 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool AvoidDamageExecute(units::Unit unit) {
-		units::Robot robot{ bc_Unit_clone(unit.self) };
+	bool AvoidDamageExecute(bc_Unit* unit) {
+		units::Robot robot{ bc_Unit_clone(unit) };
 		robot.Move(PolicyOverlord::storeDirection);
 		return true;
 	}
 
-	float LoadRocketEvaluate(units::Unit unit) {
+	float LoadRocketEvaluate(bc_Unit* unit) {
 		float score = 0.0f;
-		units::Robot robot = bc_Unit_clone(unit.self);
+		units::Robot robot = bc_Unit_clone(unit);
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (!robot.IsMoveReady()) return 0.0f;
 		bc_VecUnit* nearbyRockets = bc_GameController_sense_nearby_units_by_type(GameController::gc, robotLocation.self, 2, Rocket);
@@ -64,33 +64,27 @@ namespace policy {
 		return score;
 	}
 
-	bool LoadRocketExecute(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
+	bool LoadRocketExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		units::Rocket rocket = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		rocket.Load(robot);
 		return true;
 	}
 
-	float WanderEvaluate(units::Unit unit) {
-		units::Robot robot{ bc_Unit_clone(unit.self) };
-		if (robot.IsMoveReady()) {
-			return 0.1f;
-		}
-		return 0.0f;
+	float WanderEvaluate(bc_Unit* unit) {
+		if (!bc_GameController_is_move_ready(GameController::gc, bc_Unit_id(unit))) return 0.0f;
+		return 0.1f;
 	}
 
-	bool WanderExecute(units::Unit unit) {
-		units::Robot robot{ bc_Unit_clone(unit.self) };
+	bool WanderExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		return Pathfind::MoveRandom(robot);
 	}
 
-	float WorkerHarvestKarboniteEvaluate(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
-		if (worker.HasActed()) {
-			return 0.0f;
-		}
+	float WorkerHarvestKarboniteEvaluate(bc_Unit* unit) {
+		if (bc_Unit_worker_has_acted(unit)) return 0.0f;
 		for (bc_Direction direction : constants::directions_all) {
-			if (worker.CanHarvest(direction)) {
+			if (bc_GameController_can_harvest(GameController::gc, bc_Unit_id(unit), direction)) {
 				PolicyOverlord::storeDirection = direction;
 				return 1.0f;
 			}
@@ -98,14 +92,13 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool WorkerHarvestKarboniteExecute(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
-		worker.Harvest(PolicyOverlord::storeDirection);
+	bool WorkerHarvestKarboniteExecute(bc_Unit* unit) {
+		bc_GameController_harvest(GameController::gc, bc_Unit_id(unit), PolicyOverlord::storeDirection);
 		return true;
 	}
 
-	float WorkerBlueprintEvaluate(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
+	float WorkerBlueprintEvaluate(bc_Unit* unit) {
+		units::Worker worker = bc_Unit_clone(unit);
 		if (worker.HasActed()) return 0.0f;
 		bc_UnitType priority = PolicyOverlord::HighestPriority();
 		if (!(priority == Factory || priority == Rocket)) return 0.0f;
@@ -120,8 +113,8 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool WorkerBlueprintExecute(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
+	bool WorkerBlueprintExecute(bc_Unit* unit) {
+		units::Worker worker = bc_Unit_clone(unit);
 		worker.Blueprint(PolicyOverlord::storeUnitType, PolicyOverlord::storeDirection);
 		MapLocation buildLocation = MapLocation::Neighbor(worker.Loc().ToMapLocation(), PolicyOverlord::storeDirection);
 		units::Structure build = buildLocation.Occupant();
@@ -129,8 +122,8 @@ namespace policy {
 		return true;
 	}
 
-	float WorkerReplicateEvaluate(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
+	float WorkerReplicateEvaluate(bc_Unit* unit) {
+		units::Worker worker = bc_Unit_clone(unit);
 		if (worker.HasActed()) return 0.0f;
 		if (GameController::Karbonite() < worker.ReplicateCost()) return 0.0f;
 		if (PolicyOverlord::HighestPriority() != Worker) return 0.0f;
@@ -143,14 +136,14 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool WorkerReplicateExecute(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
+	bool WorkerReplicateExecute(bc_Unit* unit) {
+		units::Worker worker = bc_Unit_clone(unit);
 		worker.Replicate(PolicyOverlord::storeDirection);
 		return true;
 	}
 
-	float WorkerSeekKarboniteEvaluate(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
+	float WorkerSeekKarboniteEvaluate(bc_Unit* unit) {
+		units::Worker worker = bc_Unit_clone(unit);
 		MapLocation workerLocation = worker.Loc().ToMapLocation();
 		if (!worker.IsMoveReady()) return 0.0f;
 		for (auto& project : BuilderOverlord::buildProjects) {
@@ -180,13 +173,13 @@ namespace policy {
 		return 5.0f;
 	}
 
-	bool WorkerSeekKarboniteExecute(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
+	bool WorkerSeekKarboniteExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		return Pathfind::MoveFuzzy(robot, robot.Loc().ToMapLocation().DirectionTo(PolicyOverlord::storeLocation));
 	}
 
-	float WorkerBuildEvaluate(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
+	float WorkerBuildEvaluate(bc_Unit* unit) {
+		units::Worker worker = bc_Unit_clone(unit);
 		if (worker.HasActed()) return 0.0f;
 		for (auto& project : BuilderOverlord::buildProjects) {
 			auto self = std::find(project.second.begin(), project.second.begin(), worker.id);
@@ -200,8 +193,8 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool WorkerBuildExecute(units::Unit unit) {
-		units::Worker worker = bc_Unit_clone(unit.self);
+	bool WorkerBuildExecute(bc_Unit* unit) {
+		units::Worker worker = bc_Unit_clone(unit);
 		units::Structure build = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		worker.Build(build);
 		units::Structure updatedBuild = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
@@ -211,9 +204,9 @@ namespace policy {
 		return true;
 	}
 
-	float WorkerSeekBuildEvaluate(units::Unit unit) {
+	float WorkerSeekBuildEvaluate(bc_Unit* unit) {
 		if (BuilderOverlord::buildProjects.size() == 0) return 0.0f;
-		units::Worker worker = bc_Unit_clone(unit.self);
+		units::Worker worker = bc_Unit_clone(unit);
 		if (!worker.IsMoveReady()) return 0.0f;
 		MapLocation workerLocation = worker.Loc().ToMapLocation();
 		bool workingOnProject = false;
@@ -251,13 +244,13 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool WorkerSeekBuildExecute(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
+	bool WorkerSeekBuildExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
-	float FactoryProduceEvaluate(units::Unit unit) {
-		units::Factory factory = bc_Unit_clone(unit.self);
+	float FactoryProduceEvaluate(bc_Unit* unit) {
+		units::Factory factory = bc_Unit_clone(unit);
 		if (!factory.IsBuilt()) return 0.0f;
 		bc_UnitType priority = PolicyOverlord::HighestPriority();
 		if (!Utility::IsRobot(priority)) return 0.0f;
@@ -269,14 +262,14 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool FactoryProduceExecute(units::Unit unit) {
-		units::Factory factory = bc_Unit_clone(unit.self);
+	bool FactoryProduceExecute(bc_Unit* unit) {
+		units::Factory factory = bc_Unit_clone(unit);
 		factory.Produce(PolicyOverlord::storeUnitType);
 		return true;
 	}
 
-	float FactoryUnloadEvaluate(units::Unit unit) {
-		units::Factory factory = bc_Unit_clone(unit.self);
+	float FactoryUnloadEvaluate(bc_Unit* unit) {
+		units::Factory factory = bc_Unit_clone(unit);
 		if (!factory.IsBuilt()) return 0.0f;
 		for (bc_Direction direction : constants::directions_adjacent) {
 			if (factory.CanUnload(direction)) {
@@ -287,14 +280,14 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool FactoryUnloadExecute(units::Unit unit) {
-		units::Factory factory = bc_Unit_clone(unit.self);
+	bool FactoryUnloadExecute(bc_Unit* unit) {
+		units::Factory factory = bc_Unit_clone(unit);
 		factory.Unload(PolicyOverlord::storeDirection);
 		return true;
 	}
 
-	float KnightAttackEvaluate(units::Unit unit) {
-		units::Knight robot = bc_Unit_clone(unit.self);
+	float KnightAttackEvaluate(bc_Unit* unit) {
+		units::Knight robot = bc_Unit_clone(unit);
 		if (robot.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
 			auto nearby = CombatOverlord::EnemiesInRange(robot, robot.AttackRange());
 			auto best = std::max_element(nearby.begin(), nearby.end(), [&robot](units::Unit& a, units::Unit& b) {
@@ -310,8 +303,8 @@ namespace policy {
 		return 0.0f;
 	}
 
-	float KnightJavelinEvaluate(units::Unit unit) {
-		units::Knight knight = bc_Unit_clone(unit.self);
+	float KnightJavelinEvaluate(bc_Unit* unit) {
+		units::Knight knight = bc_Unit_clone(unit);
 		if (knight.IsActiveUnlocked() && knight.IsJavelinReady()) {
 			auto nearby = CombatOverlord::EnemiesInRange(knight, knight.AbilityRange());
 			auto best = std::max_element(nearby.begin(), nearby.end(), [&knight](units::Unit& a, units::Unit& b) {
@@ -327,15 +320,15 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool KnightJavelinExecute(units::Unit unit) {
-		units::Knight knight = bc_Unit_clone(unit.self);
+	bool KnightJavelinExecute(bc_Unit* unit) {
+		units::Knight knight = bc_Unit_clone(unit);
 		units::Unit target = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		knight.Javelin(target);
 		return true;
 	}
 
-	float MageAttackEvaluate(units::Unit unit) {
-		units::Mage mage = bc_Unit_clone(unit.self);
+	float MageAttackEvaluate(bc_Unit* unit) {
+		units::Mage mage = bc_Unit_clone(unit);
 		if (mage.IsAttackReady()) { // Attack before Javelin in case you kill adjacent units
 			auto nearby = CombatOverlord::EnemiesInRange(mage, mage.AttackRange());
 			auto best = std::max_element(nearby.begin(), nearby.end(), [&mage](units::Unit& a, units::Unit& b) {
@@ -351,8 +344,8 @@ namespace policy {
 		return 0.0f;
 	}
 
-	float RangerAttackEvaluate(units::Unit unit) {
-		units::Ranger ranger = bc_Unit_clone(unit.self);
+	float RangerAttackEvaluate(bc_Unit* unit) {
+		units::Ranger ranger = bc_Unit_clone(unit);
 		if (!ranger.IsAttackReady()) return 0.0f;
 		auto nearby = ranger.Loc().ToMapLocation().NearbyUnits(ranger.AttackRange(), Utility::GetOtherTeam(ranger.Team()));
 		if (nearby.size() == 0) return 0.0f;
@@ -372,15 +365,15 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool AttackExecute(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
+	bool AttackExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		units::Robot toAttack = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		robot.Attack(toAttack);
 		return true;
 	}
 
-	float SeekEnemyEvaluate(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
+	float SeekEnemyEvaluate(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (!robot.IsMoveReady()) return 0.0f;
 		bc_Team otherTeam = Utility::GetOtherTeam(GameController::Team());
@@ -388,7 +381,7 @@ namespace policy {
 			bc_VecUnit* nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, i*i, otherTeam);
 			if (bc_VecUnit_len(nearbyEnemies) > 0) {
 				units::Unit seek = bc_VecUnit_index(nearbyEnemies, 0);
-				PolicyOverlord::storeLocation = seek.Loc().ToMapLocation();
+				PolicyOverlord::storeDirection = robotLocation.DirectionTo(seek.Loc().ToMapLocation());
 				delete_bc_VecUnit(nearbyEnemies);
 				return 20.0f;
 			}
@@ -397,13 +390,13 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool SeekEnemyExecute(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
-		return Pathfind::MoveFuzzyFlow(robot, PolicyOverlord::storeLocation);
+	bool SeekEnemyExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
+		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
-	float SeekControlEvaluate(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
+	float SeekControlEvaluate(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (CombatOverlord::controlPoints.size() > 0) { // Move towards the closest control point
 			auto move = std::max_element(CombatOverlord::controlPoints.begin(), CombatOverlord::controlPoints.end(), [&robotLocation](MapLocation& a, MapLocation& b) {
@@ -415,13 +408,13 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool SeekControlExecute(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
+	bool SeekControlExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		return Pathfind::MoveFuzzyFlow(robot, PolicyOverlord::storeLocation);
 	}
 
-	float HealerHealEvaluate(units::Unit unit) {
-		units::Healer healer = bc_Unit_clone(unit.self);
+	float HealerHealEvaluate(bc_Unit* unit) {
+		units::Healer healer = bc_Unit_clone(unit);
 		if (!healer.IsHealReady()) return 0.0f;
 		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AttackRange(), healer.Team());
 		if (nearby.size() == 0) return 0.0f;
@@ -443,15 +436,15 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool HealerHealExecute(units::Unit unit) {
-		units::Healer healer = bc_Unit_clone(unit.self);
+	bool HealerHealExecute(bc_Unit* unit) {
+		units::Healer healer = bc_Unit_clone(unit);
 		units::Robot toHeal = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		healer.Heal(toHeal);
 		return true;
 	}
 
-	float HealerOverchargeEvaluate(units::Unit unit) {
-		units::Healer healer = bc_Unit_clone(unit.self);
+	float HealerOverchargeEvaluate(bc_Unit* unit) {
+		units::Healer healer = bc_Unit_clone(unit);
 		if (!healer.IsActiveUnlocked() || !healer.IsAttackReady()) return 0.0f;
 		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AbilityRange(), healer.Team());
 		if (nearby.size() == 0) return 0.0f;
@@ -467,15 +460,15 @@ namespace policy {
 
 	}
 
-	bool HealerOverchargeExecute(units::Unit unit) {
-		units::Healer healer = bc_Unit_clone(unit.self);
+	bool HealerOverchargeExecute(bc_Unit* unit) {
+		units::Healer healer = bc_Unit_clone(unit);
 		units::Robot toOvercharge = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		healer.Overcharge(toOvercharge);
 		return true;
 	}
 
-	float RocketUnloadEvaluate(units::Unit unit) {
-		units::Rocket rocket = bc_Unit_clone(unit.self);
+	float RocketUnloadEvaluate(bc_Unit* unit) {
+		units::Rocket rocket = bc_Unit_clone(unit);
 		if (!rocket.IsBuilt()) return 0.0f;
 		for (bc_Direction direction : constants::directions_adjacent) {
 			if (rocket.CanUnload(direction)) {
@@ -486,15 +479,15 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool RocketUnloadExecute(units::Unit unit) {
-		units::Rocket rocket = bc_Unit_clone(unit.self);
+	bool RocketUnloadExecute(bc_Unit* unit) {
+		units::Rocket rocket = bc_Unit_clone(unit);
 		rocket.Unload(PolicyOverlord::storeDirection);
 		// TODO Push the unit
 		return true;
 	}
 
-	float RocketLaunchEvaluate(units::Unit unit) {
-		units::Rocket rocket = bc_Unit_clone(unit.self);
+	float RocketLaunchEvaluate(bc_Unit* unit) {
+		units::Rocket rocket = bc_Unit_clone(unit);
 		if (!rocket.IsBuilt()) return 0.0f;
 		if (GameController::Round() == 749 || rocket.Health() < 100 || rocket.Garrison().size() == rocket.MaxCapacity()) {
 			// TODO Consider units damaged and push them away
@@ -504,14 +497,14 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool RocketLaunchExecute(units::Unit unit) {
-		units::Rocket rocket = bc_Unit_clone(unit.self);
+	bool RocketLaunchExecute(bc_Unit* unit) {
+		units::Rocket rocket = bc_Unit_clone(unit);
 		rocket.Launch(PolicyOverlord::storeLocation);
 		return true;
 	}
 
-	float KiteEvaluate(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
+	float KiteEvaluate(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		if (!robot.IsMoveReady()) return 0.0f;
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		auto nearbyUnits = robotLocation.NearbyUnits(robot.AttackRange(), Utility::GetOtherTeam(GameController::Team()));
@@ -539,8 +532,8 @@ namespace policy {
 		return 0.0f;
 	}
 
-	bool KiteExecute(units::Unit unit) {
-		units::Robot robot = bc_Unit_clone(unit.self);
+	bool KiteExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
 		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 

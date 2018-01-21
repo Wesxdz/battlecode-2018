@@ -19,15 +19,15 @@ bc_UnitType PolicyOverlord::storeUnitType;
 void PolicyOverlord::Update()
 {
 	//std::cout << HighestPriority() << " is highest priority\n";
-	//std::map<uint16_t, std::vector<std::string>> failedPolicies;
 	bool policyTaken = false;
 	do { // Loop through all units evaluating policies until no policy is executed
 		policyTaken = false;
-		std::vector<units::Unit> units = GameController::Units(MyTeam);
-		for (auto& unit : units) {
+		bc_VecUnit* units = bc_GameController_my_units(GameController::gc);
+		for (uintptr_t i = 0; i < bc_VecUnit_len(units); i++) {
+			units::Unit unit = bc_VecUnit_index(units, i);
 			if (unit.Loc().IsInGarrison()) continue;
 			std::sort(policies[unit.type].begin(), policies[unit.type].end(), [&unit](std::shared_ptr<Policy>& a, std::shared_ptr<Policy>& b) {
-				return a->Evaluate(unit) > b->Evaluate(unit); // reverse sort
+				return a->DebugEvaluate(unit.self) > b->DebugEvaluate(unit.self); // reverse sort
 			});
 			auto policyChosen = policies[unit.type].begin(); // Choose the max policy
 			while (true) { // Loop through the policies until one is successfully executed or there are no more left
@@ -35,19 +35,24 @@ void PolicyOverlord::Update()
 				if (!isValidPolicy) {
 					break;
 				}
-				if ((*policyChosen)->Evaluate(unit) <= 0.0f) { // Eval stores variables!!
+				if ((*policyChosen)->DebugEvaluate(unit.self) <= 0.0f) { // Eval stores variables!!
 					break;
 				}
-				if ((*policyChosen)->Command(unit)) {
-					policyTaken = true;
+				if ((*policyChosen)->Execute(unit.self)) {
+					policyTaken = false;
 					break;
 				}
-				//failedPolicies[unit.id].push_back((*policyChosen)->name);
-				//std::cout << (*policyChosen)->name << " policy failed" << std::endl;
 				policyChosen++;
 			}
 		}
+		delete_bc_VecUnit(units);
 	} while (policyTaken);
+
+	if (GameController::Round() % 100 == 0) {
+		for (auto& pair : Policy::times) {
+			std::cout << pair.first << ": " << pair.second << std::endl;
+		}
+	}
 	//std::cout << "Finished evaluating policies" << std::endl;
 }
 
@@ -86,7 +91,6 @@ PolicyOverlord::PolicyOverlord()
 	worker1->Evaluate = policy::WorkerHarvestKarboniteEvaluate;
 	worker1->Execute = policy::WorkerHarvestKarboniteExecute;
 	policies[Worker].push_back(worker1);
-
 
 	auto worker3 = std::make_shared<Policy>("replicate");
 	worker3->Evaluate = policy::WorkerReplicateEvaluate;
@@ -135,8 +139,8 @@ PolicyOverlord::PolicyOverlord()
 	auto kite = std::make_shared<Policy>("kite");
 	kite->Evaluate = policy::KiteEvaluate;
 	kite->Execute = policy::KiteExecute;
-	policies[Ranger].push_back(kite);
-	policies[Mage].push_back(kite);
+	//policies[Ranger].push_back(kite);
+	//policies[Mage].push_back(kite);
 
 	// Attack best target
 	auto knight1 = std::make_shared<Policy>("knight_attack");
@@ -213,8 +217,6 @@ PolicyOverlord::PolicyOverlord()
 		rocket1->Evaluate = policy::RocketUnloadEvaluate;
 		rocket1->Execute = policy::RocketUnloadExecute;
 		policies[Rocket].push_back(rocket1);
-
-		policies[Worker].push_back(wander);
 	}
 
 }
