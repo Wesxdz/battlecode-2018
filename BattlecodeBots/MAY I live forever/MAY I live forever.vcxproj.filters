@@ -109,8 +109,8 @@
     <ClCompile Include="Policy.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
-    <ClCompile Include="MapControl.cpp">
-      <Filter>Controller</Filter>
+    <ClCompile Include="Region.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -217,8 +217,8 @@
     <ClInclude Include="Policy.h">
       <Filter>Controller</Filter>
     </ClInclude>
-    <ClInclude Include="MapControl.h">
-      <Filter>Controller</Filter>
+    <ClInclude Include="Region.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

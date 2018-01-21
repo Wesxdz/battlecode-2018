@@ -95,9 +95,9 @@ bool Pathfind::MoveFuzzy(units::Robot & robot, bc_Direction direction)
 
 // We don't use this in the other mehtods...
 std::map<int, FlowChart> Pathfind::flowCharts;
-short* Pathfind::terrainMap = nullptr;
 uint32_t width;
 uint32_t height;
+short* terrainMap = nullptr;
 
 bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	if (robot.MovementHeat() > 9) { return false; } // Can't move
@@ -106,9 +106,11 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	if (planet == bc_Planet::Earth) {
 		width = MapUtil::EARTH_MAP_WIDTH;
 		height = MapUtil::EARTH_MAP_HEIGHT;
+		terrainMap = MapUtil::earthTerrainMap;
 	} else {
 		width = MapUtil::MARS_MAP_WIDTH;
 		height = MapUtil::MARS_MAP_HEIGHT;
+		terrainMap = MapUtil::marsTerrainMap;
 	}
 
 	int destXY = width * destY + destX; // Get Map Pos Total
@@ -134,24 +136,6 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 		flowChart->pointsMap = new short[width * height];
 		flowChart->directionMap = new bc_Direction[width * height];
 		
-		// Only make Terrain once??
-		if (terrainMap == nullptr) {
-			terrainMap = new short[width * height];
-
-			// Get a map of terrain representing A* or how expensive each tile is.
-			//std::cout << "Terrain Map" << std::endl;
-			bc_PlanetMap* planetMapPtr = GameController::PlanetMap(planet);
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
-					short ID = y * width + x;
-					terrainMap[ID] = GenerateFlowPathTerrain(ID, planetMapPtr);
-					//std::cout << terrainMap[ID] << " ";
-				}
-				//std::cout << std::endl;
-			}
-			delete_bc_PlanetMap(planetMapPtr);
-		}
-		
 		// Initialize Point Map
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -176,7 +160,12 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				short ID = y * width + x;
-				flowChart->directionMap[ID] = GenerateFlowPathDirection(flowChart->pointsMap, x, y, destX, destY);
+				if (flowChart->pointsMap[ID] != SHRT_MAX) {
+					flowChart->directionMap[ID] = GenerateFlowPathDirection(flowChart->pointsMap, x, y, destX, destY);
+				} else {
+					flowChart->directionMap[ID] = bc_Direction::Center;
+				}
+				
 			}
 		}
 		
@@ -211,9 +200,6 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, MapLocation& destination) {
 	return MoveFuzzyFlow(robot, destX, destY);
 }
 
-short Pathfind::GenerateFlowPathTerrain(short ID, bc_PlanetMap* planetMapPtr) {
-	return bc_PlanetMap_is_passable_terrain_at(planetMapPtr, MapUtil::earthLocations[ID]);
-}
 
 void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short destX, short destY) {
 	
@@ -418,7 +404,7 @@ bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
 
 	// If center, then source == dest
 	if(mapDir == bc_Direction::Center){ 
-		return mapDir; 
+		return bc_Direction::Center; 
 	} 
 
 	// Loop through all directions to get the most optimal one

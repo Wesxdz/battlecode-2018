@@ -44,7 +44,6 @@ PolicyOverlord policyLord;
 
 int main()
 {
-	//bc_GameController_get_time_left_ms(); This gets the time remaining supposedly. Header file doesnt have it
 	srand(0);
 
 	// Init Science
@@ -60,7 +59,7 @@ int main()
 		}
 		auto timeLeft = bc_GameController_get_time_left_ms(GameController::gc);
 		if (timeLeft < roundTime.count() * 3) {
-			std::cout << "ENDING TURN EARLY (Time remaining limited)" << std::endl;
+			std::cout << "ENDING TURN EARLY: " << timeLeft << std::endl;
 			GameController::EndTurn();
 			continue;
 		}
@@ -91,6 +90,7 @@ int main()
 		//std::cout << "Combater Time: " << roundTime.count() << std::endl;
 	
 		// Pathfind Test
+		/*
 		{
 			start = std::chrono::system_clock::now();
 			auto units = GameController::Units(bc_Selection::MyTeam);
@@ -114,6 +114,7 @@ int main()
 			roundTime = end - start;
 			std::cout << "Path Finding Time: " << roundTime.count() << std::endl;
 		}
+		//*/
 
 		start = std::chrono::system_clock::now();
 		policyLord.Update();
@@ -121,7 +122,14 @@ int main()
 		roundTime = end - start;
 		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
 
-		std::cout << "Total time left: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;
+		
 		GameController::EndTurn();
 	}
 }
+
+// Worker and Attackers should all use Flow
+// Workers should search for karb within dist, or find it using the initial Karb
+// Workers should make sure karb is reachable before moving
+// Balance out rangers and knight.
+// Group
+// Flow might not be working?
