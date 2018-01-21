@@ -48,16 +48,16 @@ int main()
 
 	// Init Science
 	science.Init(&playerData);
-	std::chrono::duration<double> totalTime;
+	//std::chrono::duration<double> totalTime;
 	std::chrono::duration<double> roundTime;
 
 	while (true)
 	{
 		uint32_t round = GameController::Round();
-		if (round % 10 == 0) {
-			std::cout << "Round: " << round << std::endl;
-		}
 		auto timeLeft = bc_GameController_get_time_left_ms(GameController::gc);
+		if (round % 10 == 0) {
+			std::cout << "Round: " << round << " -Time Left: " << timeLeft << std::endl;
+		}
 		if (timeLeft < roundTime.count() * 3) {
 			std::cout << "ENDING TURN EARLY: " << timeLeft << std::endl;
 			GameController::EndTurn();
@@ -88,33 +88,6 @@ int main()
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
 		//std::cout << "Combater Time: " << roundTime.count() << std::endl;
-	
-		// Pathfind Test
-		/*
-		{
-			start = std::chrono::system_clock::now();
-			auto units = GameController::Units(bc_Selection::MyTeam);
-			for (int i = 0; i < units.size(); i++) {
-				units::Unit* unit = &units[i];
-				if (Utility::IsAttackRobot(unit->type)) {
-					Location loc = unit->Loc();
-					if (loc.IsOnMap()) {
-						MapLocation mapLoc = loc.ToMapLocation();
-						units::Robot robot(bc_Unit_clone(unit->self));
-
-						// Change pathfind to the specific place
-						// For example, a karb deposit or enemy position
-
-						Pathfind::MoveFuzzyFlow(robot, PlayerData::pd->enemySpawnPositions[0]);
-					}
-					
-				}
-			}
-			end = std::chrono::system_clock::now();
-			roundTime = end - start;
-			std::cout << "Path Finding Time: " << roundTime.count() << std::endl;
-		}
-		//*/
 
 		start = std::chrono::system_clock::now();
 		policyLord.Update();
@@ -122,14 +95,8 @@ int main()
 		roundTime = end - start;
 		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
 
-		
 		GameController::EndTurn();
 	}
 }
 
-// Worker and Attackers should all use Flow
-// Workers should search for karb within dist, or find it using the initial Karb
-// Workers should make sure karb is reachable before moving
-// Balance out rangers and knight.
-// Group
-// Flow might not be working?
+

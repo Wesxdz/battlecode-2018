@@ -13,14 +13,18 @@ public:
 	std::vector<Region*> connectedRegions; // Other regions it is connected to. Typically via chokepoints
 
 	static std::vector<Region> regions;
+	static short* depthMap;
 public:
 	~Region();
 
 	// Location is in Region?
 	// Pathfinding from region to region?
 
-	static void GenRegions(std::vector<bc_MapLocation*>& passables);
+	static void GenRegions();
+	//std::vector<bc_MapLocation*>& passables
 
+private:
+	static void GenDepthMap(short* depthMap, short* terrainMap);
 };
 
 // Choke points are areas that provide easy, but limited access to other areas.

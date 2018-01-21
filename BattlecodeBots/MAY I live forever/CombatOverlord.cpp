@@ -12,9 +12,13 @@
 #include <iostream>
 
 std::vector<uint16_t> CombatOverlord::requestHeal;
+std::vector<MapLocation> CombatOverlord::controlPoints;
 
 CombatOverlord::CombatOverlord()
 {
+	for (MapLocation location : PlayerData::pd->enemySpawnPositions) {
+		controlPoints.push_back(location);
+	}
 }
 
 CombatOverlord::~CombatOverlord()
@@ -23,6 +27,16 @@ CombatOverlord::~CombatOverlord()
 
 void CombatOverlord::Update()
 {
+	std::remove_if(controlPoints.begin(), controlPoints.end(), [](MapLocation& point) {
+		if (point.IsVisible()) {
+			auto enemies = point.NearbyUnits(25, Utility::GetOtherTeam(GameController::Team()));
+			if (enemies.size() == 0) {
+				std::cout << "Remove control point" << std::endl;
+				return true;
+			}
+		}
+		return false;
+	});
 	requestHeal.clear();
 	auto team = GameController::Units(MyTeam);
 	for (units::Unit& unit : team) {

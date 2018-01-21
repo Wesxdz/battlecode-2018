@@ -4,7 +4,7 @@
 
 void TeamArray::Write(uintptr_t index, const char* message, int length) {
 	// This may not work?
-	for (int i = index; i < length; i++) {
+	for (uintptr_t i = index; i < length; i++) {
 		bc_GameController_write_team_array(GameController::gc, index, message[i]);
 	}
 	

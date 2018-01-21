@@ -4,6 +4,7 @@
 #include <iostream>
 #include "GameController.h"
 #include "PlanetMap.h"
+#include "Region.h"
 
 const uint32_t MapUtil::MIN_MAP_SIZE = 400;
 const uint32_t MapUtil::MAX_MAP_SIZE = 2500;
@@ -15,8 +16,10 @@ uintptr_t MapUtil::MARS_MAP_HEIGHT = 20;
 
 std::vector<bc_MapLocation*> MapUtil::earthLocations;
 std::vector<bc_MapLocation*> MapUtil::earthPassableLocations;
+short* MapUtil::earthTerrainMap = nullptr;
 std::vector<bc_MapLocation*> MapUtil::marsLocations;
 std::vector<bc_MapLocation*> MapUtil::marsPassableLocations;
+short* MapUtil::marsTerrainMap = nullptr;
 
 std::vector<bc_MapLocation*> MapUtil::AllLocations(bc_PlanetMap* map)
 {
@@ -24,8 +27,8 @@ std::vector<bc_MapLocation*> MapUtil::AllLocations(bc_PlanetMap* map)
 	uintptr_t height = bc_PlanetMap_height_get(map);
 	bc_Planet planet = bc_PlanetMap_planet_get(map);
 	std::vector<bc_MapLocation*> locations;
-	for (uintptr_t y = 0; y < height; y++) {
-		for (uintptr_t x = 0; x < width; x++) {
+	for (uint32_t y = 0; y < height; y++) {
+		for (uint32_t x = 0; x < width; x++) {
 			locations.push_back(new_bc_MapLocation(planet, x, y));
 		}
 	}
@@ -47,13 +50,16 @@ MapUtil::MapUtil()
 
 	// We should probably incorporate this for loop into the previous call
 	// Iterates over all locations and stores wether they are passable, that way we dont have to call it each time.
-	for (int y = 0; y < EARTH_MAP_WIDTH; y++) {
-		for (int x = 0; x < EARTH_MAP_HEIGHT; x++) {
-			short ID = y * EARTH_MAP_WIDTH + x;
+	std::cout << "Terrain Map\n";
+	for (int y = 0; y < EARTH_MAP_HEIGHT; y++) {
+		for (int x = 0; x < EARTH_MAP_WIDTH; x++) {
+			short ID = static_cast<short>(y * EARTH_MAP_WIDTH + x);
 			earthTerrainMap[ID] = bc_PlanetMap_is_passable_terrain_at(earth.self, earthLocations[ID]);
+			std::cout << earthTerrainMap[ID] << " ";
 		}
+		std::cout << "\n";
 	}
-
+	std::cout << std::endl;
 
 	PlanetMap mars(GameController::PlanetMap(Mars));
 	MARS_MAP_HEIGHT = mars.height;
@@ -68,9 +74,9 @@ MapUtil::MapUtil()
 
 	// We should probably incorporate this for loop into the previous call
 	// Iterates over all locations and stores wether they are passable, that way we dont have to call it each time.
-	for (int y = 0; y < MARS_MAP_WIDTH; y++) {
-		for (int x = 0; x < MARS_MAP_HEIGHT; x++) {
-			short ID = y * MARS_MAP_WIDTH + x;
+	for (int y = 0; y < MARS_MAP_HEIGHT; y++) {
+		for (int x = 0; x < MARS_MAP_WIDTH; x++) {
+			short ID = static_cast<short>(y * MARS_MAP_WIDTH + x);
 			marsTerrainMap[ID] = bc_PlanetMap_is_passable_terrain_at(mars.self, marsLocations[ID]);
 		}
 	}
@@ -79,6 +85,7 @@ MapUtil::MapUtil()
 	Section::marsSections = Section::GenSections(MapUtil::marsPassableLocations);
 
 	// Call Regions ....
+	//Region::GenRegions();
 }
 
 std::vector<bc_MapLocation*> MapUtil::FilteredLocations(std::vector<bc_MapLocation*>& potential, std::function<bool(bc_MapLocation*)> shouldInclude)

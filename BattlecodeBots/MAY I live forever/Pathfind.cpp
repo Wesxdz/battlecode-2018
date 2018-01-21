@@ -65,7 +65,7 @@ bool Pathfind::MoveRandom(units::Robot& robot)
 
 bool Pathfind::MoveFuzzy(units::Robot & robot, bc_Direction direction)
 {
-	if(robot.MovementHeat() > 9){ return false; }
+	if (!robot.IsMoveReady() || direction == Center) return false;
 	if (robot.CanMove(direction)) {
 		robot.Move(direction);
 		return true;
@@ -95,101 +95,69 @@ bool Pathfind::MoveFuzzy(units::Robot & robot, bc_Direction direction)
 
 // We don't use this in the other mehtods...
 std::map<int, FlowChart> Pathfind::flowCharts;
-uint32_t width;
-uint32_t height;
+short width;
+short height;
 short* terrainMap = nullptr;
+bool hasInit = false;
+
+void Pathfind::Init() {
+	bc_Planet planet = GameController::Planet();
+	if (planet == bc_Planet::Earth) {
+		width = static_cast<short>(MapUtil::EARTH_MAP_WIDTH);
+		height = static_cast<short>(MapUtil::EARTH_MAP_HEIGHT);
+		terrainMap = MapUtil::earthTerrainMap;
+	} else {
+		width = static_cast<short>(MapUtil::MARS_MAP_WIDTH);
+		height = static_cast<short>(MapUtil::MARS_MAP_HEIGHT);
+		terrainMap = MapUtil::marsTerrainMap;
+	}
+	hasInit = true;
+}
 
 bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	if (robot.MovementHeat() > 9) { return false; } // Can't move
 	
-	bc_Planet planet = GameController::Planet();
-	if (planet == bc_Planet::Earth) {
-		width = MapUtil::EARTH_MAP_WIDTH;
-		height = MapUtil::EARTH_MAP_HEIGHT;
-		terrainMap = MapUtil::earthTerrainMap;
-	} else {
-		width = MapUtil::MARS_MAP_WIDTH;
-		height = MapUtil::MARS_MAP_HEIGHT;
-		terrainMap = MapUtil::marsTerrainMap;
+	if (!hasInit) {
+		Init();
 	}
 
-	int destXY = width * destY + destX; // Get Map Pos Total
+	short destXY = width * destY + destX; // Get Map Pos Total
 
 	auto chartPtr = flowCharts.find(destXY); // Check if We already have a flowchart for this dest
-	
-	if (chartPtr != flowCharts.end()) {
-		auto flowChart = &chartPtr->second;
+	FlowChart* flowChart = nullptr;
 
-		auto mapLoc = robot.Loc().ToMapLocation(); // Get Curr Map Pos Total
-		int currX = mapLoc.X();
-		int currY = mapLoc.Y();
-
-		int currXY = width * currY + currX; // Robot Position ID 
-					   
-		auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
-		return Pathfind::MoveFuzzy(robot, dir);
+	// Generate Flowpath if it doesnt exist.
+	if (chartPtr == flowCharts.end()) {
+		GenerateFlowPath(destX, destY);
+		flowChart = &flowCharts[destXY];
 	} else {
-		
-		auto flowChart = &flowCharts[destXY];
-
-		//// Create the Maps that will store the data
-		flowChart->pointsMap = new short[width * height];
-		flowChart->directionMap = new bc_Direction[width * height];
-		
-		// Initialize Point Map
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				short ID = y * width + x;
-				flowChart->pointsMap[ID] = SHRT_MAX;
-			}
-		}
-
-		//// Generate a map based off the terrain and destination
-		GenerateFlowPathPoints(terrainMap, flowChart->pointsMap, destX, destY);
-
-		//std::cout << "Points Map" << std::endl;
-		//for (int y = 0; y < height; y++) {
-		//	for (int x = 0; x < width; x++) {
-		//		std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
-		//	}
-		//	std::cout << std::endl;
-		//}
-		//std::cout << std::setw(0) << "\n\n" << std::endl;
-
-		// Generate a map of directions based off surrounding points...
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				short ID = y * width + x;
-				if (flowChart->pointsMap[ID] != SHRT_MAX) {
-					flowChart->directionMap[ID] = GenerateFlowPathDirection(flowChart->pointsMap, x, y, destX, destY);
-				} else {
-					flowChart->directionMap[ID] = bc_Direction::Center;
-				}
-				
-			}
-		}
-		
-
-		//std::cout << "Direction Map" << std::endl;
-		//std::cout << "Destination is " << destX << ", " << destY << std::endl;
-		//for (int y = 0; y < height; y++) {
-		//	for (int x = 0; x < width; x++) {
-		//		std::cout << flowChart->directionMap[y * width + x] << " ";
-		//	}
-		//	std::cout << std::endl;
-		//}
-		//std::cout << "\n\n" << std::endl;
-
-		
-		//Move
-		auto mapLoc = robot.Loc().ToMapLocation(); // Get Curr Map Pos Total
-		int currX = mapLoc.X();
-		int currY = mapLoc.Y();
-		int currXY = width * currY + currX; // Robot Position ID 
-		
-		auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
-		return Pathfind::MoveFuzzy(robot, dir);
+		flowChart = &chartPtr->second;
 	}
+
+	auto mapLoc = robot.Loc().ToMapLocation(); // Get Curr Map Pos Total
+	short currX = static_cast<short>(mapLoc.X());
+	short currY = static_cast<short>(mapLoc.Y());
+
+	short currXY = width * currY + currX; // Robot Position ID 
+
+	auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
+	return Pathfind::MoveFuzzy(robot, dir);
+	
+	//if (chartPtr != flowCharts.end()) {
+
+	//} else {
+	//	
+
+	//	
+	//	//Move
+	//	auto mapLoc = robot.Loc().ToMapLocation(); // Get Curr Map Pos Total
+	//	short currX = static_cast<short>(mapLoc.X());
+	//	short currY = static_cast<short>(mapLoc.Y());
+	//	short currXY = width * currY + currX; // Robot Position ID 
+	//	
+	//	auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
+	//	return Pathfind::MoveFuzzy(robot, dir);
+	//}
 	
 	return false;
 }
@@ -198,6 +166,88 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, MapLocation& destination) {
 	int destX = destination.X();
 	int destY= destination.Y();
 	return MoveFuzzyFlow(robot, destX, destY);
+}
+
+int Pathfind::GetFuzzyFlowTurns(units::Robot& robot, int destX, int destY) {
+	if (!hasInit) {
+		Init();
+	}
+
+	short destXY = width * destY + destX; // Get Map Pos Total
+
+	auto chartPtr = flowCharts.find(destXY); // Check if We already have a flowchart for this dest
+	FlowChart* flowChart = nullptr;
+
+	// Generate Flowpath if it doesnt exist.
+	if (chartPtr == flowCharts.end()) {
+		GenerateFlowPath(destX, destY);
+		flowChart = &flowCharts[destXY];
+	} else {
+		flowChart = &chartPtr->second;
+	}
+
+	auto mapLoc = robot.Loc().ToMapLocation(); // Get Curr Map Pos Total
+	short currX = static_cast<short>(mapLoc.X());
+	short currY = static_cast<short>(mapLoc.Y());
+
+	short currXY = width * currY + currX; // Robot Position ID 
+
+	//auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
+	//return Pathfind::MoveFuzzy(robot, dir);
+
+	return flowChart->pointsMap[currXY];
+}
+
+void Pathfind::GenerateFlowPath(short destX, short destY) {
+	short destXY = width * destY + destX;
+	auto flowChart = &flowCharts[destXY];
+
+	//// Create the Maps that will store the data
+	flowChart->pointsMap = new short[width * height];
+	flowChart->directionMap = new bc_Direction[width * height];
+
+	// Initialize Point Map
+	for (short y = 0; y < height; y++) {
+		for (short x = 0; x < width; x++) {
+			short ID = y * width + x;
+			flowChart->pointsMap[ID] = SHRT_MAX;
+		}
+	}
+
+	//// Generate a map based off the terrain and destination
+	GenerateFlowPathPoints(terrainMap, flowChart->pointsMap, destX, destY);
+
+	std::cout << "Points Map" << std::endl;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::setw(0) << "\n\n" << std::endl;
+
+	// Generate a map of directions based off surrounding points...
+	for (short y = 0; y < height; y++) {
+		for (short x = 0; x < width; x++) {
+			short ID = y * width + x;
+			if (flowChart->pointsMap[ID] != SHRT_MAX) {
+				flowChart->directionMap[ID] = GenerateFlowPathDirection(flowChart->pointsMap, x, y, destX, destY);
+			} else {
+				flowChart->directionMap[ID] = bc_Direction::Center;
+			}
+
+		}
+	}
+
+	std::cout << "Direction Map" << std::endl;
+	std::cout << "Destination is " << destX << ", " << destY << std::endl;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			std::cout << flowChart->directionMap[y * width + x] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "\n\n" << std::endl;
 }
 
 
@@ -216,7 +266,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 		short currX = currentID % width;
 		short currY = currentID / width;
 
-		int newValue = pointsMap[currentID] + 1; // New value for surrounding points
+		short newValue = pointsMap[currentID] + 1; // New value for surrounding points
 
 		// UP
 		{
@@ -245,7 +295,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 			// Check if space is acceptable
 			if (currY + 1 < height && currX + 1 < width) {
 				// Get new ID
-				int upID = (currY + 1) * width + (currX + 1);
+				short upID = (currY + 1) * width + (currX + 1);
 
 				// Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -267,7 +317,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 			// Check if space is acceptable
 			if (currX + 1 < width) {
 				// Get new ID
-				int upID = (currY)* width + (currX + 1);
+				short upID = (currY)* width + (currX + 1);
 
 				// Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -289,7 +339,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 			// Check if space is acceptable
 			if (currY - 1 > -1 && currX + 1 < width) {
 				// Get new ID
-				int upID = (currY - 1) * width + (currX + 1);
+				short upID = (currY - 1) * width + (currX + 1);
 
 				// Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -311,7 +361,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 			// Check if space is acceptable
 			if (currY - 1 > -1) {
 				// Get new ID
-				int upID = (currY - 1) * width + currX;
+				short upID = (currY - 1) * width + currX;
 
 				 //Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -332,7 +382,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 			// Check if space is acceptable
 			if (currY - 1 > -1 && currX - 1 > -1) {
 				// Get new ID
-				int upID = (currY - 1) * width + (currX - 1);
+				short upID = (currY - 1) * width + (currX - 1);
 
 				// Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -354,7 +404,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 			// Check if space is acceptable
 			if (currX - 1 > -1) {
 				// Get new ID
-				int upID = (currY)* width + (currX - 1);
+				short upID = (currY)* width + (currX - 1);
 
 				// Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -376,7 +426,7 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 			// Check if space is acceptable
 			if (currY + 1 < height && currX - 1 > -1) {
 				// Get new ID
-				int upID = (currY + 1) * width + (currX - 1);
+				short upID = (currY + 1) * width + (currX - 1);
 
 				// Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -408,7 +458,7 @@ bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
 	} 
 
 	// Loop through all directions to get the most optimal one
-	for (int i = 0, x = mapDir; i < 8; i++, x++) {
+	for (short i = 0, x = mapDir; i < 8; i++, x++) {
 		if (x > 7) {
 			x = 0;
 		}
@@ -422,7 +472,7 @@ bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
 		short newX = sourceX + currX;
 		if (newY < height && newY > -1 && newX < width && newY > -1) {
 			// Get new ID
-			int dirID = newY * width + newX;
+			short dirID = newY * width + newX;
 
 			// If lower, new Direction
 			if (pointsMap[dirID] < lowestValue) {
