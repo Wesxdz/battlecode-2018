@@ -151,31 +151,22 @@ namespace policy {
 			bool workingOnProject = self != project.second.end();
 			if (workingOnProject) return 0.0f;
 		}
-		std::vector<bc_MapLocation*> nearbyDeposits;
-		for (uintptr_t i = 0; i < 100; i = (i + 1) * (i + 1)) { // TODO Optimize with PlayerData karboniteDeposits
-			bc_VecMapLocation* nearby = bc_GameController_all_locations_within(GameController::gc, workerLocation.self, i);
-			nearbyDeposits = MapUtil::FilteredLocations(nearby, [](bc_MapLocation* potentialDeposit) {
-				return bc_GameController_can_sense_location(GameController::gc, potentialDeposit) && bc_GameController_karbonite_at(GameController::gc, potentialDeposit) > 0;
-			});
-			delete_bc_VecMapLocation(nearby);
-			if (nearbyDeposits.size() > 0) break;
+		for (bc_Direction direction : constants::directions_all) { // If Karbonite is already nearby, don't seek it!
+			if (MapLocation::Neighbor(workerLocation, direction).Karbonite() > 0) return 0.0f;
 		}
-		if (nearbyDeposits.size() == 0) return 0.0f;
-		auto closestDeposit = std::min_element(std::begin(nearbyDeposits), std::end(nearbyDeposits), [&workerLocation](bc_MapLocation* a, bc_MapLocation* b) {
-			return
-				abs(bc_MapLocation_x_get(workerLocation.self) - bc_MapLocation_x_get(a)) + abs(bc_MapLocation_y_get(workerLocation.self) - bc_MapLocation_y_get(a)) <
-				abs(bc_MapLocation_x_get(workerLocation.self) - bc_MapLocation_x_get(b)) + abs(bc_MapLocation_y_get(workerLocation.self) - bc_MapLocation_y_get(b));
+		auto closest = std::min_element(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), [&workerLocation](MapLocation& a, MapLocation& b) {
+			return workerLocation.DistanceTo(a) < workerLocation.DistanceTo(b);
 		});
-		PolicyOverlord::storeLocation = MapLocation(bc_MapLocation_clone(*closestDeposit));
-		for (bc_MapLocation* location : nearbyDeposits) {
-			delete_bc_MapLocation(location);
+		if (closest != PlayerData::pd->karboniteDeposits.end()) {
+			PolicyOverlord::storeLocation = *closest;
+			return 5.0f;
 		}
-		return 5.0f;
+		return 0.0f;
 	}
 
 	bool WorkerSeekKarboniteExecute(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
-		return Pathfind::MoveFuzzy(robot, robot.Loc().ToMapLocation().DirectionTo(PolicyOverlord::storeLocation));
+		return Pathfind::MoveFuzzyFlow(robot, PolicyOverlord::storeLocation);
 	}
 
 	float WorkerBuildEvaluate(bc_Unit* unit) {
@@ -377,16 +368,14 @@ namespace policy {
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (!robot.IsMoveReady()) return 0.0f;
 		bc_Team otherTeam = Utility::GetOtherTeam(GameController::Team());
-		for (int i = 1; i <= 100; i = (i + 1) * (i + 1)) {
-			bc_VecUnit* nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, i*i, otherTeam);
-			if (bc_VecUnit_len(nearbyEnemies) > 0) {
-				units::Unit seek = bc_VecUnit_index(nearbyEnemies, 0);
-				PolicyOverlord::storeDirection = robotLocation.DirectionTo(seek.Loc().ToMapLocation());
-				delete_bc_VecUnit(nearbyEnemies);
-				return 20.0f;
-			}
+		bc_VecUnit* nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, robot.AttackRange() + 2, otherTeam);
+		if (bc_VecUnit_len(nearbyEnemies) > 0) {
+			units::Unit seek = bc_VecUnit_index(nearbyEnemies, 0);
+			PolicyOverlord::storeDirection = robotLocation.DirectionTo(seek.Loc().ToMapLocation());
 			delete_bc_VecUnit(nearbyEnemies);
+			return 20.0f;
 		}
+		delete_bc_VecUnit(nearbyEnemies);
 		return 0.0f;
 	}
 
@@ -491,7 +480,7 @@ namespace policy {
 		if (!rocket.IsBuilt()) return 0.0f;
 		if (GameController::Round() == 749 || rocket.Health() < 100 || rocket.Garrison().size() == rocket.MaxCapacity()) {
 			// TODO Consider units damaged and push them away
-			PolicyOverlord::storeLocation = MapUtil::marsPassableLocations[rand() % MapUtil::marsPassableLocations.size()];
+			PolicyOverlord::storeLocation = bc_MapLocation_clone(MapUtil::marsPassableLocations[rand() % MapUtil::marsPassableLocations.size()]);
 			return 1.0f;
 		}
 		return 0.0f;

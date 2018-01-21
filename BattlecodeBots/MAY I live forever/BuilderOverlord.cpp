@@ -37,7 +37,12 @@ void BuilderOverlord::DesireUnits() {
 		for (auto& priority : PlayerData::pd->unitPriority) {
 			priority.second = 0.0f;
 		}
-		PlayerData::pd->unitPriority[bc_UnitType::Worker] = 1.0f;
+		if (GameController::Round() > 749) {
+			PlayerData::pd->unitPriority[Worker] = 1.0f;
+		}
+		else {
+			PlayerData::pd->unitPriority[Knight] = 1.0f; // We can't actually build them...
+		}
 		return;
 	}
 
