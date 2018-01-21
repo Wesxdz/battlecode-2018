@@ -43,6 +43,9 @@ PlayerData::PlayerData()
 				std::cout << "enemy workers spawn at " <<  worker.Loc().ToMapLocation().X() << ", " <<  worker.Loc().ToMapLocation().Y() << "\n";
 				enemySpawnPositions.push_back(worker.Loc().ToMapLocation());
 			}
+			else {
+				teamSpawnPositions.push_back(worker.Loc().ToMapLocation());
+			}
 		}
 	}
 	else {

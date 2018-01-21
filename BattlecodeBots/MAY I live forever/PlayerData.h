@@ -36,6 +36,7 @@ public:
 	
 	int earthStartingKarbonite;
 	std::vector<MapLocation> karboniteDeposits;
+	std::vector<MapLocation> teamSpawnPositions;
 	std::vector<MapLocation> enemySpawnPositions;
 
 	int optimalFlightTime;

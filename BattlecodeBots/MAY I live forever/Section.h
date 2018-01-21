@@ -5,6 +5,7 @@
 #include <vector>
 #include <list>
 #include <memory>
+#include "MapLocation.h"
 
 /*
 A group of bc_MapLocations that are connected in some way
@@ -19,6 +20,17 @@ public:
 	static std::list<std::shared_ptr<Section>> GenSections(std::vector<bc_MapLocation*>& passables);
 	static std::list<std::shared_ptr<Section>> marsSections;
 	static std::list<std::shared_ptr<Section>> earthSections;
+};
+
+// A deposit can also contain unpassable terrain, but it must be connected to passable terrian with
+class Deposit : public Section
+{
+public:
+	bc_MapLocation* landing = nullptr;
+	int karbonite;
+	static std::list<std::shared_ptr<Deposit>> GenDeposits(std::vector<bc_MapLocation*>& locations); // TODO Pass in initial karbonite locations instead of every location
+	static std::list<std::shared_ptr<Deposit>> earthDeposits;
+	static std::list<std::shared_ptr<Deposit>> marsDeposits;
 };
 
 #endif

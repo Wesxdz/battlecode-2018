@@ -54,6 +54,13 @@ MapUtil::MapUtil()
 
 	Section::earthSections = Section::GenSections(MapUtil::earthPassableLocations);
 	Section::marsSections = Section::GenSections(MapUtil::marsPassableLocations);
+
+	Deposit::earthDeposits = Deposit::GenDeposits(MapUtil::earthLocations);
+	std::cout << Deposit::earthDeposits.size() << " deposits groups on Earth" << std::endl;
+	for (auto deposit : Deposit::earthDeposits) {
+		std::cout << " Size" << deposit->locations.size() << " with " << deposit->karbonite << " karbonite" << std::endl;
+	}
+	Deposit::marsDeposits = Deposit::GenDeposits(MapUtil::marsLocations);
 }
 
 std::vector<bc_MapLocation*> MapUtil::FilteredLocations(std::vector<bc_MapLocation*>& potential, std::function<bool(bc_MapLocation*)> shouldInclude)

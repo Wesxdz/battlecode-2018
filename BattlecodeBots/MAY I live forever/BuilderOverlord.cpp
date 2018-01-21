@@ -13,9 +13,19 @@
 #include "VecUnit.h"
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
+std::list<std::shared_ptr<Deposit>> BuilderOverlord::sortedLandings;
 
 BuilderOverlord::BuilderOverlord()
 {
+	//if (GameController::Planet() == Earth) {
+	//	sortedLandings = Deposit::earthDeposits;
+	//	MapLocation start = PlayerData::pd->teamSpawnPositions[0];
+	//	std::sort(sortedLandings.begin(), sortedLandings.end(), [&start](std::shared_ptr<Deposit>& a, std::shared_ptr<Deposit>& b) {
+	//		MapLocation aloc = bc_MapLocation_clone(a->landing);
+	//		MapLocation bloc = bc_MapLocation_clone(b->landing);
+	//		return start.DistanceTo(aloc) < start.DistanceTo(bloc);
+	//	});
+	//}
 }
 
 void BuilderOverlord::Update()

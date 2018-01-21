@@ -388,7 +388,7 @@ namespace policy {
 		units::Robot robot = bc_Unit_clone(unit);
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (CombatOverlord::controlPoints.size() > 0) { // Move towards the closest control point
-			auto move = std::max_element(CombatOverlord::controlPoints.begin(), CombatOverlord::controlPoints.end(), [&robotLocation](MapLocation& a, MapLocation& b) {
+			auto move = std::min_element(CombatOverlord::controlPoints.begin(), CombatOverlord::controlPoints.end(), [&robotLocation](MapLocation& a, MapLocation& b) {
 				return a.DistanceTo(robotLocation) < b.DistanceTo(robotLocation);
 			});
 			PolicyOverlord::storeLocation = *move;
