@@ -44,7 +44,6 @@ PolicyOverlord policyLord;
 
 int main()
 {
-	//bc_GameController_get_time_left_ms(); This gets the time remaining supposedly. Header file doesnt have it
 	srand(0);
 
 	// Init Science
@@ -55,8 +54,9 @@ int main()
 	while (true)
 	{
 		uint32_t round = GameController::Round();
+		auto timeLeft = bc_GameController_get_time_left_ms(GameController::gc);
 		if (round % 10 == 0) {
-			std::cout << "Round: " << round << std::endl;
+			std::cout << "Round: " << round << " -Time Left: " << timeLeft << std::endl;
 		}
 		//auto timeLeft = bc_GameController_get_time_left_ms(GameController::gc);
 		//if (timeLeft < 1000) {
@@ -96,7 +96,8 @@ int main()
 		roundTime = end - start;
 		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
 
-		//std::cout << "Total time left: " << bc_GameController_get_time_left_ms(GameController::gc) << std::endl;
 		GameController::EndTurn();
 	}
 }
+
+

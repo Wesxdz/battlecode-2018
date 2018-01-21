@@ -109,6 +109,9 @@
     <ClCompile Include="Policy.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
+    <ClCompile Include="Region.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -213,6 +216,9 @@
     </ClInclude>
     <ClInclude Include="Policy.h">
       <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="Region.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

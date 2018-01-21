@@ -78,8 +78,8 @@ std::vector<units::Worker> PlanetMap::InitialWorkers()
 std::vector<MapLocation> PlanetMap::Locations() {
 	auto locations = std::vector<MapLocation>();
 	auto planet = Planet();
-	for (uintptr_t x = 0; x < Width(); x++) {
-		for (uintptr_t y = 0; y < Height(); y++) {
+	for (uint32_t x = 0; x < Width(); x++) {
+		for (uint32_t y = 0; y < Height(); y++) {
 			locations.push_back(MapLocation(planet, x, y));
 		}
 	}

@@ -137,6 +137,7 @@
     <ClCompile Include="Policy.cpp" />
     <ClCompile Include="PolicyOverlord.cpp" />
     <ClCompile Include="Ranger.cpp" />
+    <ClCompile Include="Region.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="Science.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Policy.h" />
     <ClInclude Include="PolicyOverlord.h" />
     <ClInclude Include="Ranger.h" />
+    <ClInclude Include="Region.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="Rocket.h" />
     <ClInclude Include="Science.h" />
