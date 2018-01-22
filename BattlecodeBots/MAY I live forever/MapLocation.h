@@ -25,7 +25,7 @@ public:
 	bool operator<(const MapLocation& other) const;
 	~MapLocation();
 
-	bool operator==(MapLocation& other);
+	bool operator==(const MapLocation& other) const;
 
 	MapLocation operator=(const MapLocation& m);
 
@@ -50,6 +50,7 @@ public:
 	@return The square of the distance from this to #location.
 	*/
 	uint32_t DistanceTo(MapLocation location);
+	uint32_t TilesTo(MapLocation location);
 	/*
 	@return The Direction from this location to the specified location.
 	*/

@@ -42,6 +42,8 @@ public:
 	@return The current planet
 	*/
 	static bc_Planet Planet();
+	static bc_PlanetMap* earth;
+	static bc_PlanetMap* mars;
 	static bc_PlanetMap* PlanetMap(bc_Planet planet);
 	/*
 	Research Engineering Division (Red)

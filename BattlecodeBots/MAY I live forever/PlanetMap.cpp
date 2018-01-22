@@ -4,21 +4,9 @@
 #include "Log.h"
 #include "GameController.h"
 
-PlanetMap::PlanetMap()
-{
-}
 
 PlanetMap::~PlanetMap()
 {
-	delete_bc_PlanetMap(self);
-}
-
-PlanetMap::PlanetMap(const PlanetMap& other)
-{
-	self = bc_GameController_starting_map(GameController::gc, other.planetType);
-	planetType = bc_PlanetMap_planet_get(self);
-	width = bc_PlanetMap_width_get(self);
-	height = bc_PlanetMap_height_get(self);
 }
 
 PlanetMap::PlanetMap(bc_PlanetMap* self)

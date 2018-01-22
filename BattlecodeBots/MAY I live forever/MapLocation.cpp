@@ -5,6 +5,7 @@
 #include "PlanetMap.h"
 
 #include "VecUnit.h"
+#include "stdlib.h"
 
 template<class T>
 inline std::vector<T> MapLocation::NearbyUnits(uint32_t radius_squared, bc_UnitType type)
@@ -49,7 +50,7 @@ MapLocation MapLocation::operator=(const MapLocation& other) {
 	return *this;
 }
 
-bool MapLocation::operator==(MapLocation& other) {
+bool MapLocation::operator==(const MapLocation& other) const {
 	return bc_MapLocation_eq(this->self, other.self);
 }
 
@@ -81,6 +82,13 @@ MapLocation MapLocation::Translate(MapLocation origin, int32_t dx, int32_t dy)
 uint32_t MapLocation::DistanceTo(MapLocation location)
 {
 	return bc_MapLocation_distance_squared_to(self, location.self);
+}
+
+uint32_t MapLocation::TilesTo(MapLocation location)
+{
+	uint32_t xdist = abs(X() - location.X());
+	uint32_t ydist = abs(Y() - location.Y());
+	return xdist > ydist ? xdist : ydist;
 }
 
 bc_Direction MapLocation::DirectionTo(MapLocation location)

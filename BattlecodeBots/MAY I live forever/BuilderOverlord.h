@@ -17,6 +17,7 @@ public:
 	void Update();
 	void DesireUnits();
 	static std::map<uint16_t, std::vector<uint16_t>> buildProjects; // Structure ids, workers building ids
+	static std::map<uint16_t, MapLocation> seekKarbonite;
 	static std::list<std::shared_ptr<Deposit>> sortedLandings;
 };
 

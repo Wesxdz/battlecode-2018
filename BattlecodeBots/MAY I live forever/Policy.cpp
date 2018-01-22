@@ -18,7 +18,9 @@ Policy::~Policy()
 float Policy::DebugEvaluate(bc_Unit* unit)
 {
 	auto start = std::chrono::system_clock::now();
+	//std::cout << "Evaluating " << " p:" << name << std::endl;
 	float score = Evaluate(unit);
+	CHECK_ERRORS();
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> time = end - start;
 	times[name] += time.count();

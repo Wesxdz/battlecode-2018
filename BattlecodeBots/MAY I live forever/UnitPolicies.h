@@ -104,7 +104,7 @@ namespace policy {
 		if (!(priority == Factory || priority == Rocket)) return 0.0f;
 		if (GameController::Karbonite() < bc_UnitType_blueprint_cost(priority)) return 0.0f;
 		for (bc_Direction direction : constants::directions_adjacent) {
-			if (worker.CanBlueprint(priority, direction)) {
+			if (worker.CanBlueprint(priority, direction) && MapLocation::Neighbor(worker.Loc().ToMapLocation(), direction).IsValid()) {
 				PolicyOverlord::storeDirection = direction;
 				PolicyOverlord::storeUnitType = priority;
 				return 3.0f;
@@ -151,14 +151,23 @@ namespace policy {
 			bool workingOnProject = self != project.second.end();
 			if (workingOnProject) return 0.0f;
 		}
+		if (PlayerData::pd->karboniteDeposits.size() == 0) return 0.0f;
 		for (bc_Direction direction : constants::directions_all) { // If Karbonite is already nearby, don't seek it!
-			if (MapLocation::Neighbor(workerLocation, direction).Karbonite() > 0) return 0.0f;
+			auto adj = MapLocation::Neighbor(workerLocation, direction);
+			if (adj.IsValid() && adj.Karbonite() > 0) return 0.0f;
+		}
+		auto seek = BuilderOverlord::seekKarbonite.find(worker.id);
+		if (seek != BuilderOverlord::seekKarbonite.end() &&
+			std::find(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), (*seek).second) != PlayerData::pd->karboniteDeposits.end()) {
+			PolicyOverlord::storeDirection = workerLocation.DirectionTo((*seek).second);
+			return 5.0f;
 		}
 		auto closest = std::min_element(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), [&workerLocation](MapLocation& a, MapLocation& b) {
 			return workerLocation.DistanceTo(a) < workerLocation.DistanceTo(b);
 		});
 		if (closest != PlayerData::pd->karboniteDeposits.end()) {
-			PolicyOverlord::storeLocation = *closest;
+			BuilderOverlord::seekKarbonite[worker.id] = *closest;
+			PolicyOverlord::storeDirection = workerLocation.DirectionTo(*closest);
 			return 5.0f;
 		}
 		return 0.0f;
@@ -166,7 +175,7 @@ namespace policy {
 
 	bool WorkerSeekKarboniteExecute(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
-		return Pathfind::MoveFuzzyFlow(robot, PolicyOverlord::storeLocation);
+		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
 	float WorkerBuildEvaluate(bc_Unit* unit) {
@@ -478,9 +487,13 @@ namespace policy {
 	float RocketLaunchEvaluate(bc_Unit* unit) {
 		units::Rocket rocket = bc_Unit_clone(unit);
 		if (!rocket.IsBuilt()) return 0.0f;
+		CHECK_ERRORS();
 		if (GameController::Round() == 749 || rocket.Health() < 100 || rocket.Garrison().size() == rocket.MaxCapacity()) {
 			// TODO Consider units damaged and push them away
+			CHECK_ERRORS();
 			PolicyOverlord::storeLocation = bc_MapLocation_clone(MapUtil::marsPassableLocations[rand() % MapUtil::marsPassableLocations.size()]);
+			CHECK_ERRORS();
+
 			return 1.0f;
 		}
 		return 0.0f;

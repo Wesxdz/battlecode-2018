@@ -14,6 +14,7 @@
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::list<std::shared_ptr<Deposit>> BuilderOverlord::sortedLandings;
+std::map<uint16_t, MapLocation> BuilderOverlord::seekKarbonite;
 
 BuilderOverlord::BuilderOverlord()
 {
@@ -141,7 +142,7 @@ void BuilderOverlord::DesireUnits() {
 		// They do good damage, limited range, high HP, good Defense
 		// If we lack a "Defense", aka Knights, then we should get a minimum in for sure.
 		// After that, we should only build more to recuperate our defense, rush, or strategise
-		uintptr_t width = bc_PlanetMap_width_get(GameController::PlanetMap(bc_Planet::Earth));
+		uintptr_t width = bc_PlanetMap_width_get(GameController::earth);
 		if (width < 1) { width = 0; }
 		float knightToMap = static_cast<float>(knightAmo) / width;
 

@@ -47,19 +47,18 @@ MapUtil::MapUtil()
 	MapUtil::earthPassableLocations = MapUtil::FilteredLocations(MapUtil::earthLocations, [](bc_MapLocation* location) {
 		return bc_PlanetMap_is_passable_terrain_at(GameController::PlanetMap(Earth), location);
 	});
-
 	// We should probably incorporate this for loop into the previous call
 	// Iterates over all locations and stores wether they are passable, that way we dont have to call it each time.
-	std::cout << "Terrain Map\n";
+	//std::cout << "Terrain Map\n";
 	for (int y = 0; y < EARTH_MAP_HEIGHT; y++) {
 		for (int x = 0; x < EARTH_MAP_WIDTH; x++) {
 			short ID = static_cast<short>(y * EARTH_MAP_WIDTH + x);
 			earthTerrainMap[ID] = bc_PlanetMap_is_passable_terrain_at(earth.self, earthLocations[ID]);
-			std::cout << earthTerrainMap[ID] << " ";
+			//std::cout << earthTerrainMap[ID] << " ";
 		}
-		std::cout << "\n";
+		//std::cout << "\n";
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 
 	PlanetMap mars(GameController::PlanetMap(Mars));
 	MARS_MAP_HEIGHT = mars.height;
@@ -84,12 +83,12 @@ MapUtil::MapUtil()
 	Section::earthSections = Section::GenSections(MapUtil::earthPassableLocations);
 	Section::marsSections = Section::GenSections(MapUtil::marsPassableLocations);
 
-	Deposit::earthDeposits = Deposit::GenDeposits(MapUtil::earthLocations);
-	std::cout << Deposit::earthDeposits.size() << " deposits groups on Earth" << std::endl;
-	for (auto deposit : Deposit::earthDeposits) {
-		std::cout << " Size" << deposit->locations.size() << " with " << deposit->karbonite << " karbonite" << std::endl;
-	}
-	Deposit::marsDeposits = Deposit::GenDeposits(MapUtil::marsLocations);
+	//Deposit::earthDeposits = Deposit::GenDeposits(MapUtil::earthLocations);
+	//std::cout << Deposit::earthDeposits.size() << " deposits groups on Earth" << std::endl;
+	//for (auto deposit : Deposit::earthDeposits) {
+	//	std::cout << " Size" << deposit->locations.size() << " with " << deposit->karbonite << " karbonite" << std::endl;
+	//}
+	//Deposit::marsDeposits = Deposit::GenDeposits(MapUtil::marsLocations);
 
 	// Call Regions ....
 	//Region::GenRegions();

@@ -13,7 +13,6 @@ PlayerData* PlayerData::pd = nullptr;
 
 PlayerData::PlayerData()
 {
-
 	int period = OrbitPattern::Period();
 	int optimalRounds = 749 / period;
 	optimalFlightTime = OrbitPattern::Center() - OrbitPattern::Amplitude();
@@ -55,7 +54,7 @@ PlayerData::PlayerData()
 			int karb = mars.InitialKarbonite(deposit);
 			if (karb > 0) {
 				karboniteDeposits.push_back(deposit);
-				earthStartingKarbonite += karb;
+				//earthStartingKarbonite += karb; TODO marsStartingKarbonite
 			}
 		}
 	}

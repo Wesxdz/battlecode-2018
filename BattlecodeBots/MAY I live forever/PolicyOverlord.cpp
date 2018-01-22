@@ -48,7 +48,7 @@ void PolicyOverlord::Update()
 		delete_bc_VecUnit(units);
 	} while (policyTaken);
 
-	if (GameController::Round() % 100 == 0) {
+	if (GameController::Round() % 25 == 0) {
 		for (auto& pair : Policy::times) {
 			std::cout << pair.first << ": " << pair.second << std::endl;
 		}
@@ -75,8 +75,8 @@ PolicyOverlord::PolicyOverlord()
 	auto robot1 = std::make_shared<Policy>("fear"); // TODO Run towards friendly units
 	robot1->Evaluate = policy::AvoidDamageEvaluate;
 	robot1->Execute = policy::AvoidDamageExecute;
-	policies[Worker].push_back(robot1);
-	policies[Healer].push_back(robot1);
+	//policies[Worker].push_back(robot1);
+	//policies[Healer].push_back(robot1);
 
 	auto wander = std::make_shared<Policy>("wander");
 	wander->Evaluate = policy::WanderEvaluate;

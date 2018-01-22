@@ -23,9 +23,7 @@ public:
 	uintptr_t width;
 	uintptr_t height;
 public:
-	PlanetMap();
 	PlanetMap(bc_PlanetMap* self);
-	PlanetMap(const PlanetMap& other);
 	~PlanetMap();
 	/*
 	@return The planet of the map

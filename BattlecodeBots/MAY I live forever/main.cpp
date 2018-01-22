@@ -56,9 +56,8 @@ int main()
 		uint32_t round = GameController::Round();
 		auto timeLeft = bc_GameController_get_time_left_ms(GameController::gc);
 		if (round % 10 == 0) {
-			std::cout << "Round: " << round << " -Time Left: " << timeLeft << std::endl;
+			std::cout << "Round: " << round << " Time Left: " << timeLeft << std::endl;
 		}
-		//auto timeLeft = bc_GameController_get_time_left_ms(GameController::gc);
 		//if (timeLeft < 1000) {
 		//	std::cout << "ENDING TURN EARLY (Time remaining limited)" << std::endl;
 		//	GameController::EndTurn();

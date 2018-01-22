@@ -12,10 +12,14 @@
 
 
 bc_GameController* GameController::gc = nullptr;
+bc_PlanetMap* GameController::earth = nullptr;
+bc_PlanetMap* GameController::mars = nullptr;
 
 GameController::GameController()
 {
 	gc = new_bc_GameController();
+	earth = bc_GameController_starting_map(GameController::gc, bc_Planet::Earth);
+	mars = bc_GameController_starting_map(GameController::gc, bc_Planet::Mars);
 }
 
 GameController::~GameController()
@@ -40,8 +44,8 @@ bc_Planet GameController::Planet()
 
 bc_PlanetMap * GameController::PlanetMap(bc_Planet planet)
 {
-	if (planet == Earth) return  bc_GameController_starting_map(GameController::gc, bc_Planet::Earth);
-	return bc_GameController_starting_map(GameController::gc, bc_Planet::Mars);
+	if (planet == Earth) return earth;
+	return mars;
 }
 
 bc_Team GameController::Team()

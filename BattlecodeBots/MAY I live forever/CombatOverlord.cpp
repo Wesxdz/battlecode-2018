@@ -124,6 +124,7 @@ float CombatOverlord::OverchargeValue(units::Healer & healer, units::Robot targe
 
 float CombatOverlord::Danger(MapLocation location, bc_Team damageSource)
 {
+	if (!location.IsValid()) return 1000000; // Non existent tiles are certainly dangerous
 	float potentialDamage = 0;
 	auto dmgSources = location.NearbyUnits(64, damageSource); // Max attack range, ranger
 	for (auto& source : dmgSources) {
