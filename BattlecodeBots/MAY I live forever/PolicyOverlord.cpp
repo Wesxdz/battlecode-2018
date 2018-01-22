@@ -76,6 +76,8 @@ PolicyOverlord::PolicyOverlord()
 	robot1->Evaluate = policy::AvoidDamageEvaluate;
 	robot1->Execute = policy::AvoidDamageExecute;
 	policies[Worker].push_back(robot1);
+
+
 	policies[Healer].push_back(robot1);
 	policies[Knight].push_back(robot1);
 	policies[Ranger].push_back(robot1);
@@ -102,14 +104,20 @@ PolicyOverlord::PolicyOverlord()
 
 	// Charge towards enemies if there are enough friendly units nearby
 	auto fighter1 = std::make_shared<Policy>("courage");
+	fighter1->Evaluate = policy::SeekCourageEvaluate;
+	fighter1->Execute = policy::SeekCourageExecute;
+	policies[Knight].push_back(fighter1);
+	policies[Mage].push_back(fighter1);
+	policies[Ranger].push_back(fighter1);
+	policies[Healer].push_back(fighter1);
 
 	auto fighter2 = std::make_shared<Policy>("seek_enemy");
 	fighter2->Evaluate = policy::SeekEnemyEvaluate;
 	fighter2->Execute = policy::SeekEnemyExecute;
-	policies[Knight].push_back(fighter2);
-	policies[Mage].push_back(fighter2);
-	policies[Ranger].push_back(fighter2);
-	policies[Healer].push_back(fighter2); // TODO Custom healer seek behavior
+	//policies[Knight].push_back(fighter2);
+	//policies[Mage].push_back(fighter2);
+	//policies[Ranger].push_back(fighter2);
+	//policies[Healer].push_back(fighter2); // TODO Custom healer seek behavior
 
 	auto seekControl = std::make_shared<Policy>("seek_control_point");
 	seekControl->Evaluate = policy::SeekControlEvaluate;

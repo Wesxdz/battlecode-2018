@@ -26,9 +26,9 @@ float InfluenceMap::GetInfluence(MapLocation location)
 	return influence[location.X() + location.Y() * width];
 }
 
-void InfluenceMap::SetInfluence(MapLocation location, float amount, int diffuse)
+void InfluenceMap::SetInfluence(MapLocation location, float amount, int diffuse, std::function<float(float)> DiffuseEq)
 {
-	Diffuse(location.X() + location.Y() * width, amount, diffuse);
+	Diffuse(location.X() + location.Y() * width, amount, diffuse, DiffuseEq);
 }
 
 void InfluenceMap::Reset()
@@ -48,15 +48,14 @@ void InfluenceMap::Print()
 	}
 }
 
-void InfluenceMap::Diffuse(int startIndex, float amount, int diffuse)
+void InfluenceMap::Diffuse(int startIndex, float amount, int diffuse, std::function<float(float)> DiffuseEq)
 {
 	if (diffuse > 0) {
 		for (int y = -diffuse; y < diffuse; y++) {
 			for (int x = -diffuse; x < diffuse; x++) {
 				int index = startIndex + x + y * width;
-				if (IsValid(index)) {
-					float diffuseEq = abs(x) + abs(y) + 1.0f;
-					influence[index] += amount/diffuseEq;
+				if (IsValid(index) && !Overflow(index, x)) {
+					influence[index] += amount * DiffuseEq(abs(x) + abs(y));
 				}
 			}
 		}
@@ -66,4 +65,10 @@ void InfluenceMap::Diffuse(int startIndex, float amount, int diffuse)
 bool InfluenceMap::IsValid(int index)
 {
 	return index > 0 && index < width * height;
+}
+
+bool InfluenceMap::Overflow(int index, int x)
+{
+	int curX = (index % width) + x;
+	return curX < width && curX >= 0;
 }

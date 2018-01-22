@@ -37,7 +37,8 @@ public:
 	// These are points that have concentrated enemies and must be destroyed
 	static std::vector<MapLocation> controlPoints;
 	static InfluenceMap fear;
-	static void CalculateFearMap();
+	static InfluenceMap courage;
+	static void CalculateInfluenceMaps();
 };
 
 #endif

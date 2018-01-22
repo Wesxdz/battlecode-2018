@@ -15,6 +15,7 @@
 std::vector<uint16_t> CombatOverlord::requestHeal;
 std::vector<MapLocation> CombatOverlord::controlPoints;
 InfluenceMap CombatOverlord::fear;
+InfluenceMap CombatOverlord::courage;
 
 CombatOverlord::CombatOverlord()
 {
@@ -56,8 +57,8 @@ void CombatOverlord::Update()
 			}
 		}
 	}
-	if (GameController::Round() % 5 == 0) {
-		CalculateFearMap();
+	if (GameController::Round() % 10 == 0) {
+		CalculateInfluenceMaps();
 	}
 }
 
@@ -159,15 +160,52 @@ float CombatOverlord::Danger(MapLocation location, bc_Team damageSource)
 	return potentialDamage;
 }
 
-void CombatOverlord::CalculateFearMap()
+void CombatOverlord::CalculateInfluenceMaps()
 {
 	fear.Reset();
+	courage.Reset();
 	auto units = GameController::Units(Visible);
 	for (units::Unit& unit : units) {
-		if (unit.Team() != GameController::Team()) {
-			if (Utility::IsAttackRobot(unit.type)) {
-				units::Robot robot = bc_Unit_clone(unit.self);
-				fear.SetInfluence(unit.Loc().ToMapLocation(), robot.Damage(), sqrt(robot.AttackRange()) + 2);
+		if (Utility::IsRobot(unit.type)) {
+			units::Robot robot = bc_Unit_clone(unit.self);
+			MapLocation robotLocation = robot.Loc().ToMapLocation();
+			if (unit.Team() == GameController::Team()) {
+				switch (unit.type) {
+				case Mage:
+					courage.SetInfluence(robotLocation, robot.Damage() * 3, 3);
+					break;
+				case Knight:
+					courage.SetInfluence(robotLocation, robot.Damage(), 2);
+					break;
+				case Healer:
+					courage.SetInfluence(robotLocation, 5, 5, [](float distance) { return 1.0f; });
+					break;
+				case Ranger:
+					courage.SetInfluence(robotLocation, robot.Damage(), 7, [](float distance) { return 1.0f; });
+					courage.SetInfluence(robotLocation, -15, 3, [](float distance) { return 1.0f; });
+					break;
+				default:
+					break;
+				}
+			}
+			else {
+				switch (unit.type) {
+				case Mage:
+					fear.SetInfluence(robotLocation, robot.Damage() * 3, 3);
+					break;
+				case Knight:
+					fear.SetInfluence(robotLocation, robot.Damage(), 2);
+					break;
+				case Healer:
+					fear.SetInfluence(robotLocation, 5, 5, [](float distance) { return 1.0f; });
+					break;
+				case Ranger:
+					fear.SetInfluence(robotLocation, robot.Damage(), 7, [](float distance) { return 1.0f; });
+					fear.SetInfluence(robotLocation, -robot.Damage(), 3, [](float distance) { return 1.0f; });
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}
