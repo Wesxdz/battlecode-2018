@@ -10,14 +10,22 @@
 
 #include "MapUtil.h"
 #include <iostream>
+#include <math.h>
 
 std::vector<uint16_t> CombatOverlord::requestHeal;
 std::vector<MapLocation> CombatOverlord::controlPoints;
+InfluenceMap CombatOverlord::fear;
 
 CombatOverlord::CombatOverlord()
 {
 	for (MapLocation location : PlayerData::pd->enemySpawnPositions) {
 		controlPoints.push_back(location);
+	}
+	if (GameController::Planet() == Earth) {
+		fear.Init(GameController::earth);
+	}
+	else {
+		fear.Init(GameController::mars);
 	}
 }
 
@@ -47,6 +55,9 @@ void CombatOverlord::Update()
 				requestHeal.push_back(unit.id);
 			}
 		}
+	}
+	if (GameController::Round() % 5 == 0) {
+		CalculateFearMap();
 	}
 }
 
@@ -146,4 +157,18 @@ float CombatOverlord::Danger(MapLocation location, bc_Team damageSource)
 		}
 	}
 	return potentialDamage;
+}
+
+void CombatOverlord::CalculateFearMap()
+{
+	fear.Reset();
+	auto units = GameController::Units(Visible);
+	for (units::Unit& unit : units) {
+		if (unit.Team() != GameController::Team()) {
+			if (Utility::IsAttackRobot(unit.type)) {
+				units::Robot robot = bc_Unit_clone(unit.self);
+				fear.SetInfluence(unit.Loc().ToMapLocation(), robot.Damage(), sqrt(robot.AttackRange()) + 2);
+			}
+		}
+	}
 }

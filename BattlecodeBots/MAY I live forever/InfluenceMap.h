@@ -7,10 +7,13 @@
 class InfluenceMap
 {
 public:
-	InfluenceMap(bc_PlanetMap* map);
+	InfluenceMap();
+	void Init(bc_PlanetMap* map);
 	~InfluenceMap();
 	float GetInfluence(MapLocation location);
 	void SetInfluence(MapLocation location, float amount, int diffuse);
+	void Reset();
+	void Print();
 private:
 	void Diffuse(int startIndex, float amount, int diffuse);
 	float* influence;

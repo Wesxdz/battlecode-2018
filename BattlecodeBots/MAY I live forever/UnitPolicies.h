@@ -23,19 +23,15 @@ namespace policy {
 		units::Robot robot{ bc_Unit_clone(unit) };
 		if (!robot.IsMoveReady()) return 0.0f;
 		MapLocation location = robot.Loc().ToMapLocation();
-		bc_Team enemyTeam = Utility::GetOtherTeam(robot.Team());
-		float currentDanger = CombatOverlord::Danger(location, enemyTeam);
-		if (currentDanger == 0) return 0.0f;
-		auto run = constants::directions_adjacent;
-		std::sort(run.begin(), run.end(), [&location, &enemyTeam](bc_Direction a, bc_Direction b) {
-			return CombatOverlord::Danger(MapLocation::Neighbor(location, a), enemyTeam) < CombatOverlord::Danger(MapLocation::Neighbor(location, b), enemyTeam);
+		float danger = CombatOverlord::fear.GetInfluence(location);
+		if (danger < 10) return 0.0f;
+		auto moveable = Pathfind::Moveable(location);
+		auto run = std::min_element(moveable.begin(), moveable.end(), [](MapLocation& a, MapLocation& b) {
+			return CombatOverlord::fear.GetInfluence(a) < CombatOverlord::fear.GetInfluence(b);
 		});
-		for (bc_Direction direction : run) {
-			float dangerReduction = (float)currentDanger - CombatOverlord::Danger(MapLocation::Neighbor(location, direction), enemyTeam);
-			if (robot.CanMove(direction)) {
-				PolicyOverlord::storeDirection = direction;
-				return dangerReduction / 20;
-			}
+		if (run != moveable.end()) {
+			PolicyOverlord::storeDirection = location.DirectionTo(*run);
+			return 100.0f;
 		}
 		return 0.0f;
 	}

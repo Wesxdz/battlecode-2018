@@ -166,13 +166,11 @@ void BuilderOverlord::DesireUnits() {
 		// Rangers can never go wrong (RANGERS NERFED IN SPRINT)
 		// Good health, long range, good damage
 
-		//if (rangerAmo + rangerProductionAmo == 0) { // Build a scout first unless map is tiny
-		//	rangerPriority = 2.0f;
-		//}
-		//else {
-		//}
-		//rangerPriority = 2.0f;
 
+		float ratio = (knightAmo + mageAmo) / (rangerAmo + 1);
+		if (ratio > 1) {
+			rangerPriority = 1.0f;
+		}
 
 		PlayerData::pd->unitPriority[bc_UnitType::Ranger] = rangerPriority;
 	}

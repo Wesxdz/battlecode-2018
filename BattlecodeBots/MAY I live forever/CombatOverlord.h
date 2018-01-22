@@ -10,6 +10,7 @@
 #include "Mage.h"
 #include "Healer.h"
 #include "PlayerData.h"
+#include "InfluenceMap.h"
 
 class CombatOverlord
 {
@@ -17,10 +18,6 @@ public:
 	CombatOverlord();
 	~CombatOverlord();
 	void Update();
-	//void KnightAction(units::Knight knight);
-	//void RangerAction(units::Ranger ranger);
-	//void MageAction(units::Mage mage);
-	//void HealerAction(units::Healer healer);
 	/*
 	@return The enemy robots that this robot could attack
 	*/
@@ -39,6 +36,8 @@ public:
 	static std::vector<uint16_t> requestHeal;
 	// These are points that have concentrated enemies and must be destroyed
 	static std::vector<MapLocation> controlPoints;
+	static InfluenceMap fear;
+	static void CalculateFearMap();
 };
 
 #endif

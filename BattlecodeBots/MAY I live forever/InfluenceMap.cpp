@@ -2,8 +2,13 @@
 
 #include <stdlib.h>
 #include "MapUtil.h"
+#include <iostream>
 
-InfluenceMap::InfluenceMap(bc_PlanetMap* map)
+InfluenceMap::InfluenceMap()
+{
+}
+
+void InfluenceMap::Init(bc_PlanetMap * map)
 {
 	width = bc_PlanetMap_width_get(map);
 	height = bc_PlanetMap_height_get(map);
@@ -24,6 +29,23 @@ float InfluenceMap::GetInfluence(MapLocation location)
 void InfluenceMap::SetInfluence(MapLocation location, float amount, int diffuse)
 {
 	Diffuse(location.X() + location.Y() * width, amount, diffuse);
+}
+
+void InfluenceMap::Reset()
+{
+	for (int i = 0; i < width * height; i++) {
+		influence[i] = 0;
+	}
+}
+
+void InfluenceMap::Print()
+{
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			std::cout << (int)influence[x + y * height] << " ";
+		}
+		std::cout << std::endl;
+	}
 }
 
 void InfluenceMap::Diffuse(int startIndex, float amount, int diffuse)
