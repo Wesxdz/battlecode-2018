@@ -52,7 +52,7 @@ void BuilderOverlord::DesireUnits() {
 			PlayerData::pd->unitPriority[Worker] = 1.0f;
 		}
 		else {
-			PlayerData::pd->unitPriority[Knight] = 1.0f; // We can't actually build them...
+			PlayerData::pd->unitPriority[Knight] = 1.0f; // Dont' build anything
 		}
 		return;
 	}
@@ -74,7 +74,6 @@ void BuilderOverlord::DesireUnits() {
 	int factoryEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Factory];
 	int rocketEnemyAmo = PlayerData::pd->enemyUnitCounts[bc_UnitType::Rocket];
 	int totalEnemyAmo = workerEnemyAmo + knightEnemyAmo + mageEnemyAmo + rangerEnemyAmo + healerEnemyAmo + factoryEnemyAmo + rocketEnemyAmo;
-	if(totalEnemyAmo < 1){ totalEnemyAmo = 1; }
 
 	int workerProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Worker];
 	int knightProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Knight];
@@ -85,16 +84,6 @@ void BuilderOverlord::DesireUnits() {
 	int rocketProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Rocket];
 	int totalProductionAmo = workerProductionAmo + knightProductionAmo + mageProductionAmo + rangerProductionAmo + healerProductionAmo + factoryProductionAmo + rocketProductionAmo;
 
-	// < 0 = Too many
-	// 0 = Don't need
-	// 0 - 1 = Could use
-	//  > 1 = Need (highest priority)
-
-	// Workers are quite valuable early on for factory production, karb gathering, and / or scouting.
-	// However, they can replicate, do we need to buid them?
-	// Maybe if we have no workers. High priority then depending on round.
-
-	// Worker Priority
 	{
 		float workerPriority = .0f;
 		if (round < 25 || workerAmo < 10) workerPriority += 1.0f;
@@ -103,23 +92,16 @@ void BuilderOverlord::DesireUnits() {
 
 	// Rocket Priority
 	{
-		float rocketPriority = .0f;
-
-		// If lacking in Initial karbonite and Early
-		//if (round > 40 && round < 200) {
-		//	// NEED
-		//	if (PlayerData::pd->earthStartingKarbonite < 1.0f) {
-		//		rocketPriority = 10000.0f;
-		//	}
-		//	// Need or could use
-		//	else if (PlayerData::pd->earthStartingKarbonite < 1000.0f) {
-		//		rocketPriority = 2000.0f / PlayerData::pd->earthStartingKarbonite + 1;
-		//	}
-		//	else {
-		//		// Linear to Round
-		//	}
+		bc_ResearchInfo* info = bc_GameController_research_info(GameController::gc);
+		if (bc_ResearchInfo_get_level(info, Rocket) == 0) {
+			PlayerData::pd->unitPriority[Rocket] = 0.0f;
+		}
+		else {
+			float rocketPriority = .0f;
 			rocketPriority += (round / 450.0f)/(rocketAmo + 1); // More rocket amounts signify they have not been loaded
 			PlayerData::pd->unitPriority[bc_UnitType::Rocket] = rocketPriority;
+		}
+		delete_bc_ResearchInfo(info);
 	}
 
 	// Factory Priority
@@ -204,11 +186,5 @@ void BuilderOverlord::DesireUnits() {
 		PlayerData::pd->unitPriority[Ranger] = 0.0f;
 		PlayerData::pd->unitPriority[Mage] = 0.0f;
 	}
-
-	bc_ResearchInfo* info = bc_GameController_research_info(GameController::gc);
-	if (bc_ResearchInfo_get_level(info, Rocket) == 0) {
-		PlayerData::pd->unitPriority[Rocket] = 0.0f;
-	}
-	delete_bc_ResearchInfo(info);
 
 }

@@ -24,9 +24,11 @@ CombatOverlord::CombatOverlord()
 	}
 	if (GameController::Planet() == Earth) {
 		fear.Init(GameController::earth);
+		courage.Init(GameController::earth);
 	}
 	else {
 		fear.Init(GameController::mars);
+		courage.Init(GameController::mars);
 	}
 }
 
@@ -201,7 +203,7 @@ void CombatOverlord::CalculateInfluenceMaps()
 					break;
 				case Ranger:
 					fear.SetInfluence(robotLocation, robot.Damage(), 7, [](float distance) { return 1.0f; });
-					fear.SetInfluence(robotLocation, -robot.Damage(), 3, [](float distance) { return 1.0f; });
+					fear.SetInfluence(robotLocation, -30, 3, [](float distance) { return 1.0f; });
 					break;
 				default:
 					break;
@@ -209,4 +211,8 @@ void CombatOverlord::CalculateInfluenceMaps()
 			}
 		}
 	}
+	//if (GameController::Planet() == Earth) {
+	//	fear.Print();
+	//	courage.Print();
+	//}
 }

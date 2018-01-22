@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "PlanetMap.h"
 #include "GameController.h"
+#include "PlayerData.h"
 
 std::list<std::shared_ptr<Section>> Section::marsSections;
 std::list<std::shared_ptr<Section>> Section::earthSections;
@@ -21,6 +22,7 @@ Section::~Section()
 std::list<std::shared_ptr<Section>> Section::GenSections(std::vector<bc_MapLocation*>& passables)
 {
 	std::list<std::shared_ptr<Section>> sections;
+
 	for (auto passsableLocation : passables) {
 		auto sectionToJoin = std::find_if(std::begin(sections), std::end(sections), [&passsableLocation](std::shared_ptr<Section> section) {
 			for (auto location : section->locations) {
@@ -40,6 +42,42 @@ std::list<std::shared_ptr<Section>> Section::GenSections(std::vector<bc_MapLocat
 		}
 	}
 	return sections;
+}
+
+void Section::FindEarthSectionsStatus()
+{
+	auto team = PlayerData::pd->teamSpawnPositions;
+	auto enemy = PlayerData::pd->enemySpawnPositions;
+	for (auto section : earthSections) {
+		bool enemyHere = false;
+		bool teamHere = false;
+		for (bc_MapLocation* location : section->locations) {
+			MapLocation loc{ bc_MapLocation_clone(location) };
+			auto findTeam = std::find(team.begin(), team.end(), loc);
+			auto findEnemy = std::find(enemy.begin(), enemy.end(), loc);
+			if (findTeam != team.end()) {
+				teamHere = true;
+				team.erase(findTeam);
+			}
+			if (findEnemy != enemy.end()) {
+				enemyHere = true;
+				enemy.erase(findEnemy);
+			}
+			if (teamHere && enemyHere) {
+				section->status = StartStatus::Mixed;
+				break;
+			}
+		}
+		if (teamHere) {
+			section->status = StartStatus::Team;
+		}
+		else if (enemyHere) {
+			section->status = StartStatus::Enemy;
+		}
+		else {
+			section->status = StartStatus::None;
+		}
+	}
 }
 
 std::list<std::shared_ptr<Deposit>> Deposit::GenDeposits(std::vector<bc_MapLocation*>& locations)

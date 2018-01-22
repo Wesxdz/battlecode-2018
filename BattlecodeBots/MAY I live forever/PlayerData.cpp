@@ -8,6 +8,7 @@
 #include "MapUtil.h"
 #include "PlanetMap.h"
 #include "Factory.h"
+#include "Section.h"
 
 PlayerData* PlayerData::pd = nullptr;
 
@@ -59,6 +60,11 @@ PlayerData::PlayerData()
 		}
 	}
 	pd = this;
+
+	Section::FindEarthSectionsStatus();
+	for (auto section : Section::earthSections) {
+		std::cout << section->status << std::endl;
+	}
 
 }
 

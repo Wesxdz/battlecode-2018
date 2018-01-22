@@ -12,12 +12,22 @@ A group of bc_MapLocations that are connected in some way
 There is always a way to pathfind between locations in the same section
 Units should only care about movement within their section
 */
+
+enum StartStatus { // These are used to evaluate Earth sections at the BEGINNING of the game
+	Team, // Only your team spawns here
+	Enemy, // Only the enemy team spawns here
+	Mixed,  // Both teams spawn here
+	None // Nobody starts in this section, we should ignore it
+};
+
 class Section
 {
 public:
 	~Section();
 	std::vector<bc_MapLocation*> locations;
+	StartStatus status;
 	static std::list<std::shared_ptr<Section>> GenSections(std::vector<bc_MapLocation*>& passables);
+	static void FindEarthSectionsStatus(); // Call after generating PlayerData spawnLocations!
 	static std::list<std::shared_ptr<Section>> marsSections;
 	static std::list<std::shared_ptr<Section>> earthSections;
 };

@@ -53,8 +53,10 @@ namespace policy {
 			return CombatOverlord::courage.GetInfluence(a) - CombatOverlord::fear.GetInfluence(a) < CombatOverlord::courage.GetInfluence(b) - CombatOverlord::fear.GetInfluence(b);
 		});
 		if (charge != moveable.end()) {
-			PolicyOverlord::storeDirection = location.DirectionTo(*charge);
-			return 10.0f;
+			if (CombatOverlord::courage.GetInfluence(*charge) - CombatOverlord::fear.GetInfluence(*charge) > CombatOverlord::courage.GetInfluence(location) - CombatOverlord::fear.GetInfluence(location)) {
+				PolicyOverlord::storeDirection = location.DirectionTo(*charge);
+				return 10.0f;
+			}
 		}
 		return 0.0f;
 	}
@@ -399,9 +401,12 @@ namespace policy {
 		bc_VecUnit* nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, robot.AttackRange() + 2, otherTeam);
 		if (bc_VecUnit_len(nearbyEnemies) > 0) {
 			units::Unit seek = bc_VecUnit_index(nearbyEnemies, 0);
-			PolicyOverlord::storeDirection = robotLocation.DirectionTo(seek.Loc().ToMapLocation());
-			delete_bc_VecUnit(nearbyEnemies);
-			return 20.0f;
+			MapLocation choice = seek.Loc().ToMapLocation();
+			if (CombatOverlord::courage.GetInfluence(choice) >= CombatOverlord::fear.GetInfluence(choice)) {
+				delete_bc_VecUnit(nearbyEnemies);
+				PolicyOverlord::storeDirection = robotLocation.DirectionTo(choice);
+				return 20.0f;
+			}
 		}
 		delete_bc_VecUnit(nearbyEnemies);
 		return 0.0f;

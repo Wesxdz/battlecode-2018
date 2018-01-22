@@ -10,9 +10,9 @@ public:
 	InfluenceMap();
 	void Init(bc_PlanetMap* map);
 	~InfluenceMap();
-	float GetInfluence(MapLocation location);
+	float GetInfluence(MapLocation& location);
 	// diffuseEq @return 
-	void SetInfluence(MapLocation location, float amount, int diffuse, std::function<float(float)> DiffuseEq = [](float distance) {
+	void SetInfluence(MapLocation& location, float amount, int diffuse, std::function<float(float)> DiffuseEq = [](float distance) {
 		return 1 / (distance + 1);
 	});
 	void Reset();
