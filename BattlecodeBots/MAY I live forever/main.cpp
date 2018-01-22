@@ -58,11 +58,11 @@ int main()
 		if (round % 10 == 0) {
 			std::cout << "Round: " << round << " Time Left: " << timeLeft << std::endl;
 		}
-		//if (timeLeft < 1000) {
-		//	std::cout << "ENDING TURN EARLY (Time remaining limited)" << std::endl;
-		//	GameController::EndTurn();
-		//	continue;
-		//}
+		if (timeLeft < 1000) {
+			std::cout << "ENDING TURN EARLY (Time remaining limited)" << std::endl;
+			GameController::EndTurn();
+			continue;
+		}
 		playerData.Update();
 
 		auto start = std::chrono::system_clock::now();

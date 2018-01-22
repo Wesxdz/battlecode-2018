@@ -12,6 +12,7 @@ public:
 	~InfluenceMap();
 	float GetInfluence(MapLocation location);
 	void SetInfluence(MapLocation location, float amount, int diffuse);
+	void SetInfluence(int xLoc, int yLoc, float amount, int diffuse);
 	void Reset();
 	void Print();
 private:
