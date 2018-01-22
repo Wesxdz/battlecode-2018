@@ -123,6 +123,7 @@
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="Healer.cpp" />
+    <ClCompile Include="InfluenceMap.cpp" />
     <ClCompile Include="Knight.cpp" />
     <ClCompile Include="Location.cpp" />
     <ClCompile Include="Mage.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Factory.h" />
     <ClInclude Include="GameController.h" />
     <ClInclude Include="Healer.h" />
+    <ClInclude Include="InfluenceMap.h" />
     <ClInclude Include="Knight.h" />
     <ClInclude Include="Location.h" />
     <ClInclude Include="Log.h" />
