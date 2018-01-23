@@ -17,6 +17,8 @@ public:
 	});
 	void Reset();
 	void Print();
+	void FindMax();
+	MapLocation max;
 private:
 	void Diffuse(int startIndex, float amount, int diffuse , std::function<float(float)> DiffuseEq);
 	float* influence;

@@ -218,6 +218,7 @@ void CombatOverlord::CalculateInfluenceMaps()
 			}
 		}
 	}
+	fear.FindMax();
 	//if (GameController::Planet() == Earth) {
 	//	fear.Print();
 	//	courage.Print();

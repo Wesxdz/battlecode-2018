@@ -18,6 +18,7 @@ bc_UnitType PolicyOverlord::storeUnitType;
 
 void PolicyOverlord::Update()
 {
+
 	bool policyTaken = false;
 	do { // Loop through all units evaluating policies until no policy is executed
 		policyTaken = false;
@@ -25,6 +26,7 @@ void PolicyOverlord::Update()
 		for (uintptr_t i = 0; i < bc_VecUnit_len(units); i++) {
 			units::Unit unit = bc_VecUnit_index(units, i);
 			if (unit.Loc().IsInGarrison()) continue;
+			if (unit.type == Ranger && bc_Unit_ranger_is_sniping(unit.self)) continue;
 			std::sort(policies[unit.type].begin(), policies[unit.type].end(), [&unit](std::shared_ptr<Policy>& a, std::shared_ptr<Policy>& b) {
 				return a->DebugEvaluate(unit.self) > b->DebugEvaluate(unit.self); // reverse sort
 			});
@@ -55,6 +57,20 @@ void PolicyOverlord::Update()
 	//std::cout << "Finished evaluating policies" << std::endl;
 }
 
+bc_UnitType PolicyOverlord::HighestProductionPriority()
+{
+	bc_UnitType priority = Knight;
+	float highest = 0.0f;
+	for (auto& unitPrio : PlayerData::pd->unitPriority) {
+		if (unitPrio.first == Worker || unitPrio.first == Factory || unitPrio.first == Rocket);
+		if (unitPrio.second > highest) {
+			priority = unitPrio.first;
+			highest = unitPrio.second;
+		}
+	}
+	return priority;
+}
+
 bc_UnitType PolicyOverlord::HighestPriority()
 {
 	bc_UnitType priority;
@@ -76,6 +92,8 @@ PolicyOverlord::PolicyOverlord()
 	robot1->Execute = policy::AvoidDamageExecute;
 	policies[Worker].push_back(robot1);
 	policies[Healer].push_back(robot1);
+	policies[Ranger].push_back(robot1);
+	policies[Mage].push_back(robot1);
 
 	auto wander = std::make_shared<Policy>("wander");
 	wander->Evaluate = policy::WanderEvaluate;
@@ -96,22 +114,13 @@ PolicyOverlord::PolicyOverlord()
 	worker3->Execute = policy::WorkerReplicateExecute;
 	policies[Worker].push_back(worker3);
 
-	// Charge towards enemies if there are enough friendly units nearby
-	auto fighter1 = std::make_shared<Policy>("courage");
-	//fighter1->Evaluate = policy::SeekCourageEvaluate;
-	//fighter1->Execute = policy::SeekCourageExecute;
-	//policies[Knight].push_back(fighter1);
-	//policies[Mage].push_back(fighter1);
-	//policies[Ranger].push_back(fighter1);
-	//policies[Healer].push_back(fighter1);
-
 	auto fighter2 = std::make_shared<Policy>("seek_enemy");
 	fighter2->Evaluate = policy::SeekEnemyEvaluate;
 	fighter2->Execute = policy::SeekEnemyExecute;
 	policies[Knight].push_back(fighter2);
 	policies[Mage].push_back(fighter2);
 	policies[Ranger].push_back(fighter2);
-	//policies[Healer].push_back(fighter2); // TODO Custom healer seek behavior
+	policies[Healer].push_back(fighter2); // TODO Custom healer seek behavior
 
 	auto seekControl = std::make_shared<Policy>("seek_control_point");
 	seekControl->Evaluate = policy::SeekControlEvaluate;
@@ -139,13 +148,16 @@ PolicyOverlord::PolicyOverlord()
 
 	auto ranger2 = std::make_shared<Policy>("scout");
 	auto ranger3 = std::make_shared<Policy>("snipe");
+	ranger3->Evaluate = policy::SnipeEvaluate;
+	ranger3->Execute = policy::SnipeExecute;
+	policies[Ranger].push_back(ranger3);
 
 	// Keep enemy units at the edge of attack range
 	auto kite = std::make_shared<Policy>("kite");
 	kite->Evaluate = policy::KiteEvaluate;
 	kite->Execute = policy::KiteExecute;
-	policies[Ranger].push_back(kite);
-	policies[Mage].push_back(kite);
+	//policies[Ranger].push_back(kite);
+	//policies[Mage].push_back(kite);
 
 	// Attack best target
 	auto knight1 = std::make_shared<Policy>("knight_attack");

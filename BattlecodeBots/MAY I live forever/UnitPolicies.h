@@ -43,31 +43,6 @@ namespace policy {
 		return true;
 	}
 
-	float SeekCourageEvaluate(bc_Unit* unit) {
-		units::Robot robot{ bc_Unit_clone(unit) };
-		if (!robot.IsMoveReady()) return 0.0f;
-		MapLocation location = robot.Loc().ToMapLocation();
-		float danger = CombatOverlord::fear.GetInfluence(location);
-		if (danger < 10) return 0.0f;
-		auto moveable = Pathfind::Moveable(location);
-		auto charge = std::max_element(moveable.begin(), moveable.end(), [](MapLocation& a, MapLocation& b) {
-			return CombatOverlord::courage.GetInfluence(a) - CombatOverlord::fear.GetInfluence(a) < CombatOverlord::courage.GetInfluence(b) - CombatOverlord::fear.GetInfluence(b);
-		});
-		if (charge != moveable.end()) {
-			if (CombatOverlord::courage.GetInfluence(*charge) - CombatOverlord::fear.GetInfluence(*charge) > CombatOverlord::courage.GetInfluence(location) - CombatOverlord::fear.GetInfluence(location)) {
-				PolicyOverlord::storeDirection = location.DirectionTo(*charge);
-				return 10.0f;
-			}
-		}
-		return 0.0f;
-	}
-
-	bool SeekCourageExecute(bc_Unit* unit) {
-		units::Robot robot{ bc_Unit_clone(unit) };
-		robot.Move(PolicyOverlord::storeDirection);
-		return true;
-	}
-
 	float LoadRocketEvaluate(bc_Unit* unit) {
 		float score = 0.0f;
 		units::Robot robot = bc_Unit_clone(unit);
@@ -276,7 +251,13 @@ namespace policy {
 	float FactoryProduceEvaluate(bc_Unit* unit) {
 		units::Factory factory = bc_Unit_clone(unit);
 		if (!factory.IsBuilt()) return 0.0f;
-		bc_UnitType priority = PolicyOverlord::HighestPriority();
+		bc_UnitType priority;
+		if (GameController::Round() < 100) {
+			priority = PolicyOverlord::HighestProductionPriority();
+		}
+		else {
+			priority = PolicyOverlord::HighestPriority();
+		}
 		if (!Utility::IsRobot(priority)) return 0.0f;
 		if (priority == Worker && PlayerData::pd->teamUnitCounts[Worker] > 2) return 0.0f;
 		if (factory.CanProduce(priority)) {
@@ -401,14 +382,7 @@ namespace policy {
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (!robot.IsMoveReady()) return 0.0f;
 		bc_Team otherTeam = Utility::GetOtherTeam(GameController::Team());
-
-		bc_VecUnit* nearbyEnemies;
-		if (CombatOverlord::controlPoints.size() > 0) {
-			nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, robot.AttackRange() + 2, otherTeam);
-		}
-		else {
-			nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, 1000, otherTeam);
-		}
+		bc_VecUnit* nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, 100, otherTeam);
 		if (bc_VecUnit_len(nearbyEnemies) > 0) {
 			units::Unit seek = bc_VecUnit_index(nearbyEnemies, 0);
 			MapLocation choice = seek.Loc().ToMapLocation();
@@ -430,7 +404,7 @@ namespace policy {
 	float SeekControlEvaluate(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
-		if (CombatOverlord::controlPoints.size() > 0 && PlayerData::pd->teamUnitCounts[Knight] > 7) { // Move towards the closest control point
+		if (CombatOverlord::controlPoints.size() > 0 && PlayerData::pd->teamUnitCounts[Ranger] > 3) { // Move towards the closest control point
 			auto move = std::min_element(CombatOverlord::controlPoints.begin(), CombatOverlord::controlPoints.end(), [&robotLocation](MapLocation& a, MapLocation& b) {
 				return a.DistanceTo(robotLocation) < b.DistanceTo(robotLocation);
 			});
@@ -571,6 +545,24 @@ namespace policy {
 	bool KiteExecute(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
 		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
+	}
+
+	float SnipeEvaluate(bc_Unit* unit) {
+		units::Ranger ranger = bc_Unit_clone(unit);
+		if (!ranger.IsActiveUnlocked() || !ranger.IsSnipeReady() || !ranger.IsAttackReady()) return 0.0f;
+		if (ranger.Loc().ToMapLocation().NearbyUnits(70, Utility::GetOtherTeam(ranger.Team())).size() > 0) return 0.0f;
+		MapLocation attack = CombatOverlord::fear.max;
+		if (CombatOverlord::fear.GetInfluence(attack) > 0 && ranger.CanBeginSnipe(attack)) {
+			PolicyOverlord::storeLocation = new_bc_MapLocation(attack.Planet(), attack.X() + 1 - (rand() % 2), attack.Y() + 1 - (rand() % 2));
+			return 0.5f;
+		}
+		return 0.0f;
+	}
+
+	bool SnipeExecute(bc_Unit* unit) {
+		units::Ranger ranger = bc_Unit_clone(unit);
+		ranger.BeginSnipe(PolicyOverlord::storeLocation);
+		return true;
 	}
 
 }

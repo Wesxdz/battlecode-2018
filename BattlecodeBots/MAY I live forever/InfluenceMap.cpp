@@ -48,6 +48,20 @@ void InfluenceMap::Print()
 	}
 }
 
+void InfluenceMap::FindMax()
+{
+	int maxIndex = 0;
+	float maxInf = 0;
+	for (int i = 0; i < width * height; i++) {
+		if (influence[i] > maxInf) {
+			maxIndex = i;
+		}
+	}
+	int32_t y = maxIndex / width;
+	int32_t x = maxIndex % width;
+	max = MapLocation(new_bc_MapLocation(planet, x, y));
+}
+
 void InfluenceMap::Diffuse(int startIndex, float amount, int diffuse, std::function<float(float)> DiffuseEq)
 {
 	if (diffuse > 0) {

@@ -18,15 +18,6 @@ std::map<uint16_t, MapLocation> BuilderOverlord::seekKarbonite;
 
 BuilderOverlord::BuilderOverlord()
 {
-	//if (GameController::Planet() == Earth) {
-	//	sortedLandings = Deposit::earthDeposits;
-	//	MapLocation start = PlayerData::pd->teamSpawnPositions[0];
-	//	std::sort(sortedLandings.begin(), sortedLandings.end(), [&start](std::shared_ptr<Deposit>& a, std::shared_ptr<Deposit>& b) {
-	//		MapLocation aloc = bc_MapLocation_clone(a->landing);
-	//		MapLocation bloc = bc_MapLocation_clone(b->landing);
-	//		return start.DistanceTo(aloc) < start.DistanceTo(bloc);
-	//	});
-	//}
 }
 
 void BuilderOverlord::Update()
@@ -131,12 +122,11 @@ void BuilderOverlord::DesireUnits() {
 
 	// Always want to be producing factories. Compare to Karb reserves
 	factoryPriority = (1.0f - (factoryToTeam * 10.0f)) * (GameController::Karbonite() / 100.0f);
-	if (round > 5 && round < 50) {
+	if (factoryAmo == 0 && round > 3) {
 		uintptr_t mapSize = MapUtil::EARTH_MAP_HEIGHT * MapUtil::EARTH_MAP_WIDTH;
 		float mapRatio = mapSize/2500.0f; // If the map is small, we should build factories earlier
 		float roundRatio = round / 50.0f;
 		float timeBonus = roundRatio/mapRatio/(factoryAmo + 2);
-		std::cout << timeBonus << " time bonus" << std::endl;
 		factoryPriority += timeBonus;
 	}
 	PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
@@ -185,9 +175,9 @@ void BuilderOverlord::DesireUnits() {
 		if (extraTravel > 1.5) { // If we had to walk a maze, better do it with rangers...
 			rangerPriority = 1.0f;
 		}
-		float ratio = (knightAmo + mageAmo) / (rangerAmo + 1);
+		float ratio = (knightAmo + mageAmo) * 2 / (rangerAmo + 1);
 		if (ratio > 1) {
-			rangerPriority = 0.9f;
+			rangerPriority = 1.0f;
 		}
 
 		PlayerData::pd->unitPriority[bc_UnitType::Ranger] = rangerPriority;
@@ -212,10 +202,8 @@ void BuilderOverlord::DesireUnits() {
 	{
 		float healerPriority = .0f;
 
-		if (round > 300) {
-			float ratio = (knightAmo + mageAmo + rangerAmo) / (healerAmo + 1);
-			healerPriority = ratio / 5;
-		}
+		float ratio = (knightAmo + mageAmo + rangerAmo) / (healerAmo + 1);
+		healerPriority = ratio / 5;
 
 		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
 	}

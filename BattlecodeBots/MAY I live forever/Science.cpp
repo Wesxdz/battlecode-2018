@@ -261,7 +261,7 @@ void Science::Init(PlayerData* playerData)
 
 		for (Section* section : Section::earthSections) {
 			if (section->status == StartStatus::Mixed) {
-				score += 10000; // PRIMARY UPGRADE, WE WANT THIS FIRST IF WE'RE FIGHTING ON MIXED
+				score += 100; // PRIMARY UPGRADE, WE WANT THIS FIRST IF WE'RE FIGHTING ON MIXED
 			}
 		}
 		score += 2000 / (Section::marsSections.size() + 1);
@@ -341,7 +341,7 @@ void Science::Init(PlayerData* playerData)
 
 		for (Section* section : Section::earthSections) {
 			if (section->status == StartStatus::Team) {
-				score += 500.0f;
+				score += 1000.0f;
 			}
 		}
 
