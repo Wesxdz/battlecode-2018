@@ -202,7 +202,7 @@ void CombatOverlord::CalculateInfluenceMaps()
 					fear.SetInfluence(robotLocation, 5, 5, [](float distance) { return 1.0f; });
 					break;
 				case Ranger:
-					fear.SetInfluence(robotLocation, robot.Damage(), 7, [](float distance) { return 1.0f; });
+					fear.SetInfluence(robotLocation, 5, 7, [](float distance) { return 1.0f; });
 					fear.SetInfluence(robotLocation, -30, 3, [](float distance) { return 1.0f; });
 					break;
 				default:

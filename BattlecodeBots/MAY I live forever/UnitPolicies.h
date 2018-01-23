@@ -16,6 +16,7 @@
 #include "BuilderOverlord.h"
 #include "MapUtil.h"
 #include "Pegboard.h"
+#include <memory>
 
 namespace policy {
 
@@ -172,21 +173,32 @@ namespace policy {
 			bool workingOnProject = self != project.second.end();
 			if (workingOnProject) return 0.0f;
 		}
-		if (PlayerData::pd->karboniteDeposits.size() == 0) return 0.0f;
+		std::cout << "Here1" << std::endl;
+		std::cout << "Location: " << workerLocation.X() << ", " << workerLocation.Y() << std::endl;
+		//if (Section::sectionMap.find(workerLocation) == Section::sectionMap.end()) {
+		//	std::cout << "COULDNT FIND";
+		//}
+		Section* section = Section::sectionMap[Section::Key(workerLocation)];
+		std::cout << "Here2" << std::endl;
+		std::cout << section->karboniteDeposits.size() << " deposits" << std::endl;
+		if (section->karboniteDeposits.size() == 0) return 0.0f;
 		for (bc_Direction direction : constants::directions_all) { // If Karbonite is already nearby, don't seek it!
 			auto adj = MapLocation::Neighbor(workerLocation, direction);
 			if (adj.IsValid() && adj.Karbonite() > 0) return 0.0f;
 		}
+		std::cout << "Here3" << std::endl;
 		auto seek = BuilderOverlord::seekKarbonite.find(worker.id);
 		if (seek != BuilderOverlord::seekKarbonite.end() &&
-			std::find(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), (*seek).second) != PlayerData::pd->karboniteDeposits.end()) {
+			std::find(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), (*seek).second) != section->karboniteDeposits.end()) {
 			PolicyOverlord::storeDirection = workerLocation.DirectionTo((*seek).second);
 			return 5.0f;
 		}
-		auto closest = std::min_element(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), [&workerLocation](MapLocation& a, MapLocation& b) {
+		std::cout << "Here4" << std::endl;
+		auto closest = std::min_element(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [&workerLocation](MapLocation& a, MapLocation& b) {
 			return workerLocation.DistanceTo(a) < workerLocation.DistanceTo(b);
 		});
-		if (closest != PlayerData::pd->karboniteDeposits.end()) {
+		std::cout << "Here5" << std::endl;
+		if (closest != section->karboniteDeposits.end()) {
 			BuilderOverlord::seekKarbonite[worker.id] = *closest;
 			PolicyOverlord::storeDirection = workerLocation.DirectionTo(*closest);
 			return 5.0f;

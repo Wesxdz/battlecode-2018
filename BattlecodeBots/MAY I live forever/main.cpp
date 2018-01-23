@@ -74,26 +74,26 @@ int main()
 		}
 		auto end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		//std::cout << "Science Time: " << roundTime.count() << std::endl;
+		std::cout << "Science Time: " << roundTime.count() << std::endl;
 
 		start = std::chrono::system_clock::now();
 		builderLord.Update();
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		//std::cout << "Builder Time: " << roundTime.count() << std::endl;
+		std::cout << "Builder Time: " << roundTime.count() << std::endl;
 
 		start = std::chrono::system_clock::now();
 		combatLord.Update();
 
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		//std::cout << "Combater Time: " << roundTime.count() << std::endl;
+		std::cout << "Combater Time: " << roundTime.count() << std::endl;
 
 		start = std::chrono::system_clock::now();
 		policyLord.Update();
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
-		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
+		std::cout << "Policy Time: " << roundTime.count() << std::endl;
 
 		GameController::EndTurn();
 	}

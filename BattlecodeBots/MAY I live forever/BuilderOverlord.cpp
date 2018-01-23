@@ -11,6 +11,7 @@
 #include "Pathfind.h"
 #include <algorithm>
 #include "VecUnit.h"
+#include <math.h>
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::list<std::shared_ptr<Deposit>> BuilderOverlord::sortedLandings;
@@ -31,12 +32,28 @@ BuilderOverlord::BuilderOverlord()
 
 void BuilderOverlord::Update()
 {
-	if (PlayerData::pd->karboniteDeposits.size() > 0) {
-		PlayerData::pd->karboniteDeposits.erase(std::remove_if(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), [](MapLocation& location) {
-			return location.IsVisible() && location.Karbonite() == 0;
-		}));
-	}
-	//std::cout << PlayerData::pd->karboniteDeposits.size() << " karbonite deposits\n";
+	//if (GameController::Planet() == Earth) {
+	//	for (auto section : Section::earthSections) {
+	//		if (section->status == StartStatus::Team || section->status == StartStatus::Mixed) {
+	//			if (section->karboniteDeposits.size() > 0) {
+	//				section->karboniteDeposits.erase(std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
+	//					return location.IsVisible() && location.Karbonite() == 0;
+	//				}));
+	//			}
+	//		}
+	//	}
+	//}
+	//else {
+	//	if (GameController::Round() > 50) {
+	//		for (auto section : Section::marsSections) {
+	//			if (section->karboniteDeposits.size() > 0) {
+	//				section->karboniteDeposits.erase(std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
+	//					return location.IsVisible() && location.Karbonite() == 0;
+	//				}));
+	//			}
+	//		}
+	//	}
+	//}
 	DesireUnits();
 }
 
@@ -148,10 +165,15 @@ void BuilderOverlord::DesireUnits() {
 		// Rangers can never go wrong (RANGERS NERFED IN SPRINT)
 		// Good health, long range, good damage
 
-
+		float tilesToEnemy = PlayerData::pd->teamSpawnPositions[0].TilesTo(PlayerData::pd->enemySpawnPositions[0]) + 1;
+		float actualTilesToEnemy = Pathfind::GetFuzzyFlowTurns(PlayerData::pd->teamSpawnPositions[0], PlayerData::pd->enemySpawnPositions[0]);
+		float extraTravel = actualTilesToEnemy / tilesToEnemy;
+		if (extraTravel > 1.5) { // If we had to walk a maze, better do it with rangers...
+			rangerPriority = 1.0f;
+		}
 		float ratio = (knightAmo + mageAmo) / (rangerAmo + 1);
 		if (ratio > 1) {
-			rangerPriority = 1.0f;
+			rangerPriority = 0.9f;
 		}
 
 		PlayerData::pd->unitPriority[bc_UnitType::Ranger] = rangerPriority;

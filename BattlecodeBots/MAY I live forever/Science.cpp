@@ -9,6 +9,7 @@
 #include "Constants.h"
 #include "MapUtil.h"
 #include "PlayerData.h"
+#include "Section.h"
 
 void Science::Update()
 {
@@ -96,11 +97,24 @@ void Science::Init(PlayerData* playerData)
 		// This Upgrade is pointless if it can't be reached by round 750
 		auto currRound = GameController::Round();
 
+		int reachableKarbonite = 0;
+		for (auto section : Section::earthSections) {
+			if (section->status == StartStatus::Mixed) {
+				for (MapLocation& deposit : section->karboniteDeposits) {
+					reachableKarbonite += deposit.Karbonite() / 2;
+				}
+			}
+			else if (section->status == StartStatus::Team) {
+				for (MapLocation& deposit : section->karboniteDeposits) {
+					reachableKarbonite += deposit.Karbonite();
+				}
+			}
+		}
 		float score = .0f;
 		if (currRound > 1000 - constants::WorkerUpgrade1) {
 			score = .0f;
 		} else {
-			float ourShare = playerData->earthStartingKarbonite / 2.0f;
+			float ourShare = (float)reachableKarbonite;
 			if(ourShare < 1) { ourShare = 1; }
 			float predictedTurns = ourShare / (3 * playerData->teamUnitCounts[bc_UnitType::Worker]);
 			float possibleTurns = ourShare / (4 * playerData->teamUnitCounts[bc_UnitType::Worker]);
@@ -530,15 +544,15 @@ void Science::Init(PlayerData* playerData)
 
 			// 1000 is a hardcoded minimum to be competent on Earth at start
 			// Checking for errors in Starting Karbonite
-			float EarthToMarsRatio;
-			if (playerData->earthStartingKarbonite < 1) {
-				EarthToMarsRatio = 0.0f;
-			} else {
-				EarthToMarsRatio = 1000.0f / playerData->earthStartingKarbonite;
-			}
-			if (EarthToMarsRatio > multiplier) {
-				multiplier = EarthToMarsRatio;
-			}
+			//float EarthToMarsRatio;
+			//if (playerData->earthStartingKarbonite < 1) {
+			//	EarthToMarsRatio = 0.0f;
+			//} else {
+			//	EarthToMarsRatio = 1000.0f / playerData->earthStartingKarbonite;
+			//}
+			//if (EarthToMarsRatio > multiplier) {
+			//	multiplier = EarthToMarsRatio;
+			//}
 		}
 		float score = pow(1.014f, multiplier);
 

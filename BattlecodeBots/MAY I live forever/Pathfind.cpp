@@ -168,10 +168,13 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, MapLocation& destination) {
 	return MoveFuzzyFlow(robot, destX, destY);
 }
 
-int Pathfind::GetFuzzyFlowTurns(units::Robot& robot, int destX, int destY) {
+int Pathfind::GetFuzzyFlowTurns(MapLocation& origin, MapLocation& destination) {
 	if (!hasInit) {
 		Init();
 	}
+
+	short destY = destination.Y();
+	short destX = destination.X();
 
 	short destXY = width * destY + destX; // Get Map Pos Total
 
@@ -186,9 +189,8 @@ int Pathfind::GetFuzzyFlowTurns(units::Robot& robot, int destX, int destY) {
 		flowChart = &chartPtr->second;
 	}
 
-	auto mapLoc = robot.Loc().ToMapLocation(); // Get Curr Map Pos Total
-	short currX = static_cast<short>(mapLoc.X());
-	short currY = static_cast<short>(mapLoc.Y());
+	short currX = static_cast<short>(destination.X());
+	short currY = static_cast<short>(destination.Y());
 
 	short currXY = width * currY + currX; // Robot Position ID 
 

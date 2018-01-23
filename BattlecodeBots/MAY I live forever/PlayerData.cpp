@@ -26,16 +26,6 @@ PlayerData::PlayerData()
 	}
 
 	if (GameController::Planet() == Earth) {
-		PlanetMap earth{ GameController::PlanetMap(Earth) };
-		for (bc_MapLocation* location : MapUtil::earthLocations) {
-			MapLocation deposit{ bc_MapLocation_clone(location) };
-			int karb = earth.InitialKarbonite(deposit);
-			if (karb > 0) {
-				karboniteDeposits.push_back(deposit);
-				earthStartingKarbonite += karb;
-			}
-		}
-		std::cout << karboniteDeposits.size() << " initial Karbonite deposits totaling " << earthStartingKarbonite << "\n";
 
 		PlanetMap map{ GameController::PlanetMap(Earth) };
 		for (auto& worker : map.InitialWorkers()) {
@@ -48,19 +38,9 @@ PlayerData::PlayerData()
 			}
 		}
 	}
-	else {
-		PlanetMap mars{ GameController::PlanetMap(Mars) };
-		for (bc_MapLocation* location : MapUtil::marsLocations) {
-			MapLocation deposit{ bc_MapLocation_clone(location) };
-			int karb = mars.InitialKarbonite(deposit);
-			if (karb > 0) {
-				karboniteDeposits.push_back(deposit);
-				//earthStartingKarbonite += karb; TODO marsStartingKarbonite
-			}
-		}
-	}
 	pd = this;
 
+	std::cout << "There are " << Section::earthSections.size() << " sections" << std::endl;
 	Section::FindEarthSectionsStatus();
 	for (auto section : Section::earthSections) {
 		std::cout << section->status << std::endl;
