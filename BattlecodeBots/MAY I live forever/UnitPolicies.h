@@ -422,7 +422,7 @@ namespace policy {
 	float SeekControlEvaluate(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
-		if (CombatOverlord::controlPoints.size() > 0) { // Move towards the closest control point
+		if (CombatOverlord::controlPoints.size() > 0 && PlayerData::pd->teamUnitCounts[Knight] > 7) { // Move towards the closest control point
 			auto move = std::min_element(CombatOverlord::controlPoints.begin(), CombatOverlord::controlPoints.end(), [&robotLocation](MapLocation& a, MapLocation& b) {
 				return a.DistanceTo(robotLocation) < b.DistanceTo(robotLocation);
 			});
@@ -554,7 +554,7 @@ namespace policy {
 			bc_Direction move = f.Direction();
 			if (move != Center) {
 				PolicyOverlord::storeDirection = move;
-				return 1000.0f;
+				return 100.0f;
 			}
 		}
 		return 0.0f;

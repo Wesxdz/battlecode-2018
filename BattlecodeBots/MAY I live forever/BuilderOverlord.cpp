@@ -14,7 +14,6 @@
 #include <math.h>
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
-std::list<std::shared_ptr<Deposit>> BuilderOverlord::sortedLandings;
 std::map<uint16_t, MapLocation> BuilderOverlord::seekKarbonite;
 
 BuilderOverlord::BuilderOverlord()
@@ -168,6 +167,11 @@ void BuilderOverlord::DesireUnits() {
 		// Rangers can never go wrong (RANGERS NERFED IN SPRINT)
 		// Good health, long range, good damage
 
+		//for (Section* section : Section::earthSections) {
+		//	if (section->status == Team) {
+
+		//	}
+		//}
 		float tilesToEnemy = PlayerData::pd->teamSpawnPositions[0].TilesTo(PlayerData::pd->enemySpawnPositions[0]) + 1;
 		float actualTilesToEnemy = Pathfind::GetFuzzyFlowTurns(PlayerData::pd->teamSpawnPositions[0], PlayerData::pd->enemySpawnPositions[0]);
 		float extraTravel = actualTilesToEnemy / tilesToEnemy;
@@ -190,7 +194,9 @@ void BuilderOverlord::DesireUnits() {
 		float enemyToMap = (totalEnemyAmo / mapSize) * 10;
 
 		// If enemy is grouped up, then we should use mages to deal a lot of damage;
-		magePriority = enemyToMap;
+		if (enemyToMap > 1.0f) {
+			magePriority = 1.0f;
+		}
 
 		PlayerData::pd->unitPriority[bc_UnitType::Mage] = magePriority;
 	}
@@ -199,8 +205,10 @@ void BuilderOverlord::DesireUnits() {
 	{
 		float healerPriority = .0f;
 
-		float ratio = (knightAmo + mageAmo + rangerAmo) / (healerAmo + 1);
-		healerPriority = ratio / 5;
+		if (round > 300) {
+			float ratio = (knightAmo + mageAmo + rangerAmo) / (healerAmo + 1);
+			healerPriority = ratio / 5;
+		}
 
 		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
 	}

@@ -112,7 +112,9 @@
     <ClCompile Include="Region.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="InfluenceMap.cpp" />
+    <ClCompile Include="InfluenceMap.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h">
@@ -221,7 +223,9 @@
     <ClInclude Include="Region.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="InfluenceMap.h" />
+    <ClInclude Include="InfluenceMap.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Notes.txt.obj">

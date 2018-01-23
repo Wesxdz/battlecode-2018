@@ -259,6 +259,12 @@ void Science::Init(PlayerData* playerData)
 		} 
 		// 60 damage, every 10 rounds. +3~ range
 
+		for (Section* section : Section::earthSections) {
+			if (section->status == StartStatus::Mixed) {
+				score += 3000; // PRIMARY UPGRADE, WE WANT THIS FIRST IF WE'RE FIGHTING ON MIXED
+			}
+		}
+		score += 2000 / (Section::marsSections.size() + 1);
 		//std::cout << "Javelin has a value of " << score << std::endl;
 		return score;
 	} });
@@ -564,7 +570,7 @@ void Science::Init(PlayerData* playerData)
 
 		for (Section* section : Section::earthSections) {
 			if (section->status == StartStatus::Team) {
-				score += 1000.0f;
+				score += 1000.0f; 
 			}
 		}
 

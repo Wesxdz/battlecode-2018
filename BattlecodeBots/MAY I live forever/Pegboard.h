@@ -36,21 +36,20 @@ A unit does not necessarily have to generate force on itself (you can push or pu
 class Pegboard
 {
 public:
-	static std::map<uint16_t, Force> forces;
-	static void ApplyForce(uint16_t id, bc_Direction direction, float power = 1);
-	static void SolveMovement();
+	std::map<uint16_t, Force> forces;
+	void ApplyForce(uint16_t id, bc_Direction direction, float power = 1);
+	void SolveMovement();
 private:
 	/*
-	Reserves a move or pushes another peg
+	Moves or pushes another peg
 	@return Was action taken
 	*/
-	static bool CalculateMovement(ForceMove& move);
+	bool CalculateMovement(ForceMove& move);
 	// All robots that are ready to move and can be pushed
-	static std::vector<uint16_t> pegs;
-	// Potential moves, moves to the same location with a greater force will reserve this location
-	static std::map<MapLocation, ForceMove> reserved;
+	std::vector<uint16_t> pegs;
 	// The pegs which have already exerted their force on another peg
-	static std::vector<uint16_t> hasPushed;
+	std::vector<uint16_t> hasPushed;
+	static int Key(MapLocation location);
 };
 
 #endif

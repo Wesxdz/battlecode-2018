@@ -41,16 +41,6 @@ private:
 	static int Key(MapLocation location);
 };
 
-// A deposit can also contain unpassable terrain, but it must be connected to passable terrian with
-class Deposit : public Section
-{
-public:
-	bc_MapLocation* landing = nullptr;
-	int karbonite;
-	static std::list<std::shared_ptr<Deposit>> GenDeposits(std::vector<bc_MapLocation*>& locations); // TODO Pass in initial karbonite locations instead of every location
-	static std::list<std::shared_ptr<Deposit>> earthDeposits;
-	static std::list<std::shared_ptr<Deposit>> marsDeposits;
-};
 
 #endif
 
