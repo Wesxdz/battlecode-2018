@@ -72,6 +72,13 @@ void Region::GenRegions() {
 	// So if we create a Depth Map, we identify the locations furthest away from the map.
 	// If we keep track of what walls each piece comes from, we can detect collisions between 'regions' and determine how to go from one region to another
 
+	// If we create a 'Zone' map, extend from some point are and create unquie labels to functin as 'zones' then we can determine intersection point or way points
+	//		Could we perform the Voronoi thing on these points?
+	// We could then determine paths to the waypoints which leave an optimal area for moving.
+	// We could potential define the paths with their width as well, by sampling both depth maps.
+	//		We need some way to determine wether an area is an area initially, wether it is connected.
+	//		Sections?
+
 	
 
 	// We could use a quad tree... / Hierachical A* 

@@ -91,7 +91,7 @@ MapUtil::MapUtil()
 	//Deposit::marsDeposits = Deposit::GenDeposits(MapUtil::marsLocations);
 
 	// Call Regions ....
-	Region::GenRegions();
+	//Region::GenRegions();
 }
 
 std::vector<bc_MapLocation*> MapUtil::FilteredLocations(std::vector<bc_MapLocation*>& potential, std::function<bool(bc_MapLocation*)> shouldInclude)
