@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MAY I live forever", "MAY I live forever\MAY I live forever.vcxproj", "{7FBB7BDA-7A63-4435-8AA5-B688E81C92CC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPegboard", "TestPegboard\TestPegboard.vcxproj", "{678BACDD-9CEA-4D52-A44F-98788A4416B8}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WesleyCBot", "WesleyCBot\WesleyCBot.vcxproj", "{ACB5C92D-3CC4-414E-AA79-8171D81598F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +31,6 @@ Global
 		{678BACDD-9CEA-4D52-A44F-98788A4416B8}.Release|x64.Build.0 = Release|x64
 		{678BACDD-9CEA-4D52-A44F-98788A4416B8}.Release|x86.ActiveCfg = Release|Win32
 		{678BACDD-9CEA-4D52-A44F-98788A4416B8}.Release|x86.Build.0 = Release|Win32
-		{ACB5C92D-3CC4-414E-AA79-8171D81598F9}.Debug|x64.ActiveCfg = Debug|x64
-		{ACB5C92D-3CC4-414E-AA79-8171D81598F9}.Debug|x64.Build.0 = Debug|x64
-		{ACB5C92D-3CC4-414E-AA79-8171D81598F9}.Debug|x86.ActiveCfg = Debug|Win32
-		{ACB5C92D-3CC4-414E-AA79-8171D81598F9}.Debug|x86.Build.0 = Debug|Win32
-		{ACB5C92D-3CC4-414E-AA79-8171D81598F9}.Release|x64.ActiveCfg = Release|x64
-		{ACB5C92D-3CC4-414E-AA79-8171D81598F9}.Release|x64.Build.0 = Release|x64
-		{ACB5C92D-3CC4-414E-AA79-8171D81598F9}.Release|x86.ActiveCfg = Release|Win32
-		{ACB5C92D-3CC4-414E-AA79-8171D81598F9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

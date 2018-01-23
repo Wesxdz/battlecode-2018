@@ -16,6 +16,9 @@ public:
 	BuilderOverlord();
 	void Update();
 	void DesireUnits();
+	/*
+	Manages factory production, worker replication, and structure blueprinting
+	*/
 	static std::map<uint16_t, std::vector<uint16_t>> buildProjects; // Structure ids, workers building ids
 	static std::map<uint16_t, MapLocation> seekKarbonite;
 };

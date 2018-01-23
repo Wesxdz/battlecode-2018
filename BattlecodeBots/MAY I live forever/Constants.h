@@ -23,7 +23,7 @@ namespace constants
 
 	const int KnightUpgrade1 = 25;
 	const int KnightUpgrade2 = 75;
-	const int KnightUpgrade3 = 150;
+	const int KnightUpgrade3 = 100;
 
 	const int RangerUpgrade1 = 25;
 	const int RangerUpgrade2 = 100;
@@ -32,13 +32,13 @@ namespace constants
 	const int MageUpgrade1 = 25;
 	const int MageUpgrade2 = 75;
 	const int MageUpgrade3 = 100;
-	const int MageUpgrade4 = 200;
+	const int MageUpgrade4 = 75;
 
 	const int HealerUpgrade1 = 25;
 	const int HealerUpgrade2 = 100;
-	const int HealerUpgrade3 = 200;
+	const int HealerUpgrade3 = 100;
 
-	const int RocketUpgrade1 = 100;
+	const int RocketUpgrade1 = 50;
 	const int RocketUpgrade2 = 100;
 	const int RocketUpgrade3 = 100;
 };

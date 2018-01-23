@@ -17,7 +17,7 @@ void Science::Update()
 
 	if (researchNextTurn) { // Determine what upgrade to research
 		// Upgrades are removed from paths once they are researched
-		paths.erase(std::remove_if(std::begin(paths), std::end(paths), 
+		paths.erase(std::remove_if(std::begin(paths), std::end(paths),
 			[researchInfoPtr, this](Upgrade& upgrade) {
 			auto val = bc_ResearchInfo_get_level(researchInfoPtr, upgrade.branch);
 			
@@ -111,7 +111,7 @@ void Science::Init(PlayerData* playerData)
 			}
 		}
 		float score = .0f;
-		if (currRound > 1000 - constants::WorkerUpgrade1) {
+		if (currRound > 100 - constants::WorkerUpgrade1) {
 			score = .0f;
 		} else {
 			float ourShare = (float)reachableKarbonite;
@@ -158,7 +158,7 @@ void Science::Init(PlayerData* playerData)
 		auto currRound = GameController::Round();
 
 		float score = .0f;
-		if (currRound > 1000 - constants::WorkerUpgrade3) {
+		if (currRound > 700 - constants::WorkerUpgrade3) {
 			score = .0f;
 		} else {
 			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0.0f ? 1.0f : 0.0f;
@@ -181,7 +181,7 @@ void Science::Init(PlayerData* playerData)
 		auto currRound = GameController::Round();
 
 		float score = .0f;
-		if (currRound > 1000 - constants::WorkerUpgrade3) {
+		if (currRound > 700 - constants::WorkerUpgrade3) {
 			score = .0f;
 		} else {
 			float hasUnits = playerData->teamUnitCounts[bc_UnitType::Worker] > 0.0f ? 1.0f : 0.0f;
@@ -261,7 +261,7 @@ void Science::Init(PlayerData* playerData)
 
 		for (Section* section : Section::earthSections) {
 			if (section->status == StartStatus::Mixed) {
-				score += 3000; // PRIMARY UPGRADE, WE WANT THIS FIRST IF WE'RE FIGHTING ON MIXED
+				score += 10000; // PRIMARY UPGRADE, WE WANT THIS FIRST IF WE'RE FIGHTING ON MIXED
 			}
 		}
 		score += 2000 / (Section::marsSections.size() + 1);
@@ -647,7 +647,7 @@ void Upgrade::Research()
 
 	bc_GameController_reset_research(GameController::gc);
 	if (bc_GameController_queue_research(GameController::gc, branch)) {
-		std::cout << "Researching " << name << ". It will take " << cost_of(branch, level) << " turns." << std::endl;
+		std::cout << "Researching " << name << ". It will take " << TurnsToResearch() << " turns." << std::endl;
 	} else {
 		std::cout << "Failed to research " << name << std::endl;
 	}

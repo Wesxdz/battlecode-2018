@@ -165,7 +165,7 @@ bc_Direction Force::Direction()
 {
 	MapLocation origin{ new_bc_MapLocation(Earth, 0, 0) };
 	MapLocation end{ new_bc_MapLocation(Earth, static_cast<int32_t>(std::round(x)), static_cast<int32_t>(std::round(y))) };
-	CHECK_ERRORS()
+	CHECK_ERRORS();
 	return origin.DirectionTo(end);
 }
 

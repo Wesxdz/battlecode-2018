@@ -105,7 +105,7 @@ void BuilderOverlord::DesireUnits() {
 
 	{
 		float workerPriority = .0f;
-		if (round < 25 || workerAmo < 10) workerPriority += 1.0f;
+		if (round < 25 || workerAmo < 10) workerPriority += 1.1f;
 		PlayerData::pd->unitPriority[bc_UnitType::Worker] = workerPriority;
 	}
 
@@ -131,7 +131,14 @@ void BuilderOverlord::DesireUnits() {
 
 	// Always want to be producing factories. Compare to Karb reserves
 	factoryPriority = (1.0f - (factoryToTeam * 10.0f)) * (GameController::Karbonite() / 100.0f);
-
+	if (round > 5 && round < 50) {
+		uintptr_t mapSize = MapUtil::EARTH_MAP_HEIGHT * MapUtil::EARTH_MAP_WIDTH;
+		float mapRatio = mapSize/2500.0f; // If the map is small, we should build factories earlier
+		float roundRatio = round / 50.0f;
+		float timeBonus = roundRatio/mapRatio/(factoryAmo + 2);
+		std::cout << timeBonus << " time bonus" << std::endl;
+		factoryPriority += timeBonus;
+	}
 	PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
 	}
 

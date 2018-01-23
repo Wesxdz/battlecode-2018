@@ -235,7 +235,7 @@ namespace policy {
 		bool workingOnProject = false;
 		uint16_t projId = 0;
 		for (auto& project : BuilderOverlord::buildProjects) {
-			auto self = std::find(project.second.begin(), project.second.begin(), worker.id);
+			auto self = std::find(project.second.begin(), project.second.end(), worker.id);
 			workingOnProject = self != project.second.end();
 			if (workingOnProject) {
 				projId = project.first;
@@ -249,8 +249,9 @@ namespace policy {
 				return workerLocation.DistanceTo(buildA.Loc().ToMapLocation()) < workerLocation.DistanceTo(buildA.Loc().ToMapLocation());
 			});
 			if (startWork != BuilderOverlord::buildProjects.end() && (*startWork).second.size() < 4) {
-				std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
+				//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
 				BuilderOverlord::buildProjects[(*startWork).first].push_back(worker.id); // Join the closest project if it has less than 4 workers!
+				projId = (*startWork).first;
 				workingOnProject = true;
 			}
 		}
@@ -400,7 +401,14 @@ namespace policy {
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (!robot.IsMoveReady()) return 0.0f;
 		bc_Team otherTeam = Utility::GetOtherTeam(GameController::Team());
-		bc_VecUnit* nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, robot.AttackRange() + 2, otherTeam);
+
+		bc_VecUnit* nearbyEnemies;
+		if (CombatOverlord::controlPoints.size() > 0) {
+			nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, robot.AttackRange() + 2, otherTeam);
+		}
+		else {
+			nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, 1000, otherTeam);
+		}
 		if (bc_VecUnit_len(nearbyEnemies) > 0) {
 			units::Unit seek = bc_VecUnit_index(nearbyEnemies, 0);
 			MapLocation choice = seek.Loc().ToMapLocation();
