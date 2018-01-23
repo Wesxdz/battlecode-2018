@@ -54,17 +54,24 @@ void Region::GenRegions() {
 
 	InfluenceMap wallMap;
 	wallMap.Init(GameController::PlanetMap(bc_Planet::Earth));
+	wallMap.Reset();
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			short ID = y * width + x;
 
 			if (!MapUtil::earthTerrainMap[ID]) {
-				wallMap.SetInfluence(x, y, 5.0f, 3);
+				wallMap.SetInfluence(x, y, 10.0f, 1, [](float distance) {
+					return 1.0f - (distance / 3.0f);
+				});
 			}
 		}
 	}
 
 	wallMap.Print();
+
+	// So if we create a Depth Map, we identify the locations furthest away from the map.
+	// If we keep track of what walls each piece comes from, we can detect collisions between 'regions' and determine how to go from one region to another
+
 	
 
 	// We could use a quad tree... / Hierachical A* 

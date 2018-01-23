@@ -42,6 +42,29 @@ namespace policy {
 		return true;
 	}
 
+	float SeekCourageEvaluate(bc_Unit* unit) {
+		units::Robot robot{ bc_Unit_clone(unit) };
+		if (!robot.IsMoveReady()) return 0.0f;
+		MapLocation location = robot.Loc().ToMapLocation();
+		float danger = CombatOverlord::fear.GetInfluence(location);
+		if (danger < 10) return 0.0f;
+		auto moveable = Pathfind::Moveable(location);
+		auto charge = std::max_element(moveable.begin(), moveable.end(), [](MapLocation& a, MapLocation& b) {
+			return CombatOverlord::courage.GetInfluence(a) - CombatOverlord::fear.GetInfluence(a) < CombatOverlord::courage.GetInfluence(b) - CombatOverlord::fear.GetInfluence(b);
+		});
+		if (charge != moveable.end()) {
+			PolicyOverlord::storeDirection = location.DirectionTo(*charge);
+			return 10.0f;
+		}
+		return 0.0f;
+	}
+
+	bool SeekCourageExecute(bc_Unit* unit) {
+		units::Robot robot{ bc_Unit_clone(unit) };
+		robot.Move(PolicyOverlord::storeDirection);
+		return true;
+	}
+
 	float LoadRocketEvaluate(bc_Unit* unit) {
 		float score = 0.0f;
 		units::Robot robot = bc_Unit_clone(unit);
