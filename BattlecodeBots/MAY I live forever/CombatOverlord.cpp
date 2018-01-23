@@ -25,6 +25,7 @@ CombatOverlord::CombatOverlord()
 			controlPoints.push_back(location);
 		}
 	}
+	std::cout << "Control Points " << controlPoints.size() << std::endl;
 	if (GameController::Planet() == Earth) {
 		fear.Init(GameController::earth);
 		courage.Init(GameController::earth);
@@ -41,17 +42,20 @@ CombatOverlord::~CombatOverlord()
 
 void CombatOverlord::Update()
 {
-	auto end = std::remove_if(controlPoints.begin(), controlPoints.end(), [](MapLocation& point) {
-		if (point.IsVisible()) {
-			auto enemies = point.NearbyUnits(25, Utility::GetOtherTeam(GameController::Team()));
-			if (enemies.size() == 0) {
-				return true;
+	if (GameController::Round() % 5) {
+		auto end = std::remove_if(controlPoints.begin(), controlPoints.end(), [](MapLocation& point) {
+			if (point.IsVisible()) {
+				auto enemies = point.NearbyUnits(100, Utility::GetOtherTeam(GameController::Team()));
+				auto team = point.NearbyUnits(100, GameController::Team());
+				if (enemies.size() == 0 && team.size() > 5) {
+					return true;
+				}
 			}
+			return false;
+		});
+		if (end != controlPoints.end()) {
+			controlPoints.erase(end);
 		}
-		return false;
-	});
-	if (end != controlPoints.end()) {
-		controlPoints.erase(end);
 	}
 	requestHeal.clear();
 	auto team = GameController::Units(MyTeam);

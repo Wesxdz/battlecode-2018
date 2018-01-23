@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 // Logger
+#define NDEBUG
 #ifdef NDEBUG
 #define log_error(condition, message) ((void)0)
 #define CHECK_ERRORS() ((void)0)

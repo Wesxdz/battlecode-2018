@@ -18,7 +18,6 @@ bc_UnitType PolicyOverlord::storeUnitType;
 
 void PolicyOverlord::Update()
 {
-	//std::cout << HighestPriority() << " is highest priority\n";
 	bool policyTaken = false;
 	do { // Loop through all units evaluating policies until no policy is executed
 		policyTaken = false;
@@ -48,11 +47,11 @@ void PolicyOverlord::Update()
 		delete_bc_VecUnit(units);
 	} while (policyTaken);
 
-	if (GameController::Round() % 25 == 0) {
-		for (auto& pair : Policy::times) {
-			std::cout << pair.first << ": " << pair.second << std::endl;
-		}
-	}
+	//if (GameController::Round() % 25 == 0) {
+	//	for (auto& pair : Policy::times) {
+	//		std::cout << pair.first << ": " << pair.second << std::endl;
+	//	}
+	//}
 	//std::cout << "Finished evaluating policies" << std::endl;
 }
 
@@ -77,11 +76,6 @@ PolicyOverlord::PolicyOverlord()
 	robot1->Execute = policy::AvoidDamageExecute;
 	policies[Worker].push_back(robot1);
 	policies[Healer].push_back(robot1);
-
-	policies[Healer].push_back(robot1);
-	policies[Knight].push_back(robot1);
-	policies[Ranger].push_back(robot1);
-	policies[Mage].push_back(robot1);
 
 	auto wander = std::make_shared<Policy>("wander");
 	wander->Evaluate = policy::WanderEvaluate;
@@ -150,8 +144,8 @@ PolicyOverlord::PolicyOverlord()
 	auto kite = std::make_shared<Policy>("kite");
 	kite->Evaluate = policy::KiteEvaluate;
 	kite->Execute = policy::KiteExecute;
-	//policies[Ranger].push_back(kite);
-	//policies[Mage].push_back(kite);
+	policies[Ranger].push_back(kite);
+	policies[Mage].push_back(kite);
 
 	// Attack best target
 	auto knight1 = std::make_shared<Policy>("knight_attack");
