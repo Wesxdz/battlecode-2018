@@ -32,28 +32,31 @@ BuilderOverlord::BuilderOverlord()
 
 void BuilderOverlord::Update()
 {
-	//if (GameController::Planet() == Earth) {
-	//	for (auto section : Section::earthSections) {
-	//		if (section->status == StartStatus::Team || section->status == StartStatus::Mixed) {
-	//			if (section->karboniteDeposits.size() > 0) {
-	//				section->karboniteDeposits.erase(std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
-	//					return location.IsVisible() && location.Karbonite() == 0;
-	//				}));
-	//			}
-	//		}
-	//	}
-	//}
-	//else {
-	//	if (GameController::Round() > 50) {
-	//		for (auto section : Section::marsSections) {
-	//			if (section->karboniteDeposits.size() > 0) {
-	//				section->karboniteDeposits.erase(std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
-	//					return location.IsVisible() && location.Karbonite() == 0;
-	//				}));
-	//			}
-	//		}
-	//	}
-	//}
+	if (GameController::Planet() == Earth) {
+		for (auto section : Section::earthSections) {
+			if (section->status == StartStatus::Team || section->status == StartStatus::Mixed) {
+				if (section->karboniteDeposits.size() > 0) {
+					auto mined = std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
+						return location.IsVisible() && location.Karbonite() == 0;
+					});
+					if (mined != section->karboniteDeposits.end()) {
+						section->karboniteDeposits.erase(mined);
+					}
+				}
+			}
+		}
+	}
+	else {
+		if (GameController::Round() > 50) {
+			for (auto section : Section::marsSections) {
+				if (section->karboniteDeposits.size() > 0) {
+					section->karboniteDeposits.erase(std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
+						return location.IsVisible() && location.Karbonite() == 0;
+					}));
+				}
+			}
+		}
+	}
 	DesireUnits();
 }
 

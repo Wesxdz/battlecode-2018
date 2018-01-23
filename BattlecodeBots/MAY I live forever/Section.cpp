@@ -54,7 +54,6 @@ std::list<Section*> Section::GenSections(std::vector<bc_MapLocation*>& passables
 				return false; // MapLocation is the first tile of another section
 			});
 			if (anotherSection != sections.end()) { // Oh dear, this location is adjacent to two sections. We need to merge them
-				std::cout << "Found false section!" << std::endl;
 				(*sectionToJoin)->Add(*anotherSection);
 				sections.remove(*anotherSection);
 			}
@@ -69,47 +68,30 @@ std::list<Section*> Section::GenSections(std::vector<bc_MapLocation*>& passables
 		for (bc_MapLocation* location : section->locations) {
 			if (bc_PlanetMap_initial_karbonite_at(planetMap, location) > 0) section->karboniteDeposits.push_back(MapLocation{ bc_MapLocation_clone(location) });
 			MapLocation loc(bc_MapLocation_clone(location));
-			std::cout << "Adding: " << loc.X() << ", " << loc.Y() << std::endl;
 			sectionMap[Key(loc)] = section;
-			std::cout << sectionMap[Key(loc)]->karboniteDeposits.size();
 		}
 	}
-	std::cout << sections.size() << " sections found" << std::endl;
 	return sections;
 }
 
 void Section::FindEarthSectionsStatus()
 {
-	auto team = PlayerData::pd->teamSpawnPositions;
-	auto enemy = PlayerData::pd->enemySpawnPositions;
-	for (auto section : earthSections) {
-		bool enemyHere = false;
-		bool teamHere = false;
-		for (bc_MapLocation* location : section->locations) {
-			MapLocation loc{ bc_MapLocation_clone(location) };
-			auto findTeam = std::find(team.begin(), team.end(), loc);
-			auto findEnemy = std::find(enemy.begin(), enemy.end(), loc);
-			if (findTeam != team.end()) {
-				teamHere = true;
-				team.erase(findTeam);
-			}
-			if (findEnemy != enemy.end()) {
-				enemyHere = true;
-				enemy.erase(findEnemy);
-			}
-			if (teamHere && enemyHere) {
-				section->status = StartStatus::Mixed;
-				break;
-			}
-		}
-		if (teamHere) {
+	for (MapLocation& location : PlayerData::pd->teamSpawnPositions) {
+		Section* section = Get(location);
+		if (section->status == StartStatus::None) {
 			section->status = StartStatus::Team;
 		}
-		else if (enemyHere) {
+		else if (section->status == StartStatus::Enemy) {
+			section->status = StartStatus::Mixed;
+		}
+	}
+	for (MapLocation& location : PlayerData::pd->enemySpawnPositions) {
+		Section* section = Get(location);
+		if (section->status == StartStatus::None) {
 			section->status = StartStatus::Enemy;
 		}
-		else {
-			section->status = StartStatus::None;
+		else if (section->status == StartStatus::Team) {
+			section->status = StartStatus::Mixed;
 		}
 	}
 }
@@ -119,10 +101,14 @@ int Section::Key(MapLocation location)
 	return location.Planet() * 3000 + location.Y() * 51 + location.X();
 }
 
+Section* Section::Get(MapLocation & location)
+{
+	return sectionMap[Key(location)];
+}
+
 bool Section::InSame(MapLocation & a, MapLocation & b)
 {
-	return false;
-	//return sectionMap[a] == sectionMap[b];
+	return Get(a) == Get(b);
 }
 
 std::list<std::shared_ptr<Deposit>> Deposit::GenDeposits(std::vector<bc_MapLocation*>& locations)

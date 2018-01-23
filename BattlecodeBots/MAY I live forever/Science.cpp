@@ -13,7 +13,7 @@
 
 void Science::Update()
 {
-	auto researchInfoPtr = bc_GameController_research_info(GameController::gc);
+	bc_ResearchInfo* researchInfoPtr = bc_GameController_research_info(GameController::gc);
 
 	if (researchNextTurn) { // Determine what upgrade to research
 		// Upgrades are removed from paths once they are researched
@@ -98,15 +98,15 @@ void Science::Init(PlayerData* playerData)
 		auto currRound = GameController::Round();
 
 		int reachableKarbonite = 0;
-		for (auto section : Section::earthSections) {
+		for (Section* section : Section::earthSections) {
 			if (section->status == StartStatus::Mixed) {
 				for (MapLocation& deposit : section->karboniteDeposits) {
-					reachableKarbonite += deposit.Karbonite() / 2;
+					reachableKarbonite += bc_PlanetMap_initial_karbonite_at(GameController::earth, deposit.self) / 2;
 				}
 			}
 			else if (section->status == StartStatus::Team) {
 				for (MapLocation& deposit : section->karboniteDeposits) {
-					reachableKarbonite += deposit.Karbonite();
+					reachableKarbonite += bc_PlanetMap_initial_karbonite_at(GameController::mars, deposit.self);
 				}
 			}
 		}
@@ -333,6 +333,12 @@ void Science::Init(PlayerData* playerData)
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 
+		for (Section* section : Section::earthSections) {
+			if (section->status == StartStatus::Team) {
+				score += 500.0f;
+			}
+		}
+
 		//std::cout << "Snipe has a value of " << score << std::endl;
 		return score;
 	} });
@@ -555,6 +561,12 @@ void Science::Init(PlayerData* playerData)
 			//}
 		}
 		float score = pow(1.014f, multiplier);
+
+		for (Section* section : Section::earthSections) {
+			if (section->status == StartStatus::Team) {
+				score += 1000.0f;
+			}
+		}
 
 		//std::cout << "Rocketry has a value of " << score << std::endl;
 		return score;

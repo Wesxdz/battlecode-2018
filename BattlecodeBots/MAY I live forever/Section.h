@@ -15,10 +15,10 @@ Units should only care about movement within their section
 */
 
 enum StartStatus { // These are used to evaluate Earth sections at the BEGINNING of the game
+	None, // Nobody starts in this section, we should ignore it
 	Team, // Only your team spawns here
 	Enemy, // Only the enemy team spawns here
 	Mixed,  // Both teams spawn here
-	None // Nobody starts in this section, we should ignore it
 };
 
 class Section
@@ -26,7 +26,7 @@ class Section
 public:
 	~Section();
 	std::vector<bc_MapLocation*> locations;
-	StartStatus status;
+	StartStatus status = None;
 	void Add(Section* section);
 	std::list<MapLocation> karboniteDeposits;
 
@@ -34,9 +34,11 @@ public:
 	static void FindEarthSectionsStatus(); // Call after generating PlayerData spawnLocations!
 	static std::list<Section*> marsSections;
 	static std::list<Section*> earthSections;
+	static Section* Get(MapLocation& location);
+	static bool InSame(MapLocation& a, MapLocation& b);
+private:
 	static std::map<int, Section*> sectionMap; // Only contains passable locations!!!
 	static int Key(MapLocation location);
-	static bool InSame(MapLocation& a, MapLocation& b);
 };
 
 // A deposit can also contain unpassable terrain, but it must be connected to passable terrian with

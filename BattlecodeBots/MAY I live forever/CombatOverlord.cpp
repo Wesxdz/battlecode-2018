@@ -11,6 +11,7 @@
 #include "MapUtil.h"
 #include <iostream>
 #include <math.h>
+#include "Section.h"
 
 std::vector<uint16_t> CombatOverlord::requestHeal;
 std::vector<MapLocation> CombatOverlord::controlPoints;
@@ -20,7 +21,9 @@ InfluenceMap CombatOverlord::courage;
 CombatOverlord::CombatOverlord()
 {
 	for (MapLocation location : PlayerData::pd->enemySpawnPositions) {
-		controlPoints.push_back(location);
+		if (Section::Get(location)->status = StartStatus::Mixed) {
+			controlPoints.push_back(location);
+		}
 	}
 	if (GameController::Planet() == Earth) {
 		fear.Init(GameController::earth);

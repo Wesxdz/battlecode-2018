@@ -43,7 +43,7 @@ PlayerData::PlayerData()
 	std::cout << "There are " << Section::earthSections.size() << " sections" << std::endl;
 	Section::FindEarthSectionsStatus();
 	for (auto section : Section::earthSections) {
-		std::cout << section->status << std::endl;
+		std::cout << (int)section->status << std::endl;
 	}
 
 }
