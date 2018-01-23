@@ -45,7 +45,7 @@ MapUtil::MapUtil()
 
 	MapUtil::earthLocations = MapUtil::AllLocations(earth.self);
 	MapUtil::earthPassableLocations = MapUtil::FilteredLocations(MapUtil::earthLocations, [](bc_MapLocation* location) {
-		return bc_PlanetMap_is_passable_terrain_at(GameController::PlanetMap(Earth), location);
+		return bc_PlanetMap_is_passable_terrain_at(GameController::earth, location);
 	});
 	// We should probably incorporate this for loop into the previous call
 	// Iterates over all locations and stores wether they are passable, that way we dont have to call it each time.
@@ -80,8 +80,8 @@ MapUtil::MapUtil()
 		}
 	}
 
-	Section::earthSections = Section::GenSections(MapUtil::earthPassableLocations);
-	Section::marsSections = Section::GenSections(MapUtil::marsPassableLocations);
+	Section::earthSections = Section::GenSections(MapUtil::earthPassableLocations, GameController::earth);
+	Section::marsSections = Section::GenSections(MapUtil::marsPassableLocations, GameController::mars);
 
 	//Deposit::earthDeposits = Deposit::GenDeposits(MapUtil::earthLocations);
 	//std::cout << Deposit::earthDeposits.size() << " deposits groups on Earth" << std::endl;

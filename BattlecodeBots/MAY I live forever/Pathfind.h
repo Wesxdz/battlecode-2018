@@ -26,7 +26,7 @@ public:
 	static bool MoveFuzzy(units::Robot& robot, bc_Direction direction);
 	static bool MoveFuzzyFlow(units::Robot& robot, MapLocation& destination);
 	static bool MoveFuzzyFlow(units::Robot& robot, int destX, int destY);
-	static int GetFuzzyFlowTurns(units::Robot& robot, int destX, int destY);
+	static int GetFuzzyFlowTurns(MapLocation& origin, MapLocation& destination);
 
 private:
 	static void Init();

@@ -13,6 +13,7 @@ namespace constants
 	const std::array<bc_UnitType, 2> types_structures = { Factory, Rocket };
 	const std::array<bc_UnitType, 5> types_robots = { Worker, Knight, Healer, Mage, Ranger };
 	const std::array<bc_UnitType, 3> types_fighters = { Knight, Ranger, Mage };
+	const int RocketLoadAmo = 8;
 	const uint32_t MAP_SIZE_MIN = 400;
 	const uint32_t MAP_SIZE_MAX = 2500;
 

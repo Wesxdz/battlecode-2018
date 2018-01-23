@@ -7,18 +7,6 @@
 
 #include "MapLocation.h"
 
-struct Vec2
-{
-	int x;
-	int y;
-	Vec2(int x2, int y2)
-	{
-		x = x2;
-		y = y2;
-	}
-
-};
-
 class PlayerData
 {
 public:
@@ -34,8 +22,6 @@ public:
 	void GatherUnitData();
 	void ClearUnitCounts();
 	
-	int earthStartingKarbonite;
-	std::vector<MapLocation> karboniteDeposits;
 	std::vector<MapLocation> teamSpawnPositions;
 	std::vector<MapLocation> enemySpawnPositions;
 

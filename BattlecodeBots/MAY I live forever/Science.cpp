@@ -9,10 +9,11 @@
 #include "Constants.h"
 #include "MapUtil.h"
 #include "PlayerData.h"
+#include "Section.h"
 
 void Science::Update()
 {
-	auto researchInfoPtr = bc_GameController_research_info(GameController::gc);
+	bc_ResearchInfo* researchInfoPtr = bc_GameController_research_info(GameController::gc);
 
 	if (researchNextTurn) { // Determine what upgrade to research
 		// Upgrades are removed from paths once they are researched
@@ -96,11 +97,24 @@ void Science::Init(PlayerData* playerData)
 		// This Upgrade is pointless if it can't be reached by round 750
 		auto currRound = GameController::Round();
 
+		int reachableKarbonite = 0;
+		for (Section* section : Section::earthSections) {
+			if (section->status == StartStatus::Mixed) {
+				for (MapLocation& deposit : section->karboniteDeposits) {
+					reachableKarbonite += bc_PlanetMap_initial_karbonite_at(GameController::earth, deposit.self) / 2;
+				}
+			}
+			else if (section->status == StartStatus::Team) {
+				for (MapLocation& deposit : section->karboniteDeposits) {
+					reachableKarbonite += bc_PlanetMap_initial_karbonite_at(GameController::mars, deposit.self);
+				}
+			}
+		}
 		float score = .0f;
 		if (currRound > 1000 - constants::WorkerUpgrade1) {
 			score = .0f;
 		} else {
-			float ourShare = playerData->earthStartingKarbonite / 2.0f;
+			float ourShare = (float)reachableKarbonite;
 			if(ourShare < 1) { ourShare = 1; }
 			float predictedTurns = ourShare / (3 * playerData->teamUnitCounts[bc_UnitType::Worker]);
 			float possibleTurns = ourShare / (4 * playerData->teamUnitCounts[bc_UnitType::Worker]);
@@ -319,6 +333,12 @@ void Science::Init(PlayerData* playerData)
 			score = tempScore * hasUnits + tempScore * willHaveUnits;
 		}
 
+		for (Section* section : Section::earthSections) {
+			if (section->status == StartStatus::Team) {
+				score += 500.0f;
+			}
+		}
+
 		//std::cout << "Snipe has a value of " << score << std::endl;
 		return score;
 	} });
@@ -530,17 +550,23 @@ void Science::Init(PlayerData* playerData)
 
 			// 1000 is a hardcoded minimum to be competent on Earth at start
 			// Checking for errors in Starting Karbonite
-			float EarthToMarsRatio;
-			if (playerData->earthStartingKarbonite < 1) {
-				EarthToMarsRatio = 0.0f;
-			} else {
-				EarthToMarsRatio = 1000.0f / playerData->earthStartingKarbonite;
-			}
-			if (EarthToMarsRatio > multiplier) {
-				multiplier = EarthToMarsRatio;
-			}
+			//float EarthToMarsRatio;
+			//if (playerData->earthStartingKarbonite < 1) {
+			//	EarthToMarsRatio = 0.0f;
+			//} else {
+			//	EarthToMarsRatio = 1000.0f / playerData->earthStartingKarbonite;
+			//}
+			//if (EarthToMarsRatio > multiplier) {
+			//	multiplier = EarthToMarsRatio;
+			//}
 		}
 		float score = pow(1.014f, multiplier);
+
+		for (Section* section : Section::earthSections) {
+			if (section->status == StartStatus::Team) {
+				score += 1000.0f;
+			}
+		}
 
 		//std::cout << "Rocketry has a value of " << score << std::endl;
 		return score;

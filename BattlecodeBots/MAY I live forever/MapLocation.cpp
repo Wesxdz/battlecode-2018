@@ -29,6 +29,9 @@ MapLocation::MapLocation(bc_MapLocation* loc)
 
 bool MapLocation::operator<(const MapLocation & other) const
 {
+	if (bc_MapLocation_planet_get(self) < bc_MapLocation_planet_get(other.self)) {
+		return true;
+	}
 	if (bc_MapLocation_y_get(self) < bc_MapLocation_y_get(other.self)) {
 		return true;
 	}
@@ -45,26 +48,26 @@ MapLocation::~MapLocation()
 	delete_bc_MapLocation(self);
 }
 
-MapLocation MapLocation::operator=(const MapLocation& other) {
+MapLocation& MapLocation::operator=(const MapLocation& other) {
 	this->self = bc_MapLocation_clone(other.self);
 	return *this;
 }
 
 bool MapLocation::operator==(const MapLocation& other) const {
-	return bc_MapLocation_eq(this->self, other.self);
+	return Planet() == other.Planet() && Y() == other.Y() && X() == other.X(); // Freaking deep equality
 }
 
-bc_Planet MapLocation::Planet()
+bc_Planet MapLocation::Planet() const
 {
 	return bc_MapLocation_planet_get(self);
 }
 
-int32_t MapLocation::X()
+int32_t MapLocation::X() const
 {
 	return bc_MapLocation_x_get(self);
 }
 
-int32_t MapLocation::Y()
+int32_t MapLocation::Y() const
 {
 	return bc_MapLocation_y_get(self);
 }

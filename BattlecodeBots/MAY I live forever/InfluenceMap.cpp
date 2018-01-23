@@ -22,12 +22,12 @@ InfluenceMap::~InfluenceMap()
 	delete[] influence;
 }
 
-float InfluenceMap::GetInfluence(MapLocation location)
+float InfluenceMap::GetInfluence(MapLocation& location)
 {
 	return influence[location.X() + location.Y() * width];
 }
 
-void InfluenceMap::SetInfluence(MapLocation location, float amount, int diffuse, std::function<float(float)> DiffuseEq)
+void InfluenceMap::SetInfluence(MapLocation& location, float amount, int diffuse, std::function<float(float)> DiffuseEq)
 {
 	Diffuse(location.X() + location.Y() * width, amount, diffuse, DiffuseEq);
 }
@@ -49,11 +49,11 @@ void InfluenceMap::Print()
 {
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			std::cout << std::setw(2) << static_cast<int>(influence[x + y * height]) << " ";
+			//std::cout << std::setw(2) << static_cast<int>(influence[x + y * height]) << " ";
 		}
-		std::cout << '\n';
+		//std::cout << '\n';
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 }
 
 void InfluenceMap::Diffuse(int startIndex, float amount, int diffuse, std::function<float(float)> DiffuseEq)
@@ -62,12 +62,8 @@ void InfluenceMap::Diffuse(int startIndex, float amount, int diffuse, std::funct
 		for (int y = -diffuse; y < diffuse; y++) {
 			for (int x = -diffuse; x < diffuse; x++) {
 				int index = startIndex + x + y * width;
-				if (IsValid(index) && Overflow(startIndex, x)) {
-					float gain = amount * DiffuseEq(abs(x) + abs(y));
-					influence[index] += gain;
-					std::cout << "Index " << index << " gained " << gain << std::endl;
-				} else {
-					std::cout << "Index " << startIndex % width << ", " << startIndex / width << " is not valid " << x << ", " << y << std::endl;
+				if (IsValid(index) && !Overflow(startIndex, x)) {
+					influence[index] += amount * DiffuseEq(abs(x) + abs(y));
 				}
 			}
 		}
@@ -82,5 +78,5 @@ bool InfluenceMap::IsValid(int index)
 bool InfluenceMap::Overflow(int index, int x)
 {
 	int curX = (index % width) + x;
-	return curX < width && curX >= 0;
+	return curX > width && curX < 0;
 }

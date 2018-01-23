@@ -16,6 +16,7 @@
 #include "BuilderOverlord.h"
 #include "MapUtil.h"
 #include "Pegboard.h"
+#include <memory>
 
 namespace policy {
 
@@ -53,8 +54,10 @@ namespace policy {
 			return CombatOverlord::courage.GetInfluence(a) - CombatOverlord::fear.GetInfluence(a) < CombatOverlord::courage.GetInfluence(b) - CombatOverlord::fear.GetInfluence(b);
 		});
 		if (charge != moveable.end()) {
-			PolicyOverlord::storeDirection = location.DirectionTo(*charge);
-			return 10.0f;
+			if (CombatOverlord::courage.GetInfluence(*charge) - CombatOverlord::fear.GetInfluence(*charge) > CombatOverlord::courage.GetInfluence(location) - CombatOverlord::fear.GetInfluence(location)) {
+				PolicyOverlord::storeDirection = location.DirectionTo(*charge);
+				return 10.0f;
+			}
 		}
 		return 0.0f;
 	}
@@ -88,6 +91,74 @@ namespace policy {
 		units::Rocket rocket = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		rocket.Load(robot);
 		return true;
+	}
+
+	float SeekRocketEvaluate(bc_Unit* unit) {
+		// Check if Rockets Exists
+		if (BuilderOverlord::rockets.size() == 0) return 0.0f;
+
+		units::Robot robot = bc_Unit_clone(unit);
+
+		// Check if we are desired
+		bool desired = false;
+		for (auto type : BuilderOverlord::rocketLoadType) {
+			if (robot.type == type) {
+				desired = true;
+				break;
+			}
+		}
+		if(!desired) { return .0f; }
+
+		// Check Movement
+		if (!robot.IsMoveReady()) return 0.0f; 
+
+		// Determine if We are already heading to Rockets
+		MapLocation workerLocation = robot.Loc().ToMapLocation();
+		uint16_t rocketID = 0;
+		bool seekingRocket = false;
+		for (auto& rocket : BuilderOverlord::rockets) { 
+			auto self = std::find(rocket.second.begin(), rocket.second.begin(), robot.id);
+			seekingRocket = self != rocket.second.end();
+			if (seekingRocket) {
+				rocketID = rocket.first;
+				break;
+			}
+		}
+
+
+		// Determine if we should be seeking
+		if(!seekingRocket) {
+			auto startWork = std::min_element(BuilderOverlord::rockets.begin(), BuilderOverlord::rockets.end(), [&workerLocation](auto& a, auto& b) { // std::pair<uint16_t, std::vector<uint16_t>>
+				units::Structure buildA = bc_GameController_unit(GameController::gc, a.first);
+				units::Structure buildB = bc_GameController_unit(GameController::gc, b.first);
+				return workerLocation.DistanceTo(buildA.Loc().ToMapLocation()) < workerLocation.DistanceTo(buildA.Loc().ToMapLocation());
+			});
+			if (startWork != BuilderOverlord::rockets.end() && (*startWork).second.size() < constants::RocketLoadAmo) {
+				//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
+				BuilderOverlord::rockets[(*startWork).first].push_back(robot.id); // Join the closest project if it has less than 4 workers!
+				seekingRocket = true;
+			}
+		}
+
+		// Move towards rocket
+		if (seekingRocket) {
+			units::Structure rocket = bc_GameController_unit(GameController::gc, rocketID);
+			if (robot.Loc().ToMapLocation().IsAdjacentTo(rocket.Loc().ToMapLocation())) {
+				return 0.0f; // We don't need to move if already next to the build location
+			}
+			else {
+				PolicyOverlord::storeDirection = robot.Loc().ToMapLocation().DirectionTo(rocket.Loc().ToMapLocation());
+				return 10.0f;
+			}
+		} 
+
+		return 0.0f;
+	}
+
+	bool SeekRocketExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
+		std::cout << "We are seeking Rocket" << std::endl;
+		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
 	float WanderEvaluate(bc_Unit* unit) {
@@ -138,6 +209,9 @@ namespace policy {
 		MapLocation buildLocation = MapLocation::Neighbor(worker.Loc().ToMapLocation(), PolicyOverlord::storeDirection);
 		units::Structure build = buildLocation.Occupant();
 		BuilderOverlord::buildProjects[build.id].push_back(worker.id);
+		if (PolicyOverlord::storeUnitType == bc_UnitType::Rocket) {
+			BuilderOverlord::rockets[build.id]; // Add rockets
+		}
 		return true;
 	}
 
@@ -170,21 +244,22 @@ namespace policy {
 			bool workingOnProject = self != project.second.end();
 			if (workingOnProject) return 0.0f;
 		}
-		if (PlayerData::pd->karboniteDeposits.size() == 0) return 0.0f;
+		Section* section = Section::Get(workerLocation);
+		if (section->karboniteDeposits.size() == 0) return 0.0f;
 		for (bc_Direction direction : constants::directions_all) { // If Karbonite is already nearby, don't seek it!
 			auto adj = MapLocation::Neighbor(workerLocation, direction);
 			if (adj.IsValid() && adj.Karbonite() > 0) return 0.0f;
 		}
 		auto seek = BuilderOverlord::seekKarbonite.find(worker.id);
 		if (seek != BuilderOverlord::seekKarbonite.end() &&
-			std::find(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), (*seek).second) != PlayerData::pd->karboniteDeposits.end()) {
+			std::find(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), (*seek).second) != section->karboniteDeposits.end()) {
 			PolicyOverlord::storeDirection = workerLocation.DirectionTo((*seek).second);
 			return 5.0f;
 		}
-		auto closest = std::min_element(PlayerData::pd->karboniteDeposits.begin(), PlayerData::pd->karboniteDeposits.end(), [&workerLocation](MapLocation& a, MapLocation& b) {
+		auto closest = std::min_element(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [&workerLocation](MapLocation& a, MapLocation& b) {
 			return workerLocation.DistanceTo(a) < workerLocation.DistanceTo(b);
 		});
-		if (closest != PlayerData::pd->karboniteDeposits.end()) {
+		if (closest != section->karboniteDeposits.end()) {
 			BuilderOverlord::seekKarbonite[worker.id] = *closest;
 			PolicyOverlord::storeDirection = workerLocation.DirectionTo(*closest);
 			return 5.0f;
@@ -399,9 +474,12 @@ namespace policy {
 		bc_VecUnit* nearbyEnemies = bc_GameController_sense_nearby_units_by_team(GameController::gc, robotLocation.self, robot.AttackRange() + 2, otherTeam);
 		if (bc_VecUnit_len(nearbyEnemies) > 0) {
 			units::Unit seek = bc_VecUnit_index(nearbyEnemies, 0);
-			PolicyOverlord::storeDirection = robotLocation.DirectionTo(seek.Loc().ToMapLocation());
-			delete_bc_VecUnit(nearbyEnemies);
-			return 20.0f;
+			MapLocation choice = seek.Loc().ToMapLocation();
+			if (CombatOverlord::courage.GetInfluence(choice) >= CombatOverlord::fear.GetInfluence(choice)) {
+				delete_bc_VecUnit(nearbyEnemies);
+				PolicyOverlord::storeDirection = robotLocation.DirectionTo(choice);
+				return 20.0f;
+			}
 		}
 		delete_bc_VecUnit(nearbyEnemies);
 		return 0.0f;
