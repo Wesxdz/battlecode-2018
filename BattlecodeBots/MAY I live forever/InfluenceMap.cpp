@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "MapUtil.h"
 #include <iostream>
+#include <iomanip>
 
 InfluenceMap::InfluenceMap()
 {
@@ -31,6 +32,12 @@ void InfluenceMap::SetInfluence(MapLocation& location, float amount, int diffuse
 	Diffuse(location.X() + location.Y() * width, amount, diffuse, DiffuseEq);
 }
 
+void InfluenceMap::SetInfluence(int xLoc, int yLoc, float amount, int diffuse, std::function<float(float)> DiffuseEq)
+{
+	Diffuse(xLoc + yLoc * width, amount, diffuse, DiffuseEq);
+}
+
+
 void InfluenceMap::Reset()
 {
 	for (int i = 0; i < width * height; i++) {
@@ -42,10 +49,11 @@ void InfluenceMap::Print()
 {
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			std::cout << (int)influence[x + y * height] << " ";
+			//std::cout << std::setw(2) << static_cast<int>(influence[x + y * height]) << " ";
 		}
-		std::cout << std::endl;
+		//std::cout << '\n';
 	}
+	//std::cout << std::endl;
 }
 
 void InfluenceMap::FindMax()
@@ -78,7 +86,7 @@ void InfluenceMap::Diffuse(int startIndex, float amount, int diffuse, std::funct
 
 bool InfluenceMap::IsValid(int index)
 {
-	return index > 0 && index < width * height;
+	return index > -1 && index < width * height;
 }
 
 bool InfluenceMap::Overflow(int index, int x)

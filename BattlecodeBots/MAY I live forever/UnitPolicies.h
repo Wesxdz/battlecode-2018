@@ -68,6 +68,74 @@ namespace policy {
 		return true;
 	}
 
+	float SeekRocketEvaluate(bc_Unit* unit) {
+		// Check if Rockets Exists
+		if (BuilderOverlord::rockets.size() == 0) return 0.0f;
+
+		units::Robot robot = bc_Unit_clone(unit);
+
+		// Check if we are desired
+		bool desired = false;
+		for (auto type : BuilderOverlord::rocketLoadType) {
+			if (robot.type == type) {
+				desired = true;
+				break;
+			}
+		}
+		if(!desired) { return .0f; }
+
+		// Check Movement
+		if (!robot.IsMoveReady()) return 0.0f; 
+
+		// Determine if We are already heading to Rockets
+		MapLocation workerLocation = robot.Loc().ToMapLocation();
+		uint16_t rocketID = 0;
+		bool seekingRocket = false;
+		for (auto& rocket : BuilderOverlord::rockets) { 
+			auto self = std::find(rocket.second.begin(), rocket.second.begin(), robot.id);
+			seekingRocket = self != rocket.second.end();
+			if (seekingRocket) {
+				rocketID = rocket.first;
+				break;
+			}
+		}
+
+
+		// Determine if we should be seeking
+		if(!seekingRocket) {
+			auto startWork = std::min_element(BuilderOverlord::rockets.begin(), BuilderOverlord::rockets.end(), [&workerLocation](auto& a, auto& b) { // std::pair<uint16_t, std::vector<uint16_t>>
+				units::Structure buildA = bc_GameController_unit(GameController::gc, a.first);
+				units::Structure buildB = bc_GameController_unit(GameController::gc, b.first);
+				return workerLocation.DistanceTo(buildA.Loc().ToMapLocation()) < workerLocation.DistanceTo(buildA.Loc().ToMapLocation());
+			});
+			if (startWork != BuilderOverlord::rockets.end() && (*startWork).second.size() < constants::RocketLoadAmo) {
+				//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
+				BuilderOverlord::rockets[(*startWork).first].push_back(robot.id); // Join the closest project if it has less than 4 workers!
+				seekingRocket = true;
+			}
+		}
+
+		// Move towards rocket
+		if (seekingRocket) {
+			units::Structure rocket = bc_GameController_unit(GameController::gc, rocketID);
+			if (robot.Loc().ToMapLocation().IsAdjacentTo(rocket.Loc().ToMapLocation())) {
+				return 0.0f; // We don't need to move if already next to the build location
+			}
+			else {
+				PolicyOverlord::storeDirection = robot.Loc().ToMapLocation().DirectionTo(rocket.Loc().ToMapLocation());
+				return 10.0f;
+			}
+		} 
+
+		return 0.0f;
+	}
+
+	bool SeekRocketExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
+		std::cout << "We are seeking Rocket" << std::endl;
+		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
+	}
+
 	float WanderEvaluate(bc_Unit* unit) {
 		if (!bc_GameController_is_move_ready(GameController::gc, bc_Unit_id(unit))) return 0.0f;
 		return 0.1f;
@@ -116,6 +184,9 @@ namespace policy {
 		MapLocation buildLocation = MapLocation::Neighbor(worker.Loc().ToMapLocation(), PolicyOverlord::storeDirection);
 		units::Structure build = buildLocation.Occupant();
 		BuilderOverlord::buildProjects[build.id].push_back(worker.id);
+		if (PolicyOverlord::storeUnitType == bc_UnitType::Rocket) {
+			BuilderOverlord::rockets[build.id]; // Add rockets
+		}
 		return true;
 	}
 

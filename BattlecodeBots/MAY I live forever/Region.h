@@ -11,9 +11,10 @@ public:
 	// ID?
 	std::vector<bc_MapLocation*> locations; // Curr Locations in this location
 	std::vector<Region*> connectedRegions; // Other regions it is connected to. Typically via chokepoints
+	// char ID;
 
-	static std::vector<Region> regions;
 	static short* depthMap;
+	static std::vector<Region> regions;
 public:
 	~Region();
 
@@ -24,7 +25,9 @@ public:
 	//std::vector<bc_MapLocation*>& passables
 
 private:
-	static void GenDepthMap(short* depthMap, short* terrainMap);
+	Region();
+	//static void GenDepthMap(short* depthMap, short* terrainMap);
+	//static void GenZoneMap() 
 };
 
 // Choke points are areas that provide easy, but limited access to other areas.

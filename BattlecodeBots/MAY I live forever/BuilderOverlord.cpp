@@ -14,10 +14,18 @@
 #include <math.h>
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
+std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
+std::list<std::shared_ptr<Deposit>> BuilderOverlord::sortedLandings;
 std::map<uint16_t, MapLocation> BuilderOverlord::seekKarbonite;
+std::vector<bc_UnitType> BuilderOverlord::rocketLoadType;
 
 BuilderOverlord::BuilderOverlord()
 {
+	rocketLoadType.push_back(Worker);
+	rocketLoadType.push_back(Knight);
+	rocketLoadType.push_back(Ranger);
+	rocketLoadType.push_back(Mage);
+	rocketLoadType.push_back(Healer);
 }
 
 void BuilderOverlord::Update()
@@ -52,6 +60,8 @@ void BuilderOverlord::Update()
 
 void BuilderOverlord::DesireUnits() {
 	uint32_t round = GameController::Round();
+
+	// TODO: Set Rocket Desred Types
 
 	// Cant build anything, so replicate workers
 	if (GameController::Planet() == Mars) {

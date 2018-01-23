@@ -15,6 +15,9 @@ public:
 	void SetInfluence(MapLocation& location, float amount, int diffuse, std::function<float(float)> DiffuseEq = [](float distance) {
 		return 1 / (distance + 1);
 	});
+	void SetInfluence(int xLoc, int yLoc, float amount, int diffuse, std::function<float(float)> DiffuseEq = [](float distance) {
+		return 1 / (distance + 1);
+	});
 	void Reset();
 	void Print();
 	void FindMax();

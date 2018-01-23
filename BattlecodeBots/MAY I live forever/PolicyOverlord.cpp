@@ -196,6 +196,13 @@ PolicyOverlord::PolicyOverlord()
 		policies[Worker].push_back(robot2);
 
 		auto seekRocket = std::make_shared<Policy>("seek_rocket");
+		seekRocket->Evaluate = policy::SeekRocketEvaluate;
+		seekRocket->Execute = policy::SeekRocketExecute;
+		policies[Worker].push_back(seekRocket);
+		policies[Knight].push_back(seekRocket);
+		policies[Ranger].push_back(seekRocket);
+		policies[Mage].push_back(seekRocket);
+		policies[Healer].push_back(seekRocket);
 
 		auto worker2 = std::make_shared<Policy>("blueprint");
 		worker2->Evaluate = policy::WorkerBlueprintEvaluate;
