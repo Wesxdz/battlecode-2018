@@ -6,6 +6,7 @@
 
 #include "MapUtil.h"
 #include "Utility.h"
+#include "Section.h"
 
 #include <iostream>
 #include <iomanip>
@@ -95,13 +96,15 @@ bool Pathfind::MoveFuzzy(units::Robot & robot, bc_Direction direction)
 
 // We don't use this in the other mehtods...
 std::map<int, FlowChart> Pathfind::flowCharts;
+std::vector<short> openNodes;
+bc_Planet planet;
 short width;
 short height;
 short* terrainMap = nullptr;
 bool hasInit = false;
 
 void Pathfind::Init() {
-	bc_Planet planet = GameController::Planet();
+	planet = GameController::Planet();
 	if (planet == bc_Planet::Earth) {
 		width = static_cast<short>(MapUtil::EARTH_MAP_WIDTH);
 		height = static_cast<short>(MapUtil::EARTH_MAP_HEIGHT);
@@ -114,12 +117,25 @@ void Pathfind::Init() {
 	hasInit = true;
 }
 
+// Should Optimize so that less calls to BC
+// Should optimize memory
+// Should optimize into readability.
+// Create method that takes in vector of MapLocations. Determine which one takes the fewest turns.
+
 bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	if (robot.MovementHeat() > 9) { return false; } // Can't move
-	
+
+	// Init
 	if (!hasInit) {
 		Init();
 	}
+	MapLocation mapLoc = robot.Loc().ToMapLocation();
+	Section* destSection = Section::Get(planet, destX, destY);
+	Section* currSection = Section::Get(mapLoc);
+	CHECK_ERRORS();
+
+	// Can't path from one section to another.
+	if (currSection != destSection) { return false; }
 
 	short destXY = width * destY + destX; // Get Map Pos Total
 
@@ -128,38 +144,201 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 
 	// Generate Flowpath if it doesnt exist.
 	if (chartPtr == flowCharts.end()) {
-		GenerateFlowPath(destX, destY);
+		GenerateFlowPath(destSection, destX, destY);
 		flowChart = &flowCharts[destXY];
 	} else {
 		flowChart = &chartPtr->second;
 	}
 
-	auto mapLoc = robot.Loc().ToMapLocation(); // Get Curr Map Pos Total
 	short currX = static_cast<short>(mapLoc.X());
 	short currY = static_cast<short>(mapLoc.Y());
-
 	short currXY = width * currY + currX; // Robot Position ID 
 
 	auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
 	return Pathfind::MoveFuzzy(robot, dir);
-	
-	//if (chartPtr != flowCharts.end()) {
+}
 
-	//} else {
-	//	
+int Pathfind::GetFuzzyFlowTurns(int sourceX, int sourceY, int destX, int destY) {
+	// Init
+	if (!hasInit) {
+		Init();
+	}
+	Section* destSection = Section::Get(planet, destX, destY);
+	Section* currSection = Section::Get(planet, sourceX, sourceY);
+	CHECK_ERRORS();
 
-	//	
-	//	//Move
-	//	auto mapLoc = robot.Loc().ToMapLocation(); // Get Curr Map Pos Total
-	//	short currX = static_cast<short>(mapLoc.X());
-	//	short currY = static_cast<short>(mapLoc.Y());
-	//	short currXY = width * currY + currX; // Robot Position ID 
-	//	
-	//	auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
-	//	return Pathfind::MoveFuzzy(robot, dir);
-	//}
-	
-	return false;
+	// Can't path from one section to another.
+	if (currSection != destSection) { return false; }
+
+	short destXY = width * destY + destX; // Get Map Pos Total
+
+	auto chartPtr = flowCharts.find(destXY); // Check if We already have a flowchart for this dest
+	FlowChart* flowChart = nullptr;
+
+	// Generate Flowpath if it doesnt exist.
+	if (chartPtr == flowCharts.end()) {
+		GenerateFlowPath(destSection, destX, destY);
+		flowChart = &flowCharts[destXY];
+	} else {
+		flowChart = &chartPtr->second;
+	}
+
+	short currXY = width * sourceY + sourceX; // Robot Position ID 
+	return flowChart->pointsMap[currXY];
+}
+
+FlowChart Pathfind::CreateFlowChart(std::vector<bc_MapLocation*> destinations) {
+	FlowChart flowChart;
+
+	if(destinations.size() < 1) { return flowChart; }
+
+	// Init
+	if (!hasInit) {
+		Init();
+	}
+
+	int destX = bc_MapLocation_x_get(destinations[0]);
+	int destY = bc_MapLocation_y_get(destinations[0]);
+	Section* destSection = Section::Get(planet, destX, destY);
+
+	//// Create the Maps that will store the data
+	flowChart.pointsMap = new short[width * height];
+	flowChart.directionMap = new bc_Direction[width * height];
+	/// NOTE* can probably optimize Memory usage of Flow Map
+
+	// Initialize Point Map
+	openNodes.clear();
+	for (short y = 0; y < height; y++) {
+		for (short x = 0; x < width; x++) {
+			short ID = y * width + x;
+			flowChart.pointsMap[ID] = SHRT_MAX;
+		}
+	}
+	int destSize = static_cast<int>(destinations.size());
+	for (int i = 1; i < destSize; i++) {
+		int x = bc_MapLocation_x_get(destinations[i]);
+		int y = bc_MapLocation_x_get(destinations[i]);
+
+		short ID = y * width + x;
+		flowChart.pointsMap[ID] = 0;
+		openNodes.push_back(ID);
+	}
+
+	//// Generate a map based off the terrain and destination
+	GenerateFlowPathPoints(terrainMap, flowChart.pointsMap, destSection, destX, destY);
+
+	std::cout << "Points Map" << std::endl;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			std::cout << std::setw(6) << flowChart.pointsMap[y * width + x] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::setw(0) << "\n\n" << std::endl;
+
+	// Generate a map of directions based off surrounding points...
+	for (short y = 0; y < height; y++) {
+		for (short x = 0; x < width; x++) {
+			short ID = y * width + x;
+			if (flowChart.pointsMap[ID] != SHRT_MAX) {
+				flowChart.directionMap[ID] = GenerateFlowPathDirection(flowChart.pointsMap, x, y, destX, destY);
+			} else {
+				flowChart.directionMap[ID] = bc_Direction::Center;
+			}
+
+		}
+	}
+
+	std::cout << "Direction Map" << std::endl;
+	std::cout << "Destination is " << destX << ", " << destY << std::endl;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			std::cout << flowChart.directionMap[y * width + x] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "\n\n" << std::endl;
+
+	return flowChart;
+}
+
+FlowChart Pathfind::CreateFlowChart(std::vector<MapLocation> destinations) {
+	FlowChart flowChart;
+
+	if(destinations.size() < 1) { 
+		std::cout << "Destinations is 0" << std::endl;
+		return flowChart; 
+	}
+
+	// Init
+	if (!hasInit) {
+		Init();
+	}
+
+	int destX = destinations[0].X();
+	int destY = destinations[0].Y();
+	Section* destSection = Section::Get(planet, destX, destY);
+	std::cout << "First destination is " << destX << ", " << destY << " in Section " << destSection << std::endl;
+
+	//// Create the Maps that will store the data
+	flowChart.pointsMap = new short[width * height];
+	flowChart.directionMap = new bc_Direction[width * height];
+	/// NOTE* can probably optimize Memory usage of Flow Map
+
+	// Initialize Point Map
+	openNodes.clear();
+	for (short y = 0; y < height; y++) {
+		for (short x = 0; x < width; x++) {
+			short ID = y * width + x;
+			flowChart.pointsMap[ID] = SHRT_MAX;
+		}
+	}
+	int destSize = static_cast<int>(destinations.size());
+	for (int i = 1; i < destSize; i++) {
+		int x = destinations[i].X();
+		int y = destinations[i].Y();
+
+		short ID = y * width + x;
+		flowChart.pointsMap[ID] = 0;
+		openNodes.push_back(ID);
+	}
+
+	//// Generate a map based off the terrain and destination
+	GenerateFlowPathPoints(terrainMap, flowChart.pointsMap, destSection, destX, destY);
+
+	std::cout << "Points Map" << std::endl;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			std::cout << std::setw(6) << flowChart.pointsMap[y * width + x] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::setw(0) << "\n\n" << std::endl;
+
+	// Generate a map of directions based off surrounding points...
+	for (short y = 0; y < height; y++) {
+		for (short x = 0; x < width; x++) {
+			short ID = y * width + x;
+			if (flowChart.pointsMap[ID] != SHRT_MAX) {
+				flowChart.directionMap[ID] = GenerateFlowPathDirection(flowChart.pointsMap, x, y, destX, destY);
+			} else {
+				flowChart.directionMap[ID] = bc_Direction::Center;
+			}
+
+		}
+	}
+
+	std::cout << "Direction Map" << std::endl;
+	std::cout << "Destination is " << destX << ", " << destY << std::endl;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			std::cout << flowChart.directionMap[y * width + x] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "\n\n" << std::endl;
+
+	return flowChart;
 }
 
 bool Pathfind::MoveFuzzyFlow(units::Robot& robot, MapLocation& destination) {
@@ -169,46 +348,66 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, MapLocation& destination) {
 }
 
 int Pathfind::GetFuzzyFlowTurns(MapLocation& origin, MapLocation& destination) {
-	if (!hasInit) {
-		Init();
-	}
-
 	short destY = destination.Y();
 	short destX = destination.X();
 
-	short destXY = width * destY + destX; // Get Map Pos Total
+	short sourceX = origin.X();
+	short sourceY = origin.Y();
 
-	auto chartPtr = flowCharts.find(destXY); // Check if We already have a flowchart for this dest
-	FlowChart* flowChart = nullptr;
+	return GetFuzzyFlowTurns(sourceX, sourceY, destX, destY);
 
-	// Generate Flowpath if it doesnt exist.
-	if (chartPtr == flowCharts.end()) {
-		GenerateFlowPath(destX, destY);
-		flowChart = &flowCharts[destXY];
-	} else {
-		flowChart = &chartPtr->second;
-	}
 
-	short currX = static_cast<short>(destination.X());
-	short currY = static_cast<short>(destination.Y());
+	//// Init
+	//if (!hasInit) {
+	//	Init();
+	//}
+	//MapLocation mapLoc = origin.Loc().ToMapLocation();
+	//Section* destSection = Section::Get(planet, destX, destY);
+	//Section* currSection = Section::Get(mapLoc);
+	//CHECK_ERRORS();
 
-	short currXY = width * currY + currX; // Robot Position ID 
+	//// Can't path from one section to another.
+	//if (currSection != destSection) { return false; }
 
-	//auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
-	//return Pathfind::MoveFuzzy(robot, dir);
+	//short destY = destination.Y();
+	//short destX = destination.X();
 
-	return flowChart->pointsMap[currXY];
+	//short destXY = width * destY + destX; // Get Map Pos Total
+
+	//auto chartPtr = flowCharts.find(destXY); // Check if We already have a flowchart for this dest
+	//FlowChart* flowChart = nullptr;
+
+	//// Generate Flowpath if it doesnt exist.
+	//if (chartPtr == flowCharts.end()) {
+	//	GenerateFlowPath(destX, destY);
+	//	flowChart = &flowCharts[destXY];
+	//} else {
+	//	flowChart = &chartPtr->second;
+	//}
+
+	//short currX = static_cast<short>(destination.X());
+	//short currY = static_cast<short>(destination.Y());
+
+	//short currXY = width * currY + currX; // Robot Position ID 
+
+	////auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
+	////return Pathfind::MoveFuzzy(robot, dir);
+
+	//return flowChart->pointsMap[currXY];
 }
 
-void Pathfind::GenerateFlowPath(short destX, short destY) {
+
+void Pathfind::GenerateFlowPath(Section* section, short destX, short destY) {
 	short destXY = width * destY + destX;
 	auto flowChart = &flowCharts[destXY];
 
 	//// Create the Maps that will store the data
 	flowChart->pointsMap = new short[width * height];
 	flowChart->directionMap = new bc_Direction[width * height];
+	/// NOTE* can probably optimize Memory usage of Flow Map
 
 	// Initialize Point Map
+	openNodes.clear();
 	for (short y = 0; y < height; y++) {
 		for (short x = 0; x < width; x++) {
 			short ID = y * width + x;
@@ -217,16 +416,16 @@ void Pathfind::GenerateFlowPath(short destX, short destY) {
 	}
 
 	//// Generate a map based off the terrain and destination
-	GenerateFlowPathPoints(terrainMap, flowChart->pointsMap, destX, destY);
+	GenerateFlowPathPoints(terrainMap, flowChart->pointsMap, section, destX, destY);
 
-	//std::cout << "Points Map" << std::endl;
-	//for (int y = 0; y < height; y++) {
-	//	for (int x = 0; x < width; x++) {
-	//		std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
-	//	}
-	//	std::cout << std::endl;
-	//}
-	//std::cout << std::setw(0) << "\n\n" << std::endl;
+	std::cout << "Points Map" << std::endl;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::setw(0) << "\n\n" << std::endl;
 
 	// Generate a map of directions based off surrounding points...
 	for (short y = 0; y < height; y++) {
@@ -241,24 +440,23 @@ void Pathfind::GenerateFlowPath(short destX, short destY) {
 		}
 	}
 
-	//std::cout << "Direction Map" << std::endl;
-	//std::cout << "Destination is " << destX << ", " << destY << std::endl;
-	//for (int y = 0; y < height; y++) {
-	//	for (int x = 0; x < width; x++) {
-	//		std::cout << flowChart->directionMap[y * width + x] << " ";
-	//	}
-	//	std::cout << std::endl;
-	//}
-	//std::cout << "\n\n" << std::endl;
+	std::cout << "Direction Map" << std::endl;
+	std::cout << "Destination is " << destX << ", " << destY << std::endl;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			std::cout << flowChart->directionMap[y * width + x] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "\n\n" << std::endl;
 }
 
 
-void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short destX, short destY) {
+void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, Section* section, short destX, short destY) {
 	
 	short targetID = destY * width + destX;
 	pointsMap[targetID] = 0;
 
-	std::vector<short> openNodes;
 	openNodes.push_back(targetID);
 
 	while (openNodes.size() > 0) {
@@ -272,8 +470,9 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 
 		// UP
 		{
-			// Check if space is acceptable
-			if (currY + 1 < height) {
+			// Check if in same Section
+			Section* newSection = Section::Get(planet, currX, currY + 1);
+			if (newSection == section) {
 				// Get new ID
 				int upID = (currY + 1) * width + currX;
 
@@ -286,16 +485,15 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					}
 					// Set value
 					pointsMap[upID] = newValue;
-					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
-
 		}
 
 		// Up Right
 		{
-			// Check if space is acceptable
-			if (currY + 1 < height && currX + 1 < width) {
+			// Check if in same Section
+			Section* newSection = Section::Get(planet, currX + 1, currY + 1);
+			if (newSection == section) {
 				// Get new ID
 				short upID = (currY + 1) * width + (currX + 1);
 
@@ -308,18 +506,17 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					}
 					// Set value
 					pointsMap[upID] = newValue;
-					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
-
 		}
 
 		// Right
 		{
-			// Check if space is acceptable
-			if (currX + 1 < width) {
+			// Check if in same Section
+			Section* newSection = Section::Get(planet, currX + 1, currY);
+			if (newSection == section) {
 				// Get new ID
-				short upID = (currY)* width + (currX + 1);
+				short upID = (currY) * width + (currX + 1);
 
 				// Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
@@ -330,16 +527,15 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					}
 					// Set value
 					pointsMap[upID] = newValue;
-					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
-
 		}
 
 		// Down Right
 		{
-			// Check if space is acceptable
-			if (currY - 1 > -1 && currX + 1 < width) {
+			// Check if in same Section
+			Section* newSection = Section::Get(planet, currX + 1, currY - 1);
+			if (newSection == section) {
 				// Get new ID
 				short upID = (currY - 1) * width + (currX + 1);
 
@@ -352,20 +548,19 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					}
 					// Set value
 					pointsMap[upID] = newValue;
-					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
-
 		}
 
 		// Down
 		{
-			// Check if space is acceptable
-			if (currY - 1 > -1) {
+			// Check if in same Section
+			Section* newSection = Section::Get(planet, currX, currY - 1);
+			if (newSection == section) {
 				// Get new ID
 				short upID = (currY - 1) * width + currX;
 
-				 //Check if new value is better or if it is passable
+				//Check if new value is better or if it is passable
 				if (pointsMap[upID] > newValue && terrainMap[upID] > 0) {
 					// Add to list if it hasnt
 					auto iterPtr = std::find(openNodes.begin(), openNodes.end(), upID);
@@ -374,15 +569,15 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					}
 					// Set value
 					pointsMap[upID] = newValue;
-					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
 		}
 
 		// Down Left
 		{
-			// Check if space is acceptable
-			if (currY - 1 > -1 && currX - 1 > -1) {
+			// Check if in same Section
+			Section* newSection = Section::Get(planet, currX - 1, currY - 1);
+			if (newSection == section) {
 				// Get new ID
 				short upID = (currY - 1) * width + (currX - 1);
 
@@ -395,16 +590,15 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					}
 					// Set value
 					pointsMap[upID] = newValue;
-					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
-
 		}
 
 		// Left
 		{
-			// Check if space is acceptable
-			if (currX - 1 > -1) {
+			// Check if in same Section
+			Section* newSection = Section::Get(planet, currX - 1, currY);
+			if (newSection == section) {
 				// Get new ID
 				short upID = (currY)* width + (currX - 1);
 
@@ -417,16 +611,15 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					}
 					// Set value
 					pointsMap[upID] = newValue;
-					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
-
 		}
 
 		// Up Left
 		{
-			// Check if space is acceptable
-			if (currY + 1 < height && currX - 1 > -1) {
+			// Check if in same Section
+			Section* newSection = Section::Get(planet, currX - 1, currY + 1);
+			if (newSection == section) {
 				// Get new ID
 				short upID = (currY + 1) * width + (currX - 1);
 
@@ -439,7 +632,6 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 					}
 					// Set value
 					pointsMap[upID] = newValue;
-					//std::cout << "ID " << upID << " is now " << newValue << std::endl;
 				}
 			}
 		}
@@ -451,13 +643,13 @@ void Pathfind::GenerateFlowPathPoints(short* terrainMap, short* pointsMap, short
 bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
 	short sourceX, short sourceY, short destX, short destY) {
 
+	short ID = sourceY * width + sourceX;
+	if (pointsMap[ID] == 0) {
+		return bc_Direction::Center;
+	}
+
 	short lowestValue = SHRT_MAX;
 	bc_Direction mapDir = Utility::DirectionTo(sourceX, sourceY, destX, destY);
-
-	// If center, then source == dest
-	if(mapDir == bc_Direction::Center){ 
-		return bc_Direction::Center; 
-	} 
 
 	// Loop through all directions to get the most optimal one
 	for (short i = 0, x = mapDir; i < 8; i++, x++) {
@@ -467,7 +659,7 @@ bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
 		// Get new Direction
 		bc_Direction currDir = static_cast<bc_Direction>(x);
 		short currX = bc_Direction_dx(currDir);
-		short currY = bc_Direction_dy(currDir);
+		short currY = bc_Direction_dy(currDir); /// Optimize these out...
 
 		// Check for invalid direction
 		short newY = sourceY + currY;
@@ -486,7 +678,6 @@ bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
 	}
 	return mapDir;
 }
-// NOTE: Optimize by making our own Rotate / X and Y functions for directions?
 
 // To Generate a flow chart
 // Create a grid / array of all the points in the map with cost of traversing

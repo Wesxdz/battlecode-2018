@@ -15,7 +15,7 @@
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
-std::list<std::shared_ptr<Deposit>> BuilderOverlord::sortedLandings;
+//std::list<std::shared_ptr<Deposit>> BuilderOverlord::sortedLandings;
 std::map<uint16_t, MapLocation> BuilderOverlord::seekKarbonite;
 std::vector<bc_UnitType> BuilderOverlord::rocketLoadType;
 

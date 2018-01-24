@@ -35,10 +35,12 @@ public:
 	static std::list<Section*> marsSections;
 	static std::list<Section*> earthSections;
 	static Section* Get(MapLocation& location);
+	static Section* Get(bc_Planet type, int x, int y);
 	static bool InSame(MapLocation& a, MapLocation& b);
 private:
 	static std::map<int, Section*> sectionMap; // Only contains passable locations!!!
-	static int Key(MapLocation location);
+	static int Key(MapLocation& location);
+	static int Key(bc_Planet type, int x, int y);
 };
 
 

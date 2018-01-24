@@ -93,9 +93,14 @@ void Section::FindEarthSectionsStatus()
 	}
 }
 
-int Section::Key(MapLocation location)
+int Section::Key(MapLocation& location)
 {
 	return location.Planet() * 3000 + location.Y() * 51 + location.X();
+}
+
+int Section::Key(bc_Planet type, int x, int y)
+{
+	return type * 3000 + y * 51 + x;
 }
 
 Section* Section::Get(MapLocation & location)
@@ -103,7 +108,13 @@ Section* Section::Get(MapLocation & location)
 	return sectionMap[Key(location)];
 }
 
+Section* Section::Get(bc_Planet type, int x, int y)
+{
+	return sectionMap[Key(type, x, y)];
+}
+
 bool Section::InSame(MapLocation & a, MapLocation & b)
 {
 	return Get(a) == Get(b);
 }
+

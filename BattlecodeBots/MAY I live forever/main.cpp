@@ -50,6 +50,7 @@ int main()
 	science.Init(&playerData);
 	//std::chrono::duration<double> totalTime;
 	std::chrono::duration<double> roundTime;
+	
 
 	while (true)
 	{

@@ -157,7 +157,6 @@ namespace policy {
 
 	bool SeekRocketExecute(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
-		std::cout << "We are seeking Rocket" << std::endl;
 		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
