@@ -18,7 +18,7 @@ bc_UnitType PolicyOverlord::storeUnitType;
 
 void PolicyOverlord::Update()
 {
-
+	//std::cout << HighestPriority() << " is highest priority" << std::endl;
 	bool policyTaken = false;
 	do { // Loop through all units evaluating policies until no policy is executed
 		policyTaken = false;

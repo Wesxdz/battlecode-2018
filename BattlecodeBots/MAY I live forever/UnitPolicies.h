@@ -112,6 +112,7 @@ namespace policy {
 				//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
 				BuilderOverlord::rockets[(*startWork).first].push_back(robot.id); // Join the closest project if it has less than 4 workers!
 				seekingRocket = true;
+				rocketID = (*startWork).first;
 			}
 		}
 
@@ -132,7 +133,6 @@ namespace policy {
 
 	bool SeekRocketExecute(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
-		std::cout << "We are seeking Rocket" << std::endl;
 		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
@@ -215,7 +215,7 @@ namespace policy {
 		MapLocation workerLocation = worker.Loc().ToMapLocation();
 		if (!worker.IsMoveReady()) return 0.0f;
 		for (auto& project : BuilderOverlord::buildProjects) {
-			auto self = std::find(project.second.begin(), project.second.begin(), worker.id);
+			auto self = std::find(project.second.begin(), project.second.end(), worker.id);
 			bool workingOnProject = self != project.second.end();
 			if (workingOnProject) return 0.0f;
 		}

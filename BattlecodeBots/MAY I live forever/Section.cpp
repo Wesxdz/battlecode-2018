@@ -23,6 +23,20 @@ void Section::Add(Section* section)
 	locations.insert(locations.end(), section->locations.begin(), section->locations.end());
 }
 
+int Section::TotalKarbonite()
+{
+	int total = 0;
+	for (MapLocation& location : karboniteDeposits) {
+		if (location.IsVisible()) {
+			total += location.Karbonite();
+		}
+		else {
+			total += bc_PlanetMap_initial_karbonite_at(GameController::PlanetMap(location.Planet()), location.self);
+		}
+	}
+	return true;
+}
+
 std::list<Section*> Section::GenSections(std::vector<bc_MapLocation*>& passables, bc_PlanetMap* planetMap)
 {
 	std::list<Section*> sections;
