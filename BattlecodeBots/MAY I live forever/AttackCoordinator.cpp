@@ -10,7 +10,7 @@
 std::map<units::Unit, std::vector<DamageInstance>> AttackCoordinator::damageCombinations;
 std::map<units::Unit, std::vector<DamageInstance>> AttackCoordinator::enemyDamageCombinations;
 std::map<bc_UnitType, float> AttackCoordinator::multipliers = {
-	{Factory, 1.5f}, {Healer, 1.1f}, {Worker, 1.0f}, {Knight, 10.0f}, {Mage, 1.0f}, {Ranger, 1.0f }, {Rocket, 1.0f}
+	{Factory, 1.0f}, {Healer, 10.0f}, {Worker, 1.0f}, {Knight, 2.0f}, {Mage, 20.0f}, {Ranger, 5.0f }, {Rocket, 20.0f}
 };
 
 void AttackCoordinator::Consider(units::Robot& fighter)

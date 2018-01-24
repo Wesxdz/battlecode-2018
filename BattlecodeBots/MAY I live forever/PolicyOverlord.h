@@ -21,6 +21,7 @@ public:
 	static uint16_t storeId;
 	static bc_UnitType storeUnitType;
 
+	static bc_UnitType HighestProductionPriority();
 	static bc_UnitType HighestPriority();
 };
 

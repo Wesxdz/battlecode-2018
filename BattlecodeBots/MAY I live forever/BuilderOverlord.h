@@ -22,8 +22,8 @@ public:
 	static std::map<uint16_t, std::vector<uint16_t>> buildProjects; // Structure ids, workers building ids
 	static std::map<uint16_t, std::vector<uint16_t>> rockets; // Rocket ID, units heading towards it
 	static std::map<uint16_t, MapLocation> seekKarbonite;
-	//static std::list<std::shared_ptr<Deposit>> sortedLandings;
 	static std::vector<bc_UnitType> rocketLoadType;
+	static std::list<Section*> PrioritizeSections(std::list<Section*> sections);
 };
 
 #endif

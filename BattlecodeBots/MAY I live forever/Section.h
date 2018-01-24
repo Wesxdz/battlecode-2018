@@ -28,7 +28,8 @@ public:
 	std::vector<bc_MapLocation*> locations;
 	StartStatus status = None;
 	void Add(Section* section);
-	std::list<MapLocation> karboniteDeposits;
+	std::vector<MapLocation> karboniteDeposits;
+	int TotalKarbonite();
 
 	static std::list<Section*> GenSections(std::vector<bc_MapLocation*>& passables, bc_PlanetMap* planetMap);
 	static void FindEarthSectionsStatus(); // Call after generating PlayerData spawnLocations!
