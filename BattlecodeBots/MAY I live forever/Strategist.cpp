@@ -2,10 +2,60 @@
 
 #include "bc.h"
 #include "GameController.h"
+#include "PlayerData.h"
+#include "Section.h"
+#include "Constants.h"
+#include <iostream>
 
 Strategist::Strategist()
 {
+	// By default, choose ShieldFormation
 	strategy = ShieldFormation;
+
+	// Choose Psychonaut if we start on entirely different sections
+	int sharedSections = 0;
+	for (Section* section : Section::earthSections) {
+		if (section->status == StartStatus::Mixed) sharedSections++;
+	}
+	if (sharedSections == 0) {
+		strategy = Psychonaut;
+	}
+	else {
+		// Choose TerroristOvercharge if the starting sections have lots of impassable terrain that blocks flows to enemies
+		// We determine this by checking the number of 4-way impassable tiles next to every section location
+		int passableAdjacent = 0;
+		int impassableAdjacent = 0;
+		for (Section* section : Section::earthSections) {
+			if (section->status == StartStatus::Mixed) {
+				for (bc_MapLocation* loc : section->locations) {
+					MapLocation location = bc_MapLocation_clone(loc);
+					for (bc_Direction direction : constants::directions_adjacent) {
+						MapLocation neighbor = MapLocation::Neighbor(location, direction);
+						if (neighbor.IsValid() && neighbor.IsPassable()) {
+							passableAdjacent++;
+						}
+						else {
+							impassableAdjacent++;
+						}
+					}
+				}
+			}
+		}
+		if (impassableAdjacent > passableAdjacent / 4) {
+			strategy = TerroristOvercharge;
+		}
+	}
+
+	std::cout << "Strategy chosen: ";
+	if (strategy == Psychonaut) {
+		std::cout << "Psychonaut" << std::endl;
+	}
+	else if (strategy == ShieldFormation) {
+		std::cout << "ShieldFormation" << std::endl;
+	}
+	else if (strategy == TerroristOvercharge) {
+		std::cout << "TerroristOvercharge" << std::endl;
+	}
 
 	if (strategy == Psychonaut) {
 

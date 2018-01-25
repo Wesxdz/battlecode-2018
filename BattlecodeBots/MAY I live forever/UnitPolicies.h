@@ -220,30 +220,9 @@ namespace policy {
 		}
 		Section* section = Section::Get(workerLocation);
 		if (section->karboniteDeposits.size() == 0) return 0.0f;
-		//std::cout << "index " << FlowChart::GetIndex(workerLocation) << std::endl;
 		bc_Direction move = BuilderOverlord::findKarbonite[section].directionMap[FlowChart::GetIndex(workerLocation)];
-		//std::cout << move << " move direction" << std::endl;
 		PolicyOverlord::storeDirection = move;
 		return 5.0f;
-		//for (bc_Direction direction : constants::directions_all) { // If Karbonite is already nearby, don't seek it!
-		//	auto adj = MapLocation::Neighbor(workerLocation, direction);
-		//	if (adj.IsValid() && adj.Karbonite() > 0) return 0.0f;
-		//}
-		//auto seek = BuilderOverlord::seekKarbonite.find(worker.id);
-		//if (seek != BuilderOverlord::seekKarbonite.end() &&
-		//	std::find(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), (*seek).second) != section->karboniteDeposits.end()) {
-		//	PolicyOverlord::storeDirection = workerLocation.DirectionTo((*seek).second);
-		//	return 5.0f;
-		//}
-		//auto closest = std::min_element(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [&workerLocation](MapLocation& a, MapLocation& b) {
-		//	return workerLocation.DistanceTo(a) < workerLocation.DistanceTo(b);
-		//});
-		//if (closest != section->karboniteDeposits.end()) {
-		//	BuilderOverlord::seekKarbonite[worker.id] = *closest;
-		//	PolicyOverlord::storeDirection = workerLocation.DirectionTo(*closest);
-		//	return 5.0f;
-		//}
-		//return 0.0f;
 	}
 
 	bool WorkerSeekKarboniteExecute(bc_Unit* unit) {
