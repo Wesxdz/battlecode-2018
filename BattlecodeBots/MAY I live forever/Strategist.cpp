@@ -7,6 +7,8 @@
 #include "Constants.h"
 #include <iostream>
 
+Strategy Strategist::strategy;
+
 Strategist::Strategist()
 {
 	// By default, choose ShieldFormation

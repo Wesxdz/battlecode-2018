@@ -12,12 +12,18 @@
 #include "PlayerData.h"
 #include "InfluenceMap.h"
 
+struct HealthInstance {
+	uint32_t health;
+	MapLocation location;
+};
+
 class CombatOverlord
 {
 public:
 	CombatOverlord();
 	~CombatOverlord();
 	void Update();
+	void LateUpdate();
 	/*
 	@return The enemy robots that this robot could attack
 	*/
@@ -39,7 +45,11 @@ public:
 	static std::vector<MapLocation> controlPoints;
 	static InfluenceMap fear;
 	static InfluenceMap courage;
+	static InfluenceMap damage;
 	static void CalculateInfluenceMaps();
+
+private:
+	static std::map<uint16_t, HealthInstance> healthAmounts; // Unit id key
 };
 
 #endif

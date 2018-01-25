@@ -79,6 +79,8 @@ int main()
 		roundTime = end - start;
 		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
 
+		combatLord.LateUpdate();
+
 		GameController::EndTurn();
 	}
 }

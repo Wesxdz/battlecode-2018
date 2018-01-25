@@ -14,6 +14,7 @@
 #include <math.h>
 #include "AsteroidPattern.h"
 #include "PolicyOverlord.h"
+#include "Strategist.h"
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
@@ -170,81 +171,11 @@ void BuilderOverlord::DesireUnits() {
 	PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
 	}
 
-	// Knight Priority
-	{
-		float knightPriority = 0.0f;
-
-		// Knights will always be somewhat valuable
-		// They do good damage, limited range, high HP, good Defense
-		// If we lack a "Defense", aka Knights, then we should get a minimum in for sure.
-		// After that, we should only build more to recuperate our defense, rush, or strategise
-		//uintptr_t width = bc_PlanetMap_width_get(GameController::earth);
-		//if (width < 1) { width = 0; }
-		//float knightToMap = static_cast<float>(knightAmo) / width;
-
-		//if (knightAmo < width) {
-		//	float knightAmof = static_cast<float>(knightAmo);
-		//	knightPriority = .5f - (width / knightAmof + 1);
-		//	if (knightPriority < .5f) { knightPriority = .5f; }
-		//	if (knightPriority > width / 10.0f) { knightPriority = width / 10.0f; }
+	if (Strategist::strategy == Strategy::ShieldFormation) {
+		PlayerData::pd->unitPriority[Knight] = 0.9f;
+		//if (knightAmo / (healerAmo + 1) > 1) {
+		//	PlayerData::pd->unitPriority[Healer] = 1.0f;
 		//}
-		//else {
-		//	knightPriority = .3f;
-		//}
-
-		PlayerData::pd->unitPriority[bc_UnitType::Knight] = knightPriority;
-	}
-
-	// Ranger Priority
-	{
-		float rangerPriority = .0f;
-
-		// Rangers can never go wrong (RANGERS NERFED IN SPRINT)
-		// Good health, long range, good damage
-
-		//for (Section* section : Section::earthSections) {
-		//	if (section->status == Team) {
-
-		//	}
-		//}
-		float tilesToEnemy = PlayerData::pd->teamSpawnPositions[0].TilesTo(PlayerData::pd->enemySpawnPositions[0]) + 1;
-		float actualTilesToEnemy = Pathfind::GetFuzzyFlowTurns(PlayerData::pd->teamSpawnPositions[0], PlayerData::pd->enemySpawnPositions[0]);
-		float extraTravel = actualTilesToEnemy / tilesToEnemy;
-		if (extraTravel > 1.5) { // If we had to walk a maze, better do it with rangers...
-			rangerPriority = 0.9f;
-		}
-		else {
-			rangerPriority = 0.8f;
-		}
-		if (PlayerData::pd->teamUnitCounts[Ranger] < 4) rangerPriority += .1f;
-		PlayerData::pd->unitPriority[bc_UnitType::Ranger] = rangerPriority;
-	}
-
-	// Mage Priority
-	{
-		float magePriority = .0f;
-
-		float mapSize = MapUtil::earthPassableLocations.size() / 2.0f;
-		float enemyToMap = (totalEnemyAmo / mapSize) * 10;
-
-		// If enemy is grouped up, then we should use mages to deal a lot of damage;
-		if (enemyToMap > 1.0f) {
-			magePriority = 1.0f;
-		}
-
-		PlayerData::pd->unitPriority[bc_UnitType::Mage] = magePriority;
-	}
-
-	// Healer Priority
-	{
-		float healerPriority = .0f;
-
-		float ratio = (knightAmo + mageAmo + rangerAmo) / (healerAmo + 1);
-		if (ratio / 5 > 1) {
-			healerPriority = 1.0f;
-		}
-
-		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
 	}
 
 	if (factoryAmo + factoryProductionAmo == 0) {
@@ -299,22 +230,6 @@ float BuilderOverlord::RocketPlacementScore(MapLocation location)
 	return 0.0f;
 }
 
-std::list<Section*> BuilderOverlord::PrioritizeSections(std::list<Section*> sections)
-{
-	//if (bc_MapLocation_planet_get(sections.front()->locations[0]) == Earth) {
-	//	std::sort(sections.begin(), sections.end(), [](Section* a, Section* b) {
-	//		if (a->status == StartStatus::Enemy || a->status == StartStatus::None) return false;
-	//		if (a->status == StartStatus::Mixed && b->status != StartStatus::Mixed) return false; // Mixed sections always take priority
-	//		return a->TotalKarbonite() > b->TotalKarbonite();
-	//	});
-	//}
-	//else {
-	//	std::sort(sections.begin(), sections.end(), [](Section* a, Section* b) {
-	//		return a->TotalKarbonite() > b->TotalKarbonite();
-	//	});
-	//}
-	return sections;
-}
 
 void BuilderOverlord::CreateKarboniteFlows()
 {

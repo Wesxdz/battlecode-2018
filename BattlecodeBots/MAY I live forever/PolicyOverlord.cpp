@@ -90,7 +90,8 @@ PolicyOverlord::PolicyOverlord()
 	auto robot1 = std::make_shared<Policy>("fear"); // TODO Run towards friendly units
 	robot1->Evaluate = policy::AvoidDamageEvaluate;
 	robot1->Execute = policy::AvoidDamageExecute;
-	//policies[Worker].push_back(robot1);
+	policies[Worker].push_back(robot1);
+	//policies[Knight].push_back(robot1);
 	policies[Healer].push_back(robot1);
 	policies[Ranger].push_back(robot1);
 	policies[Mage].push_back(robot1);

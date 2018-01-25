@@ -29,7 +29,7 @@ class Strategist
 public:
 	Strategist();
 	~Strategist();
-	Strategy strategy;
+	static Strategy strategy;
 };
 
 #endif

@@ -16,9 +16,11 @@ std::vector<uint16_t> CombatOverlord::requestHeal;
 std::vector<MapLocation> CombatOverlord::controlPoints;
 InfluenceMap CombatOverlord::fear;
 InfluenceMap CombatOverlord::courage;
+InfluenceMap CombatOverlord::damage;
 std::map<bc_UnitType, float> CombatOverlord::multipliers = {
 	{ Factory, 1.0f },{ Healer, 10.0f },{ Worker, 1.0f },{ Knight, 2.0f },{ Mage, 20.0f },{ Ranger, 5.0f },{ Rocket, 20.0f }
 };
+std::map<uint16_t, HealthInstance> CombatOverlord::healthAmounts;
 
 CombatOverlord::CombatOverlord()
 {
@@ -31,10 +33,12 @@ CombatOverlord::CombatOverlord()
 	if (GameController::Planet() == Earth) {
 		fear.Init(GameController::earth);
 		courage.Init(GameController::earth);
+		damage.Init(GameController::earth);
 	}
 	else {
 		fear.Init(GameController::mars);
 		courage.Init(GameController::mars);
+		damage.Init(GameController::mars);
 	}
 }
 
@@ -71,6 +75,45 @@ void CombatOverlord::Update()
 	if (GameController::Round() % 10 == 0) {
 		CalculateInfluenceMaps();
 	}
+}
+
+void CombatOverlord::LateUpdate()
+{
+	// Need late update otherwise HealthInstance locations are incorrect if the unit moves
+	auto team = GameController::Units(MyTeam);
+	for (units::Unit& unit : team) {
+		auto lastRoundHealth = healthAmounts.find(unit.id);
+		if (lastRoundHealth != healthAmounts.end()) {
+			uint32_t currentHealth = unit.Health();
+			uint32_t lastHealth = (*lastRoundHealth).second.health;
+			if (currentHealth < lastHealth) { // This unit has taken damage D:
+				uint32_t damageTaken = lastHealth - currentHealth;
+				//std::cout << "Unit took damage" << std::endl;
+				damage.SetInfluence(lastRoundHealth->second.location, damageTaken, 3);
+			}
+			healthAmounts.erase((*lastRoundHealth).first);
+		}
+	}
+
+	std::vector<uint32_t> died;
+	for (auto& lastRoundHealth : healthAmounts) { // Any healthAmount not removed at this point is a unit death
+		uint32_t deathDamageTaken = lastRoundHealth.second.health; // At least
+		//std::cout << "Unit died" << std::endl;
+		damage.SetInfluence(lastRoundHealth.second.location, deathDamageTaken, 3);
+		died.push_back(lastRoundHealth.first);
+	}
+	for (uint32_t deadUnit : died) {
+		healthAmounts.erase(deadUnit);
+	}
+
+	for (units::Unit& unit : team) {
+		if (!unit.Loc().IsOnMap()) continue;
+		healthAmounts[unit.id] = HealthInstance{ unit.Health(), unit.Loc().ToMapLocation() };
+	}
+
+	//if (GameController::Round() % 10 == 0 && GameController::Planet() == Earth) {
+	//	damage.Print();
+	//}
 }
 
 std::vector<units::Unit> CombatOverlord::EnemiesInRange(units::Robot& robot, uint32_t range)
