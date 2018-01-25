@@ -13,11 +13,14 @@
 #include "VecUnit.h"
 #include <math.h>
 #include "AsteroidPattern.h"
+#include "PolicyOverlord.h"
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
 std::map<uint16_t, MapLocation> BuilderOverlord::seekKarbonite;
 std::vector<bc_UnitType> BuilderOverlord::rocketLoadType;
+std::map<Section*, FlowChart> BuilderOverlord::findKarbonite;
+std::map<uint16_t, int> BuilderOverlord::miningSuccess;
 
 BuilderOverlord::BuilderOverlord()
 {
@@ -26,6 +29,7 @@ BuilderOverlord::BuilderOverlord()
 	rocketLoadType.push_back(Ranger);
 	rocketLoadType.push_back(Mage);
 	rocketLoadType.push_back(Healer);
+	CreateKarboniteFlows();
 }
 
 void BuilderOverlord::Update()
@@ -66,6 +70,9 @@ void BuilderOverlord::Update()
 				}
 			}
 		}
+	}
+	if (GameController::Round() % 5 == 0) {
+		CreateKarboniteFlows();
 	}
 	DesireUnits();
 }
@@ -250,6 +257,49 @@ void BuilderOverlord::DesireUnits() {
 
 }
 
+void BuilderOverlord::ManageProduction()
+{
+	auto units = GameController::Units(MyTeam);
+	std::vector<units::Worker> workers = VecUnit::Wrap<units::Worker>(bc_GameController_my_units(GameController::gc));
+	bc_UnitType highestPriority = PolicyOverlord::HighestPriority();
+	if (highestPriority == Factory || highestPriority == Rocket) {
+
+	}
+	std::vector<units::Factory> factories = VecUnit::Wrap<units::Factory>(bc_GameController_my_units(GameController::gc));
+	std::sort(factories.begin(), factories.end(), [](units::Factory& a, units::Factory& b) {
+		return ProductionScore(a) > ProductionScore(b);
+	});
+	for (units::Factory& factory : factories) {
+		if (ProductionScore(factory) <= 0) break;
+		bc_UnitType prio = Priority(factory);
+		if (factory.CanProduce(prio)) {
+			factory.Produce(prio);
+		}
+	}
+
+}
+
+float BuilderOverlord::ProductionScore(units::Factory & factory)
+{
+	if (!factory.IsBuilt() || factory.IsProducing()) return 0.0f;
+	return 0.0f;
+}
+
+bc_UnitType BuilderOverlord::Priority(units::Factory & factory)
+{
+	return bc_UnitType();
+}
+
+float BuilderOverlord::FactoryPlacementScore(MapLocation location)
+{
+	return 0.0f;
+}
+
+float BuilderOverlord::RocketPlacementScore(MapLocation location)
+{
+	return 0.0f;
+}
+
 std::list<Section*> BuilderOverlord::PrioritizeSections(std::list<Section*> sections)
 {
 	//if (bc_MapLocation_planet_get(sections.front()->locations[0]) == Earth) {
@@ -265,4 +315,20 @@ std::list<Section*> BuilderOverlord::PrioritizeSections(std::list<Section*> sect
 	//	});
 	//}
 	return sections;
+}
+
+void BuilderOverlord::CreateKarboniteFlows()
+{
+	if (GameController::Planet() == Earth) {
+		for (Section* section : Section::earthSections) {
+			if (section->status == StartStatus::Mixed || section->status == StartStatus::Team) {
+				findKarbonite[section] = Pathfind::CreateFlowChart(section->locations);
+			}
+		}
+	}
+	else {
+		for (Section* section : Section::marsSections) {
+			findKarbonite[section] = Pathfind::CreateFlowChart(section->locations);
+		}
+	}
 }

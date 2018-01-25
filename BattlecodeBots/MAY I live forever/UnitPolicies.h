@@ -15,7 +15,6 @@
 #include "Factory.h"
 #include "BuilderOverlord.h"
 #include "MapUtil.h"
-#include "Pegboard.h"
 #include <memory>
 
 namespace policy {
@@ -221,25 +220,30 @@ namespace policy {
 		}
 		Section* section = Section::Get(workerLocation);
 		if (section->karboniteDeposits.size() == 0) return 0.0f;
-		for (bc_Direction direction : constants::directions_all) { // If Karbonite is already nearby, don't seek it!
-			auto adj = MapLocation::Neighbor(workerLocation, direction);
-			if (adj.IsValid() && adj.Karbonite() > 0) return 0.0f;
-		}
-		auto seek = BuilderOverlord::seekKarbonite.find(worker.id);
-		if (seek != BuilderOverlord::seekKarbonite.end() &&
-			std::find(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), (*seek).second) != section->karboniteDeposits.end()) {
-			PolicyOverlord::storeDirection = workerLocation.DirectionTo((*seek).second);
-			return 5.0f;
-		}
-		auto closest = std::min_element(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [&workerLocation](MapLocation& a, MapLocation& b) {
-			return workerLocation.DistanceTo(a) < workerLocation.DistanceTo(b);
-		});
-		if (closest != section->karboniteDeposits.end()) {
-			BuilderOverlord::seekKarbonite[worker.id] = *closest;
-			PolicyOverlord::storeDirection = workerLocation.DirectionTo(*closest);
-			return 5.0f;
-		}
-		return 0.0f;
+		//std::cout << "index " << FlowChart::GetIndex(workerLocation) << std::endl;
+		bc_Direction move = BuilderOverlord::findKarbonite[section].directionMap[FlowChart::GetIndex(workerLocation)];
+		//std::cout << move << " move direction" << std::endl;
+		PolicyOverlord::storeDirection = move;
+		return 5.0f;
+		//for (bc_Direction direction : constants::directions_all) { // If Karbonite is already nearby, don't seek it!
+		//	auto adj = MapLocation::Neighbor(workerLocation, direction);
+		//	if (adj.IsValid() && adj.Karbonite() > 0) return 0.0f;
+		//}
+		//auto seek = BuilderOverlord::seekKarbonite.find(worker.id);
+		//if (seek != BuilderOverlord::seekKarbonite.end() &&
+		//	std::find(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), (*seek).second) != section->karboniteDeposits.end()) {
+		//	PolicyOverlord::storeDirection = workerLocation.DirectionTo((*seek).second);
+		//	return 5.0f;
+		//}
+		//auto closest = std::min_element(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [&workerLocation](MapLocation& a, MapLocation& b) {
+		//	return workerLocation.DistanceTo(a) < workerLocation.DistanceTo(b);
+		//});
+		//if (closest != section->karboniteDeposits.end()) {
+		//	BuilderOverlord::seekKarbonite[worker.id] = *closest;
+		//	PolicyOverlord::storeDirection = workerLocation.DirectionTo(*closest);
+		//	return 5.0f;
+		//}
+		//return 0.0f;
 	}
 
 	bool WorkerSeekKarboniteExecute(bc_Unit* unit) {
@@ -294,11 +298,14 @@ namespace policy {
 				units::Structure buildB = bc_GameController_unit(GameController::gc, b.first);
 				return workerLocation.DistanceTo(buildA.Loc().ToMapLocation()) < workerLocation.DistanceTo(buildA.Loc().ToMapLocation());
 			});
-			if (startWork != BuilderOverlord::buildProjects.end() && (*startWork).second.size() < 4) {
-				//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
-				BuilderOverlord::buildProjects[(*startWork).first].push_back(worker.id); // Join the closest project if it has less than 4 workers!
-				projId = (*startWork).first;
-				workingOnProject = true;
+			if (startWork != BuilderOverlord::buildProjects.end() && (*startWork).second.size() < 6) {
+				units::Structure build = bc_GameController_unit(GameController::gc, (*startWork).first);
+				if (workerLocation.DistanceTo(build.Loc().ToMapLocation()) < 100) {
+					//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
+					BuilderOverlord::buildProjects[(*startWork).first].push_back(worker.id); // Join the closest project if it has less than 6 workers!
+					projId = (*startWork).first;
+					workingOnProject = true;
+				}
 			}
 		}
 		if (workingOnProject) {
@@ -308,7 +315,7 @@ namespace policy {
 			}
 			else {
 				PolicyOverlord::storeDirection = worker.Loc().ToMapLocation().DirectionTo(build.Loc().ToMapLocation());
-				return 10.0f;
+				return 1000.0f;
 			}
 		}
 		return 0.0f;
@@ -582,40 +589,6 @@ namespace policy {
 		units::Rocket rocket = bc_Unit_clone(unit);
 		rocket.Launch(PolicyOverlord::storeLocation);
 		return true;
-	}
-
-	float KiteEvaluate(bc_Unit* unit) {
-		units::Robot robot = bc_Unit_clone(unit);
-		if (!robot.IsMoveReady()) return 0.0f;
-		MapLocation robotLocation = robot.Loc().ToMapLocation();
-		auto nearbyUnits = robotLocation.NearbyUnits(robot.AttackRange(), Utility::GetOtherTeam(GameController::Team()));
-		if (nearbyUnits.size() == 0) return 0.0f;
-		Force f;
-		for (units::Unit& nearby : nearbyUnits) {
-			MapLocation nearbyLocation = nearby.Loc().ToMapLocation();
-			if ((robotLocation.DistanceTo(nearbyLocation) + 10) < robot.AttackRange()) {
-				bc_Direction run = nearbyLocation.DirectionTo(robotLocation);
-				if (Utility::IsAttackRobot(nearby.type)) {
-					f = f + Force((float)bc_Direction_dx(run) * 3, (float)bc_Direction_dy(run) * 3);
-				}
-				else {
-					f = f + Force((float)bc_Direction_dx(run), (float)bc_Direction_dy(run));
-				}
-			}
-		}
-		if (f.Power() >= 1) {
-			bc_Direction move = f.Direction();
-			if (move != Center) {
-				PolicyOverlord::storeDirection = move;
-				return 100.0f;
-			}
-		}
-		return 0.0f;
-	}
-
-	bool KiteExecute(bc_Unit* unit) {
-		units::Robot robot = bc_Unit_clone(unit);
-		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
 	float SnipeEvaluate(bc_Unit* unit) {

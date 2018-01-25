@@ -10,6 +10,7 @@
 #include <map>
 
 struct FlowChart {
+	static int GetIndex(MapLocation& location);
 	short* pointsMap = nullptr;
 	bc_Direction* directionMap = nullptr;
 

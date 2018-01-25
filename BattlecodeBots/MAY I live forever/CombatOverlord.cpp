@@ -4,7 +4,6 @@
 #include "GameController.h"
 #include <algorithm>
 #include "Worker.h"
-#include "AttackCoordinator.h"
 #include "Constants.h"
 #include "Pathfind.h"
 
@@ -17,6 +16,9 @@ std::vector<uint16_t> CombatOverlord::requestHeal;
 std::vector<MapLocation> CombatOverlord::controlPoints;
 InfluenceMap CombatOverlord::fear;
 InfluenceMap CombatOverlord::courage;
+std::map<bc_UnitType, float> CombatOverlord::multipliers = {
+	{ Factory, 1.0f },{ Healer, 10.0f },{ Worker, 1.0f },{ Knight, 2.0f },{ Mage, 20.0f },{ Ranger, 5.0f },{ Rocket, 20.0f }
+};
 
 CombatOverlord::CombatOverlord()
 {
@@ -87,15 +89,15 @@ float CombatOverlord::AttackValue(units::Robot& attacker, units::Unit& enemy)
 	if (actualDamage > enemy.Health()) {
 		if (enemy.type == Worker) {
 			units::Worker worker = units::Worker(bc_Unit_clone(enemy.self));
-			score += worker.ReplicateCost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
+			score += worker.ReplicateCost() / 2.0f * multipliers[enemy.type];
 		}
 		else {
-			score += enemy.Cost() / 2.0f * AttackCoordinator::multipliers[enemy.type];
+			score += enemy.Cost() / 2.0f * multipliers[enemy.type];
 		}
 	}
 	float percentDamage = (float)enemy.MaxHealth() / actualDamage;
 
-	score += enemy.Cost() * percentDamage * AttackCoordinator::multipliers[enemy.type];
+	score += enemy.Cost() * percentDamage * CombatOverlord::multipliers[enemy.type];
 	// TODO: If the attacking unit is in danger of death prioritize attacking fighter units
 	return score;
 }
