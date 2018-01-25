@@ -34,7 +34,7 @@ int Section::TotalKarbonite()
 			total += bc_PlanetMap_initial_karbonite_at(GameController::PlanetMap(location.Planet()), location.self);
 		}
 	}
-	return true;
+	return total;
 }
 
 std::list<Section*> Section::GenSections(std::vector<bc_MapLocation*>& passables, bc_PlanetMap* planetMap)
