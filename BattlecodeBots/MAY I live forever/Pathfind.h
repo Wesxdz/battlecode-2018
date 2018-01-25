@@ -13,10 +13,8 @@ struct FlowChart {
 	static int GetIndex(MapLocation& location);
 	short* pointsMap = nullptr;
 	bc_Direction* directionMap = nullptr;
-	~FlowChart() {
-		delete[] pointsMap;
-		delete[] directionMap;
-	}
+
+	void Destory();
 };
 
 class Section;
@@ -49,4 +47,7 @@ private:
 };
 
 #endif
+
+// Create Flow Chart should create a flowchart with the given destinations
+// It should be optimized.
 

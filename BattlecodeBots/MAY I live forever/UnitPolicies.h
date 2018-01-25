@@ -220,6 +220,12 @@ namespace policy {
 		}
 		Section* section = Section::Get(workerLocation);
 		if (section->karboniteDeposits.size() == 0) return 0.0f;
+
+		if (BuilderOverlord::findKarbonite[section].directionMap == nullptr) {
+			std::cout << "Direction Map is Null" << std::endl;
+		}
+
+		//std::cout << "index " << FlowChart::GetIndex(workerLocation) << std::endl;
 		bc_Direction move = BuilderOverlord::findKarbonite[section].directionMap[FlowChart::GetIndex(workerLocation)];
 		PolicyOverlord::storeDirection = move;
 		return 5.0f;
