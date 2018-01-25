@@ -19,7 +19,7 @@
 #include "Utility.h"
 #include "MapUtil.h"
 
-#include "Science.h"
+#include "Strategist.h"
 #include "CombatOverlord.h"
 #include "BuilderOverlord.h"
 #include "PolicyOverlord.h"
@@ -36,7 +36,7 @@ TeamArray teamArray;
 MapUtil mapUtil;
 PlayerData playerData;
 
-Science science;
+Strategist strategist;
 BuilderOverlord builderLord;
 CombatOverlord combatLord;
 PolicyOverlord policyLord;
@@ -45,13 +45,7 @@ PolicyOverlord policyLord;
 int main()
 {
 	srand(0);
-
-	// Init Science
-	science.Init(&playerData);
-	//std::chrono::duration<double> totalTime;
 	std::chrono::duration<double> roundTime;
-	
-
 	while (true)
 	{
 		uint32_t round = GameController::Round();
@@ -67,19 +61,8 @@ int main()
 		playerData.Update();
 
 		auto start = std::chrono::system_clock::now();
-		if (GameController::Planet() == bc_Planet::Earth) {
-			science.Update();
-		}
-		else if (round > 749) {
-			science.Update();
-		}
-		auto end = std::chrono::system_clock::now();
-		roundTime = end - start;
-		//std::cout << "Science Time: " << roundTime.count() << std::endl;
-
-		start = std::chrono::system_clock::now();
 		builderLord.Update();
-		end = std::chrono::system_clock::now();
+		auto end = std::chrono::system_clock::now();
 		roundTime = end - start;
 		//std::cout << "Builder Time: " << roundTime.count() << std::endl;
 

@@ -322,13 +322,13 @@ void BuilderOverlord::CreateKarboniteFlows()
 	if (GameController::Planet() == Earth) {
 		for (Section* section : Section::earthSections) {
 			if (section->status == StartStatus::Mixed || section->status == StartStatus::Team) {
-				findKarbonite[section] = Pathfind::CreateFlowChart(section->locations);
+				findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
 			}
 		}
 	}
 	else {
 		for (Section* section : Section::marsSections) {
-			findKarbonite[section] = Pathfind::CreateFlowChart(section->locations);
+			findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
 		}
 	}
 }

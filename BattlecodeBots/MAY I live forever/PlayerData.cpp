@@ -39,11 +39,14 @@ PlayerData::PlayerData()
 		}
 	}
 	pd = this;
-
-	std::cout << "There are " << Section::earthSections.size() << " sections" << std::endl;
 	Section::FindEarthSectionsStatus();
-	for (auto section : Section::earthSections) {
-		std::cout << (int)section->status << std::endl;
+	if (GameController::Planet() == Earth) {
+		int i = 1;
+		for (auto section : Section::earthSections) {
+			std::cout << "Section " << i << "\n  status: " << section->status << "\n  size: "  << section->locations.size() 
+				<< "\n  deposits: " << section->karboniteDeposits.size() << "\n  karbonite: " << section->TotalKarbonite() << std::endl;
+			i++;
+		}
 	}
 
 }
