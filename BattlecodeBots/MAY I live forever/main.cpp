@@ -68,7 +68,6 @@ int main()
 
 		start = std::chrono::system_clock::now();
 		combatLord.Update();
-
 		end = std::chrono::system_clock::now();
 		roundTime = end - start;
 		//std::cout << "Combater Time: " << roundTime.count() << std::endl;
@@ -79,8 +78,10 @@ int main()
 		roundTime = end - start;
 		//std::cout << "Policy Time: " << roundTime.count() << std::endl;
 
+		CHECK_ERRORS();
 		GameController::EndTurn();
 	}
 }
 
 
+// 200 units we slow down ALOT - Round 400ish

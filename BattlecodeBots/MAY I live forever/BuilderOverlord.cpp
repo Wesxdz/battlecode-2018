@@ -52,9 +52,15 @@ void BuilderOverlord::Update()
 		if (GameController::Round() > 100) {
 			for (auto section : Section::marsSections) {
 				if (section->karboniteDeposits.size() > 0) {
-					section->karboniteDeposits.erase(std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
+					//section->karboniteDeposits.erase(std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
+					//	return location.IsVisible() && location.Karbonite() == 0;
+					//}));
+					auto mined = std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
 						return location.IsVisible() && location.Karbonite() == 0;
-					}));
+					});
+					if (mined != section->karboniteDeposits.end()) {
+						section->karboniteDeposits.erase(mined);
+					}
 				}
 			}
 		}
@@ -67,9 +73,9 @@ void BuilderOverlord::Update()
 				if (deposit == sectionHit->karboniteDeposits.end()) {
 					//std::cout << "Adding asteroid hit " << landing.X() << ", " << landing.Y() << std::endl;
 					sectionHit->karboniteDeposits.push_back(landing);
-				}
+				} 
 			}
-		}
+		} 
 	}
 	if (GameController::Round() % 5 == 0) {
 		CreateKarboniteFlows();
@@ -328,6 +334,7 @@ void BuilderOverlord::CreateKarboniteFlows()
 	}
 	else {
 		for (Section* section : Section::marsSections) {
+			std::cout << "This has " << section->karboniteDeposits.size() << std::endl;
 			findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
 		}
 	}
