@@ -72,9 +72,6 @@
     <ClCompile Include="Worker.cpp">
       <Filter>Wrapper</Filter>
     </ClCompile>
-    <ClCompile Include="Science.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
     <ClCompile Include="Pathfind.cpp">
       <Filter>Pathfinding</Filter>
     </ClCompile>
@@ -107,6 +104,9 @@
       <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="InfluenceMap.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Strategist.cpp">
       <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
@@ -174,9 +174,6 @@
     <ClInclude Include="Worker.h">
       <Filter>Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="Science.h">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="bc.h" />
     <ClInclude Include="Pathfind.h">
       <Filter>Pathfinding</Filter>
@@ -212,6 +209,9 @@
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="InfluenceMap.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Strategist.h">
       <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>

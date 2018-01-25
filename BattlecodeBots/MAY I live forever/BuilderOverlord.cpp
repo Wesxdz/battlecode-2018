@@ -17,7 +17,6 @@
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
-std::map<uint16_t, MapLocation> BuilderOverlord::seekKarbonite;
 std::vector<bc_UnitType> BuilderOverlord::rocketLoadType;
 std::map<Section*, FlowChart> BuilderOverlord::findKarbonite;
 std::map<uint16_t, int> BuilderOverlord::miningSuccess;
@@ -328,14 +327,17 @@ void BuilderOverlord::CreateKarboniteFlows()
 	if (GameController::Planet() == Earth) {
 		for (Section* section : Section::earthSections) {
 			if (section->status == StartStatus::Mixed || section->status == StartStatus::Team) {
-				findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
+				if (section->karboniteDeposits.size() > 0) {
+					findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
+				}
 			}
 		}
 	}
 	else {
 		for (Section* section : Section::marsSections) {
-			std::cout << "This has " << section->karboniteDeposits.size() << std::endl;
-			findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
+			if (section->karboniteDeposits.size() > 0) {
+				findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
+			}
 		}
 	}
 }
