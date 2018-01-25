@@ -60,7 +60,10 @@ namespace VecUnit
 	{
 		auto units = std::vector<units::Worker>();
 		for (uintptr_t i = 0; i < bc_VecUnit_len(bcUnits); i++) {
-			units.push_back(units::Worker(bc_VecUnit_index(bcUnits, i)));
+			units::Worker worker = bc_VecUnit_index(bcUnits, i);
+			if (worker.type == Worker) {
+				units.push_back(worker);
+			}
 		}
 		delete_bc_VecUnit(bcUnits);
 		return units;
@@ -115,7 +118,10 @@ namespace VecUnit
 	{
 		auto units = std::vector<units::Factory>();
 		for (uintptr_t i = 0; i < bc_VecUnit_len(bcUnits); i++) {
-			units.push_back(units::Factory(bc_VecUnit_index(bcUnits, i)));
+			units::Factory factory = bc_VecUnit_index(bcUnits, i);
+			if (factory.type == Factory) {
+				units.push_back(factory);
+			}
 		}
 		delete_bc_VecUnit(bcUnits);
 		return units;

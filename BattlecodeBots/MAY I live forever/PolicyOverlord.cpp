@@ -62,7 +62,7 @@ bc_UnitType PolicyOverlord::HighestProductionPriority()
 	bc_UnitType priority = Knight;
 	float highest = 0.0f;
 	for (auto& unitPrio : PlayerData::pd->unitPriority) {
-		if (unitPrio.first == Worker || unitPrio.first == Factory || unitPrio.first == Rocket);
+		if (unitPrio.first == Worker || unitPrio.first == Factory || unitPrio.first == Rocket) continue;
 		if (unitPrio.second > highest) {
 			priority = unitPrio.first;
 			highest = unitPrio.second;
@@ -90,7 +90,7 @@ PolicyOverlord::PolicyOverlord()
 	auto robot1 = std::make_shared<Policy>("fear"); // TODO Run towards friendly units
 	robot1->Evaluate = policy::AvoidDamageEvaluate;
 	robot1->Execute = policy::AvoidDamageExecute;
-	policies[Worker].push_back(robot1);
+	//policies[Worker].push_back(robot1);
 	policies[Healer].push_back(robot1);
 	policies[Ranger].push_back(robot1);
 	policies[Mage].push_back(robot1);
@@ -102,7 +102,7 @@ PolicyOverlord::PolicyOverlord()
 	policies[Ranger].push_back(wander);
 	policies[Mage].push_back(wander);
 	policies[Healer].push_back(wander);
-	policies[Worker].push_back(wander);
+	//policies[Worker].push_back(wander);
 
 	auto worker1 = std::make_shared<Policy>("harvest_karbonite");
 	worker1->Evaluate = policy::WorkerHarvestKarboniteEvaluate;
@@ -151,13 +151,6 @@ PolicyOverlord::PolicyOverlord()
 	ranger3->Evaluate = policy::SnipeEvaluate;
 	ranger3->Execute = policy::SnipeExecute;
 	policies[Ranger].push_back(ranger3);
-
-	// Keep enemy units at the edge of attack range
-	auto kite = std::make_shared<Policy>("kite");
-	kite->Evaluate = policy::KiteEvaluate;
-	kite->Execute = policy::KiteExecute;
-	//policies[Ranger].push_back(kite);
-	//policies[Mage].push_back(kite);
 
 	// Attack best target
 	auto knight1 = std::make_shared<Policy>("knight_attack");

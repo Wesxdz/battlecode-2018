@@ -117,7 +117,6 @@
   <ItemGroup>
     <ClCompile Include="AsteroidPattern.cpp" />
     <ClCompile Include="AsteroidStrike.cpp" />
-    <ClCompile Include="AttackCoordinator.cpp" />
     <ClCompile Include="BuilderOverlord.cpp" />
     <ClCompile Include="CombatOverlord.cpp" />
     <ClCompile Include="Factory.cpp" />
@@ -132,7 +131,6 @@
     <ClCompile Include="MapUtil.cpp" />
     <ClCompile Include="OrbitPattern.cpp" />
     <ClCompile Include="Pathfind.cpp" />
-    <ClCompile Include="Pegboard.cpp" />
     <ClCompile Include="PlanetMap.cpp" />
     <ClCompile Include="PlayerData.cpp" />
     <ClCompile Include="Policy.cpp" />
@@ -153,7 +151,6 @@
   <ItemGroup>
     <ClInclude Include="AsteroidPattern.h" />
     <ClInclude Include="AsteroidStrike.h" />
-    <ClInclude Include="AttackCoordinator.h" />
     <ClInclude Include="bc.h" />
     <ClInclude Include="BuilderOverlord.h" />
     <ClInclude Include="CombatOverlord.h" />
@@ -170,7 +167,6 @@
     <ClInclude Include="MapUtil.h" />
     <ClInclude Include="OrbitPattern.h" />
     <ClInclude Include="Pathfind.h" />
-    <ClInclude Include="Pegboard.h" />
     <ClInclude Include="PlanetMap.h" />
     <ClInclude Include="PlayerData.h" />
     <ClInclude Include="Policy.h" />

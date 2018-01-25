@@ -189,7 +189,6 @@ int Pathfind::GetFuzzyFlowTurns(int sourceX, int sourceY, int destX, int destY) 
 
 FlowChart Pathfind::CreateFlowChart(std::vector<bc_MapLocation*> destinations) {
 	FlowChart flowChart;
-
 	if(destinations.size() < 1) { return flowChart; }
 
 	// Init
@@ -227,14 +226,14 @@ FlowChart Pathfind::CreateFlowChart(std::vector<bc_MapLocation*> destinations) {
 	//// Generate a map based off the terrain and destination
 	GenerateFlowPathPoints(terrainMap, flowChart.pointsMap, destSection, destX, destY);
 
-	std::cout << "Points Map" << std::endl;
+	 std::cout << "Points Map" << std::endl;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			std::cout << std::setw(6) << flowChart.pointsMap[y * width + x] << " ";
+			 std::cout << std::setw(6) << flowChart.pointsMap[y * width + x] << " ";
 		}
-		std::cout << std::endl;
+		 std::cout << std::endl;
 	}
-	std::cout << std::setw(0) << "\n\n" << std::endl;
+	 std::cout << std::setw(0) << "\n\n" << std::endl;
 
 	// Generate a map of directions based off surrounding points...
 	for (short y = 0; y < height; y++) {
@@ -249,24 +248,23 @@ FlowChart Pathfind::CreateFlowChart(std::vector<bc_MapLocation*> destinations) {
 		}
 	}
 
-	std::cout << "Direction Map" << std::endl;
-	std::cout << "Destination is " << destX << ", " << destY << std::endl;
+	 std::cout << "Direction Map" << std::endl;
+	 std::cout << "Destination is " << destX << ", " << destY << std::endl;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			std::cout << flowChart.directionMap[y * width + x] << " ";
+			 std::cout << flowChart.directionMap[y * width + x] << " ";
 		}
-		std::cout << std::endl;
+		 std::cout << std::endl;
 	}
-	std::cout << "\n\n" << std::endl;
+	 std::cout << "\n\n" << std::endl;
 
 	return flowChart;
 }
 
 FlowChart Pathfind::CreateFlowChart(std::vector<MapLocation> destinations) {
 	FlowChart flowChart;
-
 	if(destinations.size() < 1) { 
-		std::cout << "Destinations is 0" << std::endl;
+		// std::cout << "Destinations is 0" << std::endl;
 		return flowChart; 
 	}
 
@@ -278,7 +276,7 @@ FlowChart Pathfind::CreateFlowChart(std::vector<MapLocation> destinations) {
 	int destX = destinations[0].X();
 	int destY = destinations[0].Y();
 	Section* destSection = Section::Get(planet, destX, destY);
-	std::cout << "First destination is " << destX << ", " << destY << " in Section " << destSection << std::endl;
+	// std::cout << "First destination is " << destX << ", " << destY << " in Section " << destSection << std::endl;
 
 	//// Create the Maps that will store the data
 	flowChart.pointsMap = new short[width * height];
@@ -306,14 +304,14 @@ FlowChart Pathfind::CreateFlowChart(std::vector<MapLocation> destinations) {
 	//// Generate a map based off the terrain and destination
 	GenerateFlowPathPoints(terrainMap, flowChart.pointsMap, destSection, destX, destY);
 
-	std::cout << "Points Map" << std::endl;
+	// std::cout << "Points Map" << std::endl;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			std::cout << std::setw(6) << flowChart.pointsMap[y * width + x] << " ";
+			// std::cout << std::setw(6) << flowChart.pointsMap[y * width + x] << " ";
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 	}
-	std::cout << std::setw(0) << "\n\n" << std::endl;
+	// std::cout << std::setw(0) << "\n\n" << std::endl;
 
 	// Generate a map of directions based off surrounding points...
 	for (short y = 0; y < height; y++) {
@@ -328,15 +326,15 @@ FlowChart Pathfind::CreateFlowChart(std::vector<MapLocation> destinations) {
 		}
 	}
 
-	std::cout << "Direction Map" << std::endl;
-	std::cout << "Destination is " << destX << ", " << destY << std::endl;
+	// std::cout << "Direction Map" << std::endl;
+	// std::cout << "Destination is " << destX << ", " << destY << std::endl;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			std::cout << flowChart.directionMap[y * width + x] << " ";
+			// std::cout << flowChart.directionMap[y * width + x] << " ";
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 	}
-	std::cout << "\n\n" << std::endl;
+	// std::cout << "\n\n" << std::endl;
 
 	return flowChart;
 }
@@ -418,14 +416,14 @@ void Pathfind::GenerateFlowPath(Section* section, short destX, short destY) {
 	//// Generate a map based off the terrain and destination
 	GenerateFlowPathPoints(terrainMap, flowChart->pointsMap, section, destX, destY);
 
-	std::cout << "Points Map" << std::endl;
+	// std::cout << "Points Map" << std::endl;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
+			// std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 	}
-	std::cout << std::setw(0) << "\n\n" << std::endl;
+	// std::cout << std::setw(0) << "\n\n" << std::endl;
 
 	// Generate a map of directions based off surrounding points...
 	for (short y = 0; y < height; y++) {
@@ -440,15 +438,15 @@ void Pathfind::GenerateFlowPath(Section* section, short destX, short destY) {
 		}
 	}
 
-	std::cout << "Direction Map" << std::endl;
-	std::cout << "Destination is " << destX << ", " << destY << std::endl;
+	// std::cout << "Direction Map" << std::endl;
+	// std::cout << "Destination is " << destX << ", " << destY << std::endl;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			std::cout << flowChart->directionMap[y * width + x] << " ";
+			// std::cout << flowChart->directionMap[y * width + x] << " ";
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 	}
-	std::cout << "\n\n" << std::endl;
+	// std::cout << "\n\n" << std::endl;
 }
 
 
@@ -686,3 +684,9 @@ bc_Direction Pathfind::GenerateFlowPathDirection(short* pointsMap,
 //		Start from Dest, evaluate surrounding tiles, keep lowest value
 // Create a grid / array of all the direction towards the goal
 //		Iterate around the given Location and find the smallest value. Move there.
+
+int FlowChart::GetIndex(MapLocation & location)
+{
+	bc_PlanetMap* planetMap = GameController::PlanetMap(location.Planet());
+	return location.X() + location.Y() * bc_PlanetMap_width_get(planetMap);
+}

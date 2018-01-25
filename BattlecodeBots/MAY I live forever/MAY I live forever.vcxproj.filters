@@ -78,14 +78,8 @@
     <ClCompile Include="Pathfind.cpp">
       <Filter>Pathfinding</Filter>
     </ClCompile>
-    <ClCompile Include="AttackCoordinator.cpp">
-      <Filter>Controller</Filter>
-    </ClCompile>
     <ClCompile Include="Utility.cpp">
       <Filter>Wrapper</Filter>
-    </ClCompile>
-    <ClCompile Include="Pegboard.cpp">
-      <Filter>Controller</Filter>
     </ClCompile>
     <ClCompile Include="CombatOverlord.cpp">
       <Filter>Controller</Filter>
@@ -187,14 +181,8 @@
     <ClInclude Include="Pathfind.h">
       <Filter>Pathfinding</Filter>
     </ClInclude>
-    <ClInclude Include="AttackCoordinator.h">
-      <Filter>Controller</Filter>
-    </ClInclude>
     <ClInclude Include="Utility.h">
       <Filter>Wrapper</Filter>
-    </ClInclude>
-    <ClInclude Include="Pegboard.h">
-      <Filter>Controller</Filter>
     </ClInclude>
     <ClInclude Include="CombatOverlord.h">
       <Filter>Controller</Filter>
