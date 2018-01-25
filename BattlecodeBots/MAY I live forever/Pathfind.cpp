@@ -13,6 +13,11 @@
 #include <stdlib.h>
 #include <algorithm>
 
+void FlowChart::Destory() {
+	delete[] pointsMap;
+	delete[] directionMap;
+}
+
 std::vector<MapLocation> Pathfind::Neighbors(MapLocation & start)
 {
 	std::vector<MapLocation> neighbors;
@@ -188,44 +193,137 @@ int Pathfind::GetFuzzyFlowTurns(int sourceX, int sourceY, int destX, int destY) 
 }
 
 FlowChart Pathfind::CreateFlowChart(std::vector<bc_MapLocation*> destinations) {
+	// Assume valid Input
 	FlowChart flowChart;
-
-	if(destinations.size() < 1) { return flowChart; }
 
 	// Init
 	if (!hasInit) {
 		Init();
 	}
 
+	// Get Position and Section
 	int destX = bc_MapLocation_x_get(destinations[0]);
 	int destY = bc_MapLocation_y_get(destinations[0]);
 	Section* destSection = Section::Get(planet, destX, destY);
 
-	//// Create the Maps that will store the data
-	flowChart.pointsMap = new short[width * height];
-	flowChart.directionMap = new bc_Direction[width * height];
-	/// NOTE* can probably optimize Memory usage of Flow Map
+	// We can go through the destinations, find the locations next to them and set the Points AND Direction
 
-	// Initialize Point Map
-	openNodes.clear();
+	// Get Amount in Section and Amount in Destination
+	int sectAmo = destSection->locations.size();
+	int destAmo = destinations.size();
+	int mapAmo = width * height;
+
+	// Create the Maps that will store the data
+	// Init them to the size of Section??
+	flowChart.pointsMap = new short[mapAmo];
+	flowChart.directionMap = new bc_Direction[mapAmo];
 	for (short y = 0; y < height; y++) {
 		for (short x = 0; x < width; x++) {
 			short ID = y * width + x;
+
 			flowChart.pointsMap[ID] = SHRT_MAX;
 		}
 	}
-	int destSize = static_cast<int>(destinations.size());
-	for (int i = 1; i < destSize; i++) {
-		int x = bc_MapLocation_x_get(destinations[i]);
-		int y = bc_MapLocation_x_get(destinations[i]);
 
-		short ID = y * width + x;
-		flowChart.pointsMap[ID] = 0;
-		openNodes.push_back(ID);
+	// Init Destination
+	int destID = destY * width + destX;
+	flowChart.pointsMap[destID] = 0;
+	flowChart.directionMap[destID] = bc_Direction::Center;
+
+	for (int i = 1; i < destAmo; i++) {
+		int destX = bc_MapLocation_x_get(destinations[i]);
+		int destY = bc_MapLocation_y_get(destinations[i]);
+		int destID = destY * width + destX;
+
+		flowChart.pointsMap[destID] = 0;
+		flowChart.directionMap[destID] = bc_Direction::Center;
 	}
 
+	// Create Depth / Influence
+	int currDepth = 0;
+	for (short y = 0; y < height; y++) {
+		for (short x = 0; x < width; x++) {
+			short ID = y * width + x;
+			
+			if (flowChart.pointsMap[ID] == currDepth) {
+
+				for (int d = 0; d < 8; d++) {
+					bc_Direction currDir = static_cast<bc_Direction>(d);
+
+					int dirX = bc_Direction_dx(currDir);
+					int dirY = bc_Direction_dy(currDir);
+					int dirID = dirY * width + dirX;
+
+					// Is Valid and 
+					if (terrainMap[dirID] && flowChart.pointsMap[dirID] < currDepth+1) {
+
+						flowChart.pointsMap[dirID] = currDepth+1;
+						flowChart.directionMap[dirID] = bc_Direction_opposite(currDir);
+					}
+				}
+			}
+		}
+	}
+
+	// Check By List or Depth could be faster depending on MapSize, DestinationAmo, PassableAmo, Structure
+
+	// Set our intial Depth
+	//for (int i = 0; i < sectAmo; i++) {
+	//	bc_MapLocation* mapLoc = destSection->locations[i];
+	//	int currX = bc_MapLocation_x_get(mapLoc);
+	//	int currY = bc_MapLocation_y_get(mapLoc);
+
+		//if (destX == currX && destY == currY) {
+		//	flowChart.pointsMap[i] = 0;
+		//	flowChart.directionMap[i] = bc_Direction::Center;
+		//}
+
+		//for (int y = 1; y < destAmo; y++) {
+		//	int destX = bc_MapLocation_x_get(destinations[y]);
+		//	int destY = bc_MapLocation_y_get(destinations[y]);
+
+		//	if (destX == currX && destY == currY) {
+		//		flowChart.pointsMap[i] = 0;
+		//		flowChart.directionMap[i] = bc_Direction::Center;
+		//	}
+		//}
+	//}
+
+	//int currDepth = 0;
+	//for (int i = 0; i < sectAmo; i++) {
+
+	//	if (flowChart.pointsMap[i] == currDepth) {
+			// Check each Direction
+			// Check if it is in Section
+			// Set it's pointMapLoc = currDepth+1
+			// Set it's Direction to us
+	/*	}
+	}*/
+
+	//// Create the Maps that will store the data
+	//flowChart.pointsMap = new short[width * height];
+	//flowChart.directionMap = new bc_Direction[width * height];
+
+	// Initialize Point Map
+	//openNodes.clear();
+	//for (short y = 0; y < height; y++) {
+	//	for (short x = 0; x < width; x++) {
+	//		short ID = y * width + x;
+	//		flowChart.pointsMap[ID] = SHRT_MAX;
+	//	}
+	//}
+	//int destSize = static_cast<int>(destinations.size());
+	//for (int i = 1; i < destSize; i++) {
+	//	int x = bc_MapLocation_x_get(destinations[i]);
+	//	int y = bc_MapLocation_x_get(destinations[i]);
+
+	//	short ID = y * width + x;
+	//	flowChart.pointsMap[ID] = 0;
+	//	openNodes.push_back(ID);
+	//}
+
 	//// Generate a map based off the terrain and destination
-	GenerateFlowPathPoints(terrainMap, flowChart.pointsMap, destSection, destX, destY);
+	//GenerateFlowPathPoints(terrainMap, flowChart.pointsMap, destSection, destX, destY);
 
 	std::cout << "Points Map" << std::endl;
 	for (int y = 0; y < height; y++) {
@@ -237,17 +335,17 @@ FlowChart Pathfind::CreateFlowChart(std::vector<bc_MapLocation*> destinations) {
 	std::cout << std::setw(0) << "\n\n" << std::endl;
 
 	// Generate a map of directions based off surrounding points...
-	for (short y = 0; y < height; y++) {
-		for (short x = 0; x < width; x++) {
-			short ID = y * width + x;
-			if (flowChart.pointsMap[ID] != SHRT_MAX) {
-				flowChart.directionMap[ID] = GenerateFlowPathDirection(flowChart.pointsMap, x, y, destX, destY);
-			} else {
-				flowChart.directionMap[ID] = bc_Direction::Center;
-			}
+	//for (short y = 0; y < height; y++) {
+	//	for (short x = 0; x < width; x++) {
+	//		short ID = y * width + x;
+	//		if (flowChart.pointsMap[ID] != SHRT_MAX) {
+	//			flowChart.directionMap[ID] = GenerateFlowPathDirection(flowChart.pointsMap, x, y, destX, destY);
+	//		} else {
+	//			flowChart.directionMap[ID] = bc_Direction::Center;
+	//		}
 
-		}
-	}
+	//	}
+	//}
 
 	std::cout << "Direction Map" << std::endl;
 	std::cout << "Destination is " << destX << ", " << destY << std::endl;
