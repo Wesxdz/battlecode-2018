@@ -37,8 +37,8 @@ MapUtil mapUtil;
 PlayerData playerData;
 
 Strategist strategist;
-BuilderOverlord builderLord;
 CombatOverlord combatLord;
+BuilderOverlord builderLord;
 PolicyOverlord policyLord;
 
 

@@ -39,6 +39,7 @@ public:
 	static float Danger(MapLocation location, bc_Team damageSource);
 
 	static std::map<bc_UnitType, float> multipliers;
+	static std::map<bc_UnitType, float> fearTolerance;
 	// The units that require healing, sorted by order of most needed first
 	static std::vector<uint16_t> requestHeal;
 	// These are points that have concentrated enemies and must be destroyed

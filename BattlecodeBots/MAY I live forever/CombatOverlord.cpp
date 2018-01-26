@@ -20,6 +20,9 @@ InfluenceMap CombatOverlord::damage;
 std::map<bc_UnitType, float> CombatOverlord::multipliers = {
 	{ Factory, 1.0f },{ Healer, 10.0f },{ Worker, 1.0f },{ Knight, 2.0f },{ Mage, 20.0f },{ Ranger, 5.0f },{ Rocket, 20.0f }
 };
+std::map<bc_UnitType, float> CombatOverlord::fearTolerance = {
+	{Healer, 10.0f}, {Knight, 50.0f}, {Mage, 5.0f}, {Ranger, 40.0f}
+};
 std::map<uint16_t, HealthInstance> CombatOverlord::healthAmounts;
 
 CombatOverlord::CombatOverlord()
@@ -48,6 +51,7 @@ CombatOverlord::~CombatOverlord()
 
 void CombatOverlord::Update()
 {
+	std::cout << controlPoints.size() << " control points" << std::endl;
 	if (GameController::Round() % 5) {
 		auto end = std::remove_if(controlPoints.begin(), controlPoints.end(), [](MapLocation& point) {
 			if (point.IsVisible()) {
@@ -109,6 +113,10 @@ void CombatOverlord::LateUpdate()
 	for (units::Unit& unit : team) {
 		if (!unit.Loc().IsOnMap()) continue;
 		healthAmounts[unit.id] = HealthInstance{ unit.Health(), unit.Loc().ToMapLocation() };
+	}
+
+	for (int i = 0; i < damage.width * damage.height; i++) {
+		damage.influence[i] *= 0.5f; // Damage slowly fades over time
 	}
 
 	//if (GameController::Round() % 10 == 0 && GameController::Planet() == Earth) {

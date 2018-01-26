@@ -15,6 +15,7 @@
 #include "AsteroidPattern.h"
 #include "PolicyOverlord.h"
 #include "Strategist.h"
+#include "CombatOverlord.h"
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
@@ -171,17 +172,14 @@ void BuilderOverlord::DesireUnits() {
 		uintptr_t mapSize = MapUtil::EARTH_MAP_HEIGHT * MapUtil::EARTH_MAP_WIDTH;
 		float mapRatio = mapSize/2500.0f; // If the map is small, we should build factories earlier
 		float roundRatio = round / 50.0f;
-		float timeBonus = roundRatio/mapRatio/(factoryAmo + 2);
+		float timeBonus = roundRatio/mapRatio/(factoryAmo + 1);
 		factoryPriority += timeBonus;
 	}
 	PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
 	}
 
 	if (Strategist::strategy == Strategy::ShieldFormation) {
-		PlayerData::pd->unitPriority[Knight] = 0.9f;
-		//if (knightAmo / (healerAmo + 1) > 1) {
-		//	PlayerData::pd->unitPriority[Healer] = 1.0f;
-		//}
+
 	}
 
 	if (factoryAmo + factoryProductionAmo == 0) {
@@ -243,7 +241,14 @@ void BuilderOverlord::CreateKarboniteFlows()
 		for (Section* section : Section::earthSections) {
 			if (section->status == StartStatus::Mixed || section->status == StartStatus::Team) {
 				if (section->karboniteDeposits.size() > 0) {
-					findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
+					std::vector<MapLocation> safeKarbonite = section->karboniteDeposits;
+					auto unsafeKarbonite = std::remove_if(safeKarbonite.begin(), safeKarbonite.end(), [](MapLocation& a) {
+						return CombatOverlord::damage.GetInfluence(a) > 1.0f;
+					});
+					if (unsafeKarbonite != safeKarbonite.end()) {
+						safeKarbonite.erase(unsafeKarbonite);
+					}
+					findKarbonite[section] = Pathfind::CreateFlowChart(safeKarbonite);
 				}
 			}
 		}
@@ -251,7 +256,14 @@ void BuilderOverlord::CreateKarboniteFlows()
 	else {
 		for (Section* section : Section::marsSections) {
 			if (section->karboniteDeposits.size() > 0) {
-				findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
+				std::vector<MapLocation> safeKarbonite = section->karboniteDeposits;
+				auto unsafeKarbonite = std::remove_if(safeKarbonite.begin(), safeKarbonite.end(), [](MapLocation& a) {
+					return CombatOverlord::damage.GetInfluence(a) > 0.5f;
+				});
+				if (unsafeKarbonite != safeKarbonite.end()) {
+					safeKarbonite.erase(unsafeKarbonite);
+				}
+				findKarbonite[section] = Pathfind::CreateFlowChart(safeKarbonite);
 			}
 		}
 	}

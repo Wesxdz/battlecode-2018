@@ -87,14 +87,22 @@ bc_UnitType PolicyOverlord::HighestPriority()
 
 PolicyOverlord::PolicyOverlord()
 {
+	auto holdTheLine = std::make_shared<Policy>("hold_the_line");
+	holdTheLine->Evaluate = policy::HoldTheLineEvaluate;
+	holdTheLine->Execute = policy::HoldTheLineExecute;
+	policies[Knight].push_back(holdTheLine);
+	policies[Ranger].push_back(holdTheLine);
+	policies[Healer].push_back(holdTheLine);
+	policies[Mage].push_back(holdTheLine);
+
 	auto robot1 = std::make_shared<Policy>("fear"); // TODO Run towards friendly units
 	robot1->Evaluate = policy::AvoidDamageEvaluate;
 	robot1->Execute = policy::AvoidDamageExecute;
 	policies[Worker].push_back(robot1);
 	//policies[Knight].push_back(robot1);
-	policies[Healer].push_back(robot1);
-	policies[Ranger].push_back(robot1);
-	policies[Mage].push_back(robot1);
+	//policies[Healer].push_back(robot1);
+	//policies[Ranger].push_back(robot1);
+	//policies[Mage].push_back(robot1);
 
 	auto wander = std::make_shared<Policy>("wander");
 	wander->Evaluate = policy::WanderEvaluate;
@@ -193,7 +201,7 @@ PolicyOverlord::PolicyOverlord()
 		seekRocket->Evaluate = policy::SeekRocketEvaluate;
 		seekRocket->Execute = policy::SeekRocketExecute;
 		policies[Worker].push_back(seekRocket);
-		policies[Knight].push_back(seekRocket);
+		//policies[Knight].push_back(seekRocket);
 		policies[Ranger].push_back(seekRocket);
 		policies[Mage].push_back(seekRocket);
 		policies[Healer].push_back(seekRocket);

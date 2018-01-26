@@ -19,6 +19,31 @@
 
 namespace policy {
 
+	float HoldTheLineEvaluate(bc_Unit* unit) {
+		units::Robot robot{ bc_Unit_clone(unit) };
+		if (!robot.IsMoveReady()) return 0.0f;
+		MapLocation location = robot.Loc().ToMapLocation();
+		float danger = CombatOverlord::fear.GetInfluence(location) + CombatOverlord::damage.GetInfluence(location);
+		danger += CombatOverlord::damage.GetInfluence(location) - robot.Health();
+		bool shouldFlee = danger > CombatOverlord::fearTolerance[robot.type];
+		if (!shouldFlee) return 0.0f;
+		auto moveable = Pathfind::Moveable(location);
+		auto run = std::min_element(moveable.begin(), moveable.end(), [](MapLocation& a, MapLocation& b) {
+			return CombatOverlord::fear.GetInfluence(a) < CombatOverlord::fear.GetInfluence(b);
+		});
+		if (run != moveable.end()) {
+			PolicyOverlord::storeDirection = location.DirectionTo(*run);
+			return 100.0f;
+		}
+		return 0.0f;
+	}
+
+	bool HoldTheLineExecute(bc_Unit* unit) {
+		units::Robot robot{ bc_Unit_clone(unit) };
+		robot.Move(PolicyOverlord::storeDirection);
+		return true;
+	}
+
 	float AvoidDamageEvaluate(bc_Unit* unit) {
 		units::Robot robot{ bc_Unit_clone(unit) };
 		if (!robot.IsMoveReady()) return 0.0f;

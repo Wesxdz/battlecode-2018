@@ -124,7 +124,6 @@ void Pathfind::Init() {
 
 
 bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
-	return false;
 	if (robot.MovementHeat() > 9) { return false; } // Can't move
 
 	// Init
@@ -450,14 +449,14 @@ void Pathfind::GenerateFlowPath(Section* section, short destX, short destY) {
 	//// Generate a map based off the terrain and destination
 	GenerateFlowPathPoints(terrainMap, flowChart->pointsMap, section, destX, destY);
 
-	// std::cout << "Points Map" << std::endl;
+	 //std::cout << "Points Map" << std::endl;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			// std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
+			 //std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
 		}
-		// std::cout << std::endl;
+		 std::cout << std::endl;
 	}
-	// std::cout << std::setw(0) << "\n\n" << std::endl;
+	 //std::cout << std::setw(0) << "\n\n" << std::endl;
 
 	// Generate a map of directions based off surrounding points...
 	for (short y = 0; y < height; y++) {
@@ -472,15 +471,15 @@ void Pathfind::GenerateFlowPath(Section* section, short destX, short destY) {
 		}
 	}
 
-	// std::cout << "Direction Map" << std::endl;
-	// std::cout << "Destination is " << destX << ", " << destY << std::endl;
+	 //std::cout << "Direction Map" << std::endl;
+	 //std::cout << "Destination is " << destX << ", " << destY << std::endl;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			// std::cout << flowChart->directionMap[y * width + x] << " ";
+			 //std::cout << flowChart->directionMap[y * width + x] << " ";
 		}
-		// std::cout << std::endl;
+		 //std::cout << std::endl;
 	}
-	// std::cout << "\n\n" << std::endl;
+	 //std::cout << "\n\n" << std::endl;
 }
 
 
