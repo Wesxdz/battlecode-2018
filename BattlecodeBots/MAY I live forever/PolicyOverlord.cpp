@@ -206,11 +206,6 @@ PolicyOverlord::PolicyOverlord()
 		policies[Mage].push_back(seekRocket);
 		policies[Healer].push_back(seekRocket);
 
-		auto worker2 = std::make_shared<Policy>("blueprint");
-		worker2->Evaluate = policy::WorkerBlueprintEvaluate;
-		worker2->Execute = policy::WorkerBlueprintExecute;
-		policies[Worker].push_back(worker2);
-
 		auto worker4 = std::make_shared<Policy>("seek_build");
 		worker4->Evaluate = policy::WorkerSeekBuildEvaluate;
 		worker4->Execute = policy::WorkerSeekBuildExecute;

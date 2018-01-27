@@ -23,9 +23,10 @@ namespace policy {
 		units::Robot robot{ bc_Unit_clone(unit) };
 		if (!robot.IsMoveReady()) return 0.0f;
 		MapLocation location = robot.Loc().ToMapLocation();
-		float danger = CombatOverlord::fear.GetInfluence(location) + CombatOverlord::damage.GetInfluence(location);
-		danger += CombatOverlord::damage.GetInfluence(location) - robot.Health();
-		bool shouldFlee = danger > CombatOverlord::fearTolerance[robot.type];
+		float danger = CombatOverlord::fear.GetInfluence(location);
+		danger += CombatOverlord::damage.GetInfluence(location);
+		danger *= 2 - (robot.Health() / robot.MaxHealth());
+		bool shouldFlee = danger > CombatOverlord::courage.GetInfluence(location) + CombatOverlord::fearTolerance[robot.type];
 		if (!shouldFlee) return 0.0f;
 		auto moveable = Pathfind::Moveable(location);
 		auto run = std::min_element(moveable.begin(), moveable.end(), [](MapLocation& a, MapLocation& b) {
@@ -186,34 +187,6 @@ namespace policy {
 		return true;
 	}
 
-	float WorkerBlueprintEvaluate(bc_Unit* unit) {
-		units::Worker worker = bc_Unit_clone(unit);
-		if (worker.HasActed()) return 0.0f;
-		bc_UnitType priority = PolicyOverlord::HighestPriority();
-		if (!(priority == Factory || priority == Rocket)) return 0.0f;
-		if (GameController::Karbonite() < bc_UnitType_blueprint_cost(priority)) return 0.0f;
-		for (bc_Direction direction : constants::directions_adjacent) {
-			if (worker.CanBlueprint(priority, direction) && MapLocation::Neighbor(worker.Loc().ToMapLocation(), direction).IsValid()) {
-				PolicyOverlord::storeDirection = direction;
-				PolicyOverlord::storeUnitType = priority;
-				return 3.0f;
-			}
-		}
-		return 0.0f;
-	}
-
-	bool WorkerBlueprintExecute(bc_Unit* unit) {
-		units::Worker worker = bc_Unit_clone(unit);
-		worker.Blueprint(PolicyOverlord::storeUnitType, PolicyOverlord::storeDirection);
-		MapLocation buildLocation = MapLocation::Neighbor(worker.Loc().ToMapLocation(), PolicyOverlord::storeDirection);
-		units::Structure build = buildLocation.Occupant();
-		BuilderOverlord::buildProjects[build.id].push_back(worker.id);
-		if (PolicyOverlord::storeUnitType == bc_UnitType::Rocket) {
-			BuilderOverlord::rockets[build.id]; // Add rockets
-		}
-		return true;
-	}
-
 	float WorkerReplicateEvaluate(bc_Unit* unit) {
 		units::Worker worker = bc_Unit_clone(unit);
 		if (worker.HasActed()) return 0.0f;
@@ -246,11 +219,24 @@ namespace policy {
 		Section* section = Section::Get(workerLocation);
 		if (section->karboniteDeposits.size() == 0) return 0.0f;
 
-		if (BuilderOverlord::findKarbonite[section].directionMap == nullptr) {
-			std::cout << "Direction Map is Null" << std::endl;
+		if (BuilderOverlord::findKarbonite[section].directionMap == nullptr) return 0.0f;
+		if (workerLocation.Karbonite() > 0) {
+			for (bc_Direction direction : constants::directions_adjacent) {
+				MapLocation neighbor = MapLocation::Neighbor(workerLocation, direction);
+				MapLocation behind = MapLocation::Neighbor(workerLocation, bc_Direction_opposite(direction));
+				bool workerWaitingBehind = false;
+				if (behind.IsValid() && behind.IsOccupied()) {
+					units::Unit unitBehind = behind.Occupant();
+					if (unitBehind.type == Worker && unitBehind.Team() == GameController::Team()) {
+						workerWaitingBehind = true;
+					}
+				}
+				if (workerWaitingBehind && neighbor.IsValid() && neighbor.IsOccupiable() && neighbor.Karbonite() >= workerLocation.Karbonite()) {
+					PolicyOverlord::storeDirection = direction;
+					return 5.0f;
+				}
+			}
 		}
-
-		//std::cout << "index " << FlowChart::GetIndex(workerLocation) << std::endl;
 		bc_Direction move = BuilderOverlord::findKarbonite[section].directionMap[FlowChart::GetIndex(workerLocation)];
 		PolicyOverlord::storeDirection = move;
 		return 5.0f;
@@ -496,6 +482,10 @@ namespace policy {
 			auto move = std::min_element(CombatOverlord::controlPoints.begin(), CombatOverlord::controlPoints.end(), [&robotLocation](MapLocation& a, MapLocation& b) {
 				return a.DistanceTo(robotLocation) < b.DistanceTo(robotLocation);
 			});
+			if (Section::Get(*move) != Section::Get(robotLocation)) return 0.0f;
+			if (Pathfind::GetFuzzyFlowTurns(robotLocation, *move) > 15) {
+				if (!PlayerData::pd->enemyUnitCounts[Ranger] > 0 && GameController::Round() < 150 && CombatOverlord::courage.GetInfluence(robotLocation) < 130) return 0.0f; // Wait to push
+			}
 			PolicyOverlord::storeLocation = *move;
 			return 1.0f;
 		}
@@ -539,13 +529,14 @@ namespace policy {
 
 	float HealerOverchargeEvaluate(bc_Unit* unit) {
 		units::Healer healer = bc_Unit_clone(unit);
-		if (!healer.IsActiveUnlocked() || !healer.IsAttackReady()) return 0.0f;
+		if (!healer.IsActiveUnlocked() || !healer.IsOverchargeReady()) return 0.0f;
 		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AbilityRange(), healer.Team());
 		if (nearby.size() == 0) return 0.0f;
 		auto best = std::max_element(nearby.begin(), nearby.end(), [&healer](units::Unit& a, units::Unit& b) {
 			return CombatOverlord::OverchargeValue(healer, bc_Unit_clone(a.self)) < CombatOverlord::OverchargeValue(healer, bc_Unit_clone(b.self));
 		});
 		units::Robot toOvercharge = bc_Unit_clone((*best).self);
+		if (CombatOverlord::OverchargeValue(healer, toOvercharge) == 0) return 0.0f;
 		if (healer.CanOvercharge(toOvercharge.self)) {
 			PolicyOverlord::storeId = bc_Unit_id(toOvercharge.self);
 			return CombatOverlord::OverchargeValue(healer, bc_Unit_clone((*best).self));

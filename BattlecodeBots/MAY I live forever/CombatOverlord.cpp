@@ -18,17 +18,17 @@ InfluenceMap CombatOverlord::fear;
 InfluenceMap CombatOverlord::courage;
 InfluenceMap CombatOverlord::damage;
 std::map<bc_UnitType, float> CombatOverlord::multipliers = {
-	{ Factory, 1.0f },{ Healer, 10.0f },{ Worker, 1.0f },{ Knight, 2.0f },{ Mage, 20.0f },{ Ranger, 5.0f },{ Rocket, 20.0f }
+	{ Factory, 40.0f },{ Healer, 15.0f },{ Worker, 1.0f },{ Knight, 5.0f },{ Mage, 20.0f },{ Ranger, 10.0f },{ Rocket, 20.0f }
 };
 std::map<bc_UnitType, float> CombatOverlord::fearTolerance = {
-	{Healer, 10.0f}, {Knight, 50.0f}, {Mage, 5.0f}, {Ranger, 40.0f}
+	{Healer, -30.0f}, {Knight, 0.0f}, {Mage, 0.0f}, {Ranger, -10.0f}
 };
 std::map<uint16_t, HealthInstance> CombatOverlord::healthAmounts;
 
 CombatOverlord::CombatOverlord()
 {
 	for (MapLocation location : PlayerData::pd->enemySpawnPositions) {
-		if (Section::Get(location)->status = StartStatus::Mixed) {
+		if (Section::Get(location)->status == StartStatus::Mixed) {
 			controlPoints.push_back(location);
 		}
 	}
@@ -51,7 +51,6 @@ CombatOverlord::~CombatOverlord()
 
 void CombatOverlord::Update()
 {
-	std::cout << controlPoints.size() << " control points" << std::endl;
 	if (GameController::Round() % 5) {
 		auto end = std::remove_if(controlPoints.begin(), controlPoints.end(), [](MapLocation& point) {
 			if (point.IsVisible()) {
@@ -76,9 +75,9 @@ void CombatOverlord::Update()
 			}
 		}
 	}
-	if (GameController::Round() % 10 == 0) {
-		CalculateInfluenceMaps();
-	}
+	CalculateInfluenceMaps();
+	//if (GameController::Round() % 10 == 0) {
+	//}
 }
 
 void CombatOverlord::LateUpdate()
@@ -93,7 +92,7 @@ void CombatOverlord::LateUpdate()
 			if (currentHealth < lastHealth) { // This unit has taken damage D:
 				uint32_t damageTaken = lastHealth - currentHealth;
 				//std::cout << "Unit took damage" << std::endl;
-				damage.SetInfluence(lastRoundHealth->second.location, damageTaken, 3);
+				damage.SetInfluence(lastRoundHealth->second.location, damageTaken * 2, 5);
 			}
 			healthAmounts.erase((*lastRoundHealth).first);
 		}
@@ -103,7 +102,7 @@ void CombatOverlord::LateUpdate()
 	for (auto& lastRoundHealth : healthAmounts) { // Any healthAmount not removed at this point is a unit death
 		uint32_t deathDamageTaken = lastRoundHealth.second.health; // At least
 		//std::cout << "Unit died" << std::endl;
-		damage.SetInfluence(lastRoundHealth.second.location, deathDamageTaken, 3);
+		damage.SetInfluence(lastRoundHealth.second.location, deathDamageTaken, 5);
 		died.push_back(lastRoundHealth.first);
 	}
 	for (uint32_t deadUnit : died) {
@@ -188,10 +187,13 @@ float CombatOverlord::HealValue(units::Healer& healer, units::Robot target)
 
 float CombatOverlord::OverchargeValue(units::Healer & healer, units::Robot target)
 {
-	float score = 0.1f;
-	if (target.IsActiveUnlocked()) {
+	float score = 0.0f;
+	if (target.IsActiveUnlocked() && (target.type == Mage || target.type == Knight)) {
 		float activePercentage = (float)target.AbilityHeat()/ target.AbilityCooldown();
 		score += (activePercentage - 1) * target.AbilityCooldown();
+	}
+	if (target.IsAttackReady()) {
+		score += 1.0f;
 	}
 	return score;
 }
@@ -234,17 +236,16 @@ void CombatOverlord::CalculateInfluenceMaps()
 			if (unit.Team() == GameController::Team()) {
 				switch (unit.type) {
 				case Mage:
-					courage.SetInfluence(robotLocation, robot.Damage() * 3, 3);
+					courage.SetInfluence(robotLocation, 10, 3, [](float distance) { return 1.0f; });
 					break;
 				case Knight:
-					courage.SetInfluence(robotLocation, robot.Damage(), 2);
+					courage.SetInfluence(robotLocation, 10, 2, [](float distance) { return 1.0f; });
 					break;
 				case Healer:
 					courage.SetInfluence(robotLocation, 5, 5, [](float distance) { return 1.0f; });
 					break;
 				case Ranger:
-					courage.SetInfluence(robotLocation, robot.Damage(), 7, [](float distance) { return 1.0f; });
-					courage.SetInfluence(robotLocation, -15, 3, [](float distance) { return 1.0f; });
+					courage.SetInfluence(robotLocation, 15, 7, [](float distance) { return 1.0f; });
 					break;
 				default:
 					break;
@@ -253,17 +254,17 @@ void CombatOverlord::CalculateInfluenceMaps()
 			else {
 				switch (unit.type) {
 				case Mage:
-					fear.SetInfluence(robotLocation, robot.Damage() * 3, 3);
+					fear.SetInfluence(robotLocation, 30, 7, [](float distance) { return 1.0f; });
 					break;
 				case Knight:
-					fear.SetInfluence(robotLocation, robot.Damage(), 2);
+					fear.SetInfluence(robotLocation, 10, 5, [](float distance) { return 1.0f; });
 					break;
 				case Healer:
 					fear.SetInfluence(robotLocation, 5, 5, [](float distance) { return 1.0f; });
 					break;
 				case Ranger:
-					fear.SetInfluence(robotLocation, 5, 7, [](float distance) { return 1.0f; });
-					fear.SetInfluence(robotLocation, -30, 3, [](float distance) { return 1.0f; });
+					fear.SetInfluence(robotLocation, 5, 10, [](float distance) { return 1.0f; });
+					fear.SetInfluence(robotLocation, -10, 3, [](float distance) { return 1.0f; });
 					break;
 				default:
 					break;

@@ -42,7 +42,7 @@ PlayerData::PlayerData()
 	Section::FindEarthSectionsStatus();
 	if (GameController::Planet() == Earth) {
 		int i = 1;
-		for (auto section : Section::earthSections) {
+		for (Section* section : Section::earthSections) {
 			std::cout << "Section " << i << "\n  status: " << section->status << "\n  size: "  << section->locations.size() 
 				<< "\n  deposits: " << section->karboniteDeposits.size() << "\n  karbonite: " << section->TotalKarbonite() << std::endl;
 			i++;

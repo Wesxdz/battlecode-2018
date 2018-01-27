@@ -43,7 +43,7 @@ Strategist::Strategist()
 				}
 			}
 		}
-		if (impassableAdjacent > passableAdjacent / 4) {
+		if (impassableAdjacent > passableAdjacent / 6) {
 			strategy = TerroristOvercharge;
 		}
 	}
