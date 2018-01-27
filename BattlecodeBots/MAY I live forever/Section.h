@@ -29,6 +29,7 @@ public:
 	std::vector<bc_MapLocation*> locations;
 	void Add(Section* section);
 	std::vector<MapLocation> karboniteDeposits;
+	int estimatedKarb = 0;
 	int TotalKarbonite();
 
 	static std::list<Section*> GenSections(std::vector<bc_MapLocation*>& passables, bc_PlanetMap* planetMap);

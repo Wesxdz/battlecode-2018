@@ -60,6 +60,7 @@ int main()
 		}
 		playerData.Update();
 
+
 		auto start = std::chrono::system_clock::now();
 		builderLord.Update();
 		auto end = std::chrono::system_clock::now();

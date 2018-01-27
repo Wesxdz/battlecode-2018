@@ -17,19 +17,39 @@
 #include "Strategist.h"
 #include "CombatOverlord.h"
 
+std::vector<bc_UnitType> RocketInfo::rocketLoadType; // Desired Load Types
+std::map<bc_UnitType, int> RocketInfo::unitsLoaded;
+std::list<Section*> RocketInfo::marsSectionsNotVisited;
+std::map<Section*, int> RocketInfo::bestMarsSections;
+int RocketInfo::rocketsLaunched = 0;
+
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
-std::vector<bc_UnitType> BuilderOverlord::rocketLoadType;
 std::map<Section*, FlowChart> BuilderOverlord::findKarbonite;
 std::map<uint16_t, int> BuilderOverlord::miningSuccess;
 
 BuilderOverlord::BuilderOverlord()
 {
-	rocketLoadType.push_back(Worker);
-	rocketLoadType.push_back(Knight);
-	rocketLoadType.push_back(Ranger);
-	rocketLoadType.push_back(Mage);
-	rocketLoadType.push_back(Healer);
+	for (Section* section : Section::marsSections) {
+		if (section->locations.size() > 4) {
+			RocketInfo::marsSectionsNotVisited.push_back(section);
+		}
+	}
+
+	RocketInfo::marsSectionsNotVisited.sort([](const Section* A, const Section* B) {
+		return A->estimatedKarb * A->locations.size() < B->estimatedKarb * B->locations.size();
+	});
+	for (auto val : RocketInfo::marsSectionsNotVisited) {
+		auto ratio = val->estimatedKarb * val->locations.size();
+		RocketInfo::bestMarsSections[val] = ratio;
+	}
+	
+	RocketInfo::unitsLoaded[Worker] = 0;
+	RocketInfo::unitsLoaded[Knight] = 0;
+	RocketInfo::unitsLoaded[Ranger] = 0;
+	RocketInfo::unitsLoaded[Mage] = 0;
+	RocketInfo::unitsLoaded[Healer] = 0;
+
 	CreateKarboniteFlows();
 }
 
@@ -39,23 +59,6 @@ void BuilderOverlord::Update()
 		for (auto section : Section::earthSections) {
 			if (section->status == StartStatus::Team || section->status == StartStatus::Mixed) {
 				if (section->karboniteDeposits.size() > 0) {
-					auto mined = std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
-						return location.IsVisible() && location.Karbonite() == 0;
-					});
-					if (mined != section->karboniteDeposits.end()) {
-						section->karboniteDeposits.erase(mined);
-					}
-				}
-			}
-		}
-	}
-	else {
-		if (GameController::Round() > 100) {
-			for (auto section : Section::marsSections) {
-				if (section->karboniteDeposits.size() > 0) {
-					//section->karboniteDeposits.erase(std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
-					//	return location.IsVisible() && location.Karbonite() == 0;
-					//}));
 					auto mined = std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
 						return location.IsVisible() && location.Karbonite() == 0;
 					});
@@ -75,6 +78,34 @@ void BuilderOverlord::Update()
 					//std::cout << "Adding asteroid hit " << landing.X() << ", " << landing.Y() << std::endl;
 					sectionHit->karboniteDeposits.push_back(landing);
 				} 
+				sectionHit->estimatedKarb += strike.Karbonite();
+			}
+		} 
+	}
+	else {
+		if (GameController::Round() > 100) {
+			for (auto section : Section::marsSections) {
+				if (section->karboniteDeposits.size() > 0) {
+					auto mined = std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
+						return location.IsVisible() && location.Karbonite() == 0;
+					});
+					if (mined != section->karboniteDeposits.end()) {
+						section->karboniteDeposits.erase(mined);
+					}
+				}
+			}
+		}
+		if (AsteroidPattern::WillAsteroidStrike(GameController::Round())) {
+			AsteroidStrike strike = AsteroidPattern::Strike(GameController::Round());
+			MapLocation landing = strike.Loc();
+			if (landing.IsPassable()) { // Otherwise not in section!
+				Section* sectionHit = Section::Get(landing);
+				auto deposit = std::find(sectionHit->karboniteDeposits.begin(), sectionHit->karboniteDeposits.end(), landing);
+				if (deposit == sectionHit->karboniteDeposits.end()) {
+					//std::cout << "Adding asteroid hit " << landing.X() << ", " << landing.Y() << std::endl;
+					sectionHit->karboniteDeposits.push_back(landing);
+				} 
+				sectionHit->estimatedKarb += strike.Karbonite();
 			}
 			else {
 				for (bc_Direction direction : constants::directions_adjacent) {
@@ -153,6 +184,8 @@ void BuilderOverlord::DesireUnits() {
 
 	// Rocket Priority
 	{
+		ChooseRocketLoad();
+
 		bc_ResearchInfo* info = bc_GameController_research_info(GameController::gc);
 		if (bc_ResearchInfo_get_level(info, Rocket) == 0) {
 			PlayerData::pd->unitPriority[Rocket] = 0.0f;
@@ -276,6 +309,19 @@ void BuilderOverlord::DesireUnits() {
 		PlayerData::pd->unitPriority[Mage] = 0.0f;
 	}
 
+}
+
+void BuilderOverlord::ChooseRocketLoad() {
+	RocketInfo::rocketLoadType.clear();
+	if (RocketInfo::marsSectionsNotVisited.size() == 0) {
+		RocketInfo::rocketLoadType.push_back(Knight);
+		RocketInfo::rocketLoadType.push_back(Ranger);
+		RocketInfo::rocketLoadType.push_back(Mage);
+		RocketInfo::rocketLoadType.push_back(Healer);
+	} else {
+		RocketInfo::rocketLoadType.push_back(Worker);
+		RocketInfo::rocketLoadType.push_back(Ranger);
+	}
 }
 
 void BuilderOverlord::ManageProduction()

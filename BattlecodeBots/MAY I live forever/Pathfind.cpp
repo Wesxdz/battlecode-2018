@@ -122,7 +122,6 @@ void Pathfind::Init() {
 	hasInit = true;
 }
 
-
 bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	if (robot.MovementHeat() > 9) { return false; } // Can't move
 
@@ -158,6 +157,11 @@ bool Pathfind::MoveFuzzyFlow(units::Robot& robot, int destX, int destY) {
 	auto dir = flowChart->directionMap[currXY]; // Fuzzy move in that direction
 	return Pathfind::MoveFuzzy(robot, dir);
 }
+bool Pathfind::MoveFuzzyFlow(units::Robot& robot, MapLocation& destination) {
+	int destX = destination.X();
+	int destY= destination.Y();
+	return MoveFuzzyFlow(robot, destX, destY);
+}
 
 int Pathfind::GetFuzzyFlowTurns(int sourceX, int sourceY, int destX, int destY) {
 	return 0;
@@ -188,6 +192,15 @@ int Pathfind::GetFuzzyFlowTurns(int sourceX, int sourceY, int destX, int destY) 
 
 	short currXY = width * sourceY + sourceX; // Robot Position ID 
 	return flowChart->pointsMap[currXY];
+}
+int Pathfind::GetFuzzyFlowTurns(MapLocation& origin, MapLocation& destination) {
+	short destY = destination.Y();
+	short destX = destination.X();
+
+	short sourceX = origin.X();
+	short sourceY = origin.Y();
+
+	return GetFuzzyFlowTurns(sourceX, sourceY, destX, destY);
 }
 
 // Should work, pretty Efficient
@@ -410,23 +423,6 @@ FlowChart Pathfind::CreateFlowChart(std::vector<MapLocation> destinations) {
 
 	return flowChart;
 }
-
-bool Pathfind::MoveFuzzyFlow(units::Robot& robot, MapLocation& destination) {
-	int destX = destination.X();
-	int destY= destination.Y();
-	return MoveFuzzyFlow(robot, destX, destY);
-}
-
-int Pathfind::GetFuzzyFlowTurns(MapLocation& origin, MapLocation& destination) {
-	short destY = destination.Y();
-	short destX = destination.X();
-
-	short sourceX = origin.X();
-	short sourceY = origin.Y();
-
-	return GetFuzzyFlowTurns(sourceX, sourceY, destX, destY);
-}
-
 
 void Pathfind::GenerateFlowPath(Section* section, short destX, short destY) {
 	short destXY = width * destY + destX;
