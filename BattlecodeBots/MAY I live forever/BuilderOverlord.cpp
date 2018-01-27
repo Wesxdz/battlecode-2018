@@ -341,7 +341,7 @@ float BuilderOverlord::FactoryPlacementScore(MapLocation location)
 {
 	float score = 0.0f;
 	for (MapLocation& point : CombatOverlord::controlPoints) {
-		score -= location.DistanceTo(point)/30;
+		score -= sqrt(location.DistanceTo(point));
 	}
 	int adjacentImpassable = 0;
 	for (bc_Direction direction : constants::directions_adjacent) {
@@ -360,7 +360,7 @@ float BuilderOverlord::FactoryPlacementScore(MapLocation location)
 		score -= 10000.0f; // This might block a chokepoint
 	}
 	else {
-		score += adjacentImpassable * 10.0f;
+		score += adjacentImpassable * 5.0f;
 	}
 	std::vector<units::Unit> nearby = location.NearbyUnits(16);
 	score -= CombatOverlord::fear.GetInfluence(location);
