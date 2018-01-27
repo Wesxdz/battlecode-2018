@@ -132,9 +132,6 @@ void BuilderOverlord::Update()
 void BuilderOverlord::DesireUnits() {
 	uint32_t round = GameController::Round();
 
-	// TODO: Set Rocket Desred Types
-
-	// Cant build anything, so replicate workers
 	if (GameController::Planet() == Mars) {
 		for (auto& priority : PlayerData::pd->unitPriority) {
 			priority.second = 0.0f;
@@ -175,10 +172,30 @@ void BuilderOverlord::DesireUnits() {
 	int rocketProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Rocket];
 	int totalProductionAmo = workerProductionAmo + knightProductionAmo + mageProductionAmo + rangerProductionAmo + healerProductionAmo + factoryProductionAmo + rocketProductionAmo;
 	
+	float competeKarbonite = 0;
+	for (Section* section : Section::earthSections) {
+		if (section->status == StartStatus::Mixed) {
+			competeKarbonite = section->TotalKarbonite();
+		}
+	}
+	float mapSize = (MapUtil::EARTH_MAP_WIDTH * MapUtil::EARTH_MAP_HEIGHT) / 2500; // .16 to 1
+
 	// Worker Priority
 	{
 		float workerPriority = .0f;
-		if (round < 25 || workerAmo < 10) workerPriority += 1.0f;
+		if (workerAmo < 5) {
+			workerPriority += 1.0f;
+		}
+		if (round < 40 && PlayerData::pd->teamUnitCounts[Worker] == 0) {
+			workerPriority += (competeKarbonite/4000)/mapSize;
+		}
+		if (GameController::Karbonite() > 250) {
+			workerPriority += 1.0f;
+		}
+		if (workerAmo == 0) {
+			workerPriority += 100.0f;
+		}
+		std::cout << workerPriority << " worker prio" << std::endl;
 		PlayerData::pd->unitPriority[bc_UnitType::Worker] = workerPriority;
 	}
 
@@ -203,7 +220,7 @@ void BuilderOverlord::DesireUnits() {
 				}
 			}
 			float spaceTaken = totalAmo / availableSpace;
-			if (spaceTaken > 0.5f) {
+			if (spaceTaken > 0.3f) {
 				rocketPriority += 1000;
 			}
 			PlayerData::pd->unitPriority[bc_UnitType::Rocket] = rocketPriority;
@@ -216,10 +233,9 @@ void BuilderOverlord::DesireUnits() {
 		float factoryPriority = .0f;
 
 		// Always want to be producing factories. Compare to Karb reserves
-		factoryPriority = GameController::Karbonite() / 200.0f;
-		float mapSize = (MapUtil::EARTH_MAP_WIDTH * MapUtil::EARTH_MAP_HEIGHT) / 2500; // .16 to 1
-		if (round > 5 && round < 30) {
-			factoryPriority += (1 / mapSize) / (factoryAmo + 1)/((workerAmo + 1)/8);
+		if (workerAmo > 4) {
+			factoryPriority += (1 - mapSize) * (1 / (factoryAmo + 1));
+			factoryPriority = GameController::Karbonite() / 200.0f;
 		}
 		PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
 	}
@@ -336,11 +352,17 @@ void BuilderOverlord::ManageProduction()
 		bc_Direction buildDirection;
 		for (units::Worker& worker : workers) {
 			if (!worker.Loc().IsOnMap()) continue;
+			MapLocation workerLocation = worker.Loc().ToMapLocation();
+			int impassableAdjacent = 0;
+			for (MapLocation& location : MapLocation::NearbyLocations(workerLocation, 2)) {
+				if (!location.IsPassable()) impassableAdjacent++;
+			}
 			for (bc_Direction direction : constants::directions_adjacent) {
 				if (worker.CanBlueprint(highestPriority, direction) && MapLocation::Neighbor(worker.Loc().ToMapLocation(), direction).IsValid()) {
 					float placementScore = highestPriority == Factory ? 
 						FactoryPlacementScore(MapLocation::Neighbor(worker.Loc().ToMapLocation(), direction)) :
 						RocketPlacementScore(MapLocation::Neighbor(worker.Loc().ToMapLocation(), direction));
+					placementScore -= impassableAdjacent * 10.0f; // Don't build if worker can't move anywhere!
 					if (placementScore > highestScore) {
 						highestScore = placementScore;
 						toBuild = worker.id;

@@ -41,7 +41,7 @@ public:
 	static std::map<uint16_t, std::vector<uint16_t>> rockets; // Rocket ID, units heading towards it
 	static std::map<Section*, FlowChart> findKarbonite;
 	static std::map<uint16_t, int> miningSuccess; // The Karbonite mined by a particular worker in the last 3 turns
-	static std::list<Section*> PrioritizeSections(std::list<Section*> sections);
+	//static std::list<Section*> PrioritizeSections(std::list<Section*> sections);
 	void CreateKarboniteFlows();
 
 	

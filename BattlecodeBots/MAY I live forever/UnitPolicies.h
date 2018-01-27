@@ -26,7 +26,7 @@ namespace policy {
 		float danger = CombatOverlord::fear.GetInfluence(location);
 		danger += CombatOverlord::damage.GetInfluence(location);
 		danger *= 2 - (robot.Health() / robot.MaxHealth());
-		bool shouldFlee = danger > CombatOverlord::courage.GetInfluence(location) + CombatOverlord::fearTolerance[robot.type];
+		bool shouldFlee = danger > 0 && danger > CombatOverlord::courage.GetInfluence(location) + CombatOverlord::fearTolerance[robot.type];
 		if (!shouldFlee) return 0.0f;
 		auto moveable = Pathfind::Moveable(location);
 		auto run = std::min_element(moveable.begin(), moveable.end(), [](MapLocation& a, MapLocation& b) {
@@ -538,9 +538,7 @@ namespace policy {
 				return a.DistanceTo(robotLocation) < b.DistanceTo(robotLocation);
 			});
 			if (Section::Get(*move) != Section::Get(robotLocation)) return 0.0f;
-			if (Pathfind::GetFuzzyFlowTurns(robotLocation, *move) > 15) {
-				if (!PlayerData::pd->enemyUnitCounts[Ranger] > 0 && GameController::Round() < 150 && CombatOverlord::courage.GetInfluence(robotLocation) < 130) return 0.0f; // Wait to push
-			}
+			if (!PlayerData::pd->enemyUnitCounts[Ranger] > 0 && GameController::Round() < 150 && CombatOverlord::courage.GetInfluence(robotLocation) < 130) return 0.0f; // Wait to push
 			PolicyOverlord::storeLocation = *move;
 			return 1.0f;
 		}
@@ -707,6 +705,33 @@ namespace policy {
 		units::Ranger ranger = bc_Unit_clone(unit);
 		ranger.BeginSnipe(PolicyOverlord::storeLocation);
 		return true;
+	}
+
+	float GroupUpEvaluate(bc_Unit* unit) { // Move towards team units of similar type
+		units::Robot robot = bc_Unit_clone(unit);
+		bc_VecUnit* close = bc_GameController_sense_nearby_units_by_type(GameController::gc, robot.Loc().ToMapLocation().self, 1, robot.type);
+		int neighbors = bc_VecUnit_len(close);
+		delete_bc_VecUnit(close);
+		if (neighbors > 0) return 0.0f;
+		for (int i = 2; i < 100; i *= i) {
+			bc_VecUnit* nearby = bc_GameController_sense_nearby_units_by_type(GameController::gc, robot.Loc().ToMapLocation().self, i, robot.type);
+			if (bc_VecUnit_len(nearby) > 0) {
+				for (int j = 0; j < bc_VecUnit_len(nearby); j++) {
+					units::Robot same = bc_VecUnit_index(nearby, j);
+					if (same.Team() == GameController::Team()) {
+						PolicyOverlord::storeDirection = robot.Loc().ToMapLocation().DirectionTo(same.Loc().ToMapLocation());
+						return 80.0f;
+					}
+				}
+			}
+			delete_bc_VecUnit(nearby);
+		}
+		return 0.0f;
+	}
+
+	bool GroupUpExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
+		Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
 }

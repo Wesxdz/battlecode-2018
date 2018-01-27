@@ -95,6 +95,12 @@ PolicyOverlord::PolicyOverlord()
 	policies[Healer].push_back(holdTheLine);
 	policies[Mage].push_back(holdTheLine);
 
+	auto groupUp = std::make_shared<Policy>("group_up");
+	groupUp->Evaluate = policy::GroupUpEvaluate;
+	groupUp->Execute = policy::GroupUpExecute;
+	policies[Knight].push_back(groupUp);
+	policies[Ranger].push_back(groupUp);
+
 	auto robot1 = std::make_shared<Policy>("fear"); // TODO Run towards friendly units
 	robot1->Evaluate = policy::AvoidDamageEvaluate;
 	robot1->Execute = policy::AvoidDamageExecute;
