@@ -14,10 +14,13 @@
 #include <math.h>
 #include "AsteroidPattern.h"
 #include "PolicyOverlord.h"
+#include "Strategist.h"
+#include "CombatOverlord.h"
 
 std::vector<bc_UnitType> RocketInfo::rocketLoadType; // Desired Load Types
 std::map<bc_UnitType, int> RocketInfo::unitsLoaded;
 std::list<Section*> RocketInfo::marsSectionsNotVisited;
+std::map<Section*, int> RocketInfo::bestMarsSections;
 int RocketInfo::rocketsLaunched = 0;
 
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
@@ -28,10 +31,17 @@ std::map<uint16_t, int> BuilderOverlord::miningSuccess;
 BuilderOverlord::BuilderOverlord()
 {
 	for (Section* section : Section::marsSections) {
-		if (section->locations.size() > 9) {
+		if (section->locations.size() > 4) {
 			RocketInfo::marsSectionsNotVisited.push_back(section);
-			std::cout << "Adding Section to Rocket Info " << RocketInfo::marsSectionsNotVisited.size() << std::endl;
 		}
+	}
+
+	RocketInfo::marsSectionsNotVisited.sort([](const Section* A, const Section* B) {
+		return A->estimatedKarb * A->locations.size() < B->estimatedKarb * B->locations.size();
+	});
+	for (auto val : RocketInfo::marsSectionsNotVisited) {
+		auto ratio = val->estimatedKarb * val->locations.size();
+		RocketInfo::bestMarsSections[val] = ratio;
 	}
 	
 	RocketInfo::unitsLoaded[Worker] = 0;
@@ -76,9 +86,6 @@ void BuilderOverlord::Update()
 		if (GameController::Round() > 100) {
 			for (auto section : Section::marsSections) {
 				if (section->karboniteDeposits.size() > 0) {
-					//section->karboniteDeposits.erase(std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
-					//	return location.IsVisible() && location.Karbonite() == 0;
-					//}));
 					auto mined = std::remove_if(section->karboniteDeposits.begin(), section->karboniteDeposits.end(), [](MapLocation& location) {
 						return location.IsVisible() && location.Karbonite() == 0;
 					});
@@ -100,12 +107,26 @@ void BuilderOverlord::Update()
 				} 
 				sectionHit->estimatedKarb += strike.Karbonite();
 			}
+			else {
+				for (bc_Direction direction : constants::directions_adjacent) {
+					MapLocation neighbor = MapLocation::Neighbor(landing, direction);
+					if (neighbor.IsValid() && neighbor.IsPassable()) {
+						Section* nearbySection = Section::Get(neighbor);
+						auto deposit = std::find(nearbySection->karboniteDeposits.begin(), nearbySection->karboniteDeposits.end(), neighbor);
+						if (deposit == nearbySection->karboniteDeposits.end()) {
+							nearbySection->karboniteDeposits.push_back(neighbor);
+						}
+						break;
+					}
+				}
+			}
 		} 
 	}
 	if (GameController::Round() % 5 == 0) {
 		CreateKarboniteFlows();
 	}
 	DesireUnits();
+	ManageProduction();
 }
 
 void BuilderOverlord::DesireUnits() {
@@ -153,10 +174,11 @@ void BuilderOverlord::DesireUnits() {
 	int factoryProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Factory];
 	int rocketProductionAmo = PlayerData::pd->inProductionCounts[bc_UnitType::Rocket];
 	int totalProductionAmo = workerProductionAmo + knightProductionAmo + mageProductionAmo + rangerProductionAmo + healerProductionAmo + factoryProductionAmo + rocketProductionAmo;
-
+	
+	// Worker Priority
 	{
 		float workerPriority = .0f;
-		if (round < 25 || workerAmo < 10) workerPriority += 1.1f;
+		if (round < 25 || workerAmo < 10) workerPriority += 1.0f;
 		PlayerData::pd->unitPriority[bc_UnitType::Worker] = workerPriority;
 	}
 
@@ -170,61 +192,59 @@ void BuilderOverlord::DesireUnits() {
 		}
 		else {
 			float rocketPriority = .0f;
-			int reachableLocations = 0;
+			rocketPriority += (round / 450.0f) / (rocketAmo + 1); // More rocket amounts signify they have not been loaded
+			int availableSpace = 0;
 			for (Section* section : Section::earthSections) {
-				if (section->status == StartStatus::Mixed || section->status == StartStatus::Team) {
-					reachableLocations += section->locations.size();
+				if (section->status == Team) {
+					availableSpace += section->locations.size();
+				}
+				else if (section->status == Mixed) {
+					availableSpace += section->locations.size() / 2;
 				}
 			}
-			//std::cout << totalAmo << "/" << reachableLocations << std::endl;
-			float filled = totalAmo / reachableLocations;
-			rocketPriority += filled * 6;
-			rocketPriority += (round / 450.0f)/(rocketAmo + 1); // More rocket amounts signify they have not been loaded
+			float spaceTaken = totalAmo / availableSpace;
+			if (spaceTaken > 0.5f) {
+				rocketPriority += 1000;
+			}
 			PlayerData::pd->unitPriority[bc_UnitType::Rocket] = rocketPriority;
-			//std::cout << rocketPriority << " rocket prio" << std::endl;
 		}
 		delete_bc_ResearchInfo(info);
 	}
 
 	// Factory Priority
 	{
-	float factoryToTeam = static_cast<float>(factoryAmo) / (totalAmo + totalProductionAmo + 1);
+		float factoryPriority = .0f;
 
-	float factoryPriority = .0f;
-
-	// Always want to be producing factories. Compare to Karb reserves
-	factoryPriority = (1.0f - (factoryToTeam * 10.0f)) * (GameController::Karbonite() / 100.0f);
-	if (factoryAmo == 0 && round > 3) {
-		uintptr_t mapSize = MapUtil::EARTH_MAP_HEIGHT * MapUtil::EARTH_MAP_WIDTH;
-		float mapRatio = mapSize/2500.0f; // If the map is small, we should build factories earlier
-		float roundRatio = round / 50.0f;
-		float timeBonus = roundRatio/mapRatio/(factoryAmo + 2);
-		factoryPriority += timeBonus;
-	}
-	PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
+		// Always want to be producing factories. Compare to Karb reserves
+		factoryPriority = GameController::Karbonite() / 200.0f;
+		float mapSize = (MapUtil::EARTH_MAP_WIDTH * MapUtil::EARTH_MAP_HEIGHT) / 2500; // .16 to 1
+		if (round > 3 && round < 30) {
+			factoryPriority += (1 / mapSize) / (factoryAmo + 1)/((workerAmo + 1)/8);
+		}
+		PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
 	}
 
 	// Knight Priority
 	{
-		float knightPriority = 0.0f;
+		float knightPriority = .0f;
 
 		// Knights will always be somewhat valuable
 		// They do good damage, limited range, high HP, good Defense
 		// If we lack a "Defense", aka Knights, then we should get a minimum in for sure.
 		// After that, we should only build more to recuperate our defense, rush, or strategise
-		//uintptr_t width = bc_PlanetMap_width_get(GameController::earth);
-		//if (width < 1) { width = 0; }
-		//float knightToMap = static_cast<float>(knightAmo) / width;
+		uintptr_t width = bc_PlanetMap_width_get(GameController::earth);
+		if (width < 1) { width = 0; }
+		float knightToMap = static_cast<float>(knightAmo) / width;
 
-		//if (knightAmo < width) {
-		//	float knightAmof = static_cast<float>(knightAmo);
-		//	knightPriority = .5f - (width / knightAmof + 1);
-		//	if (knightPriority < .5f) { knightPriority = .5f; }
-		//	if (knightPriority > width / 10.0f) { knightPriority = width / 10.0f; }
-		//}
-		//else {
-		//	knightPriority = .3f;
-		//}
+		if (knightAmo < width) {
+			float knightAmof = static_cast<float>(knightAmo);
+			knightPriority = .5f - (width / knightAmof + 1);
+			if (knightPriority < .5f) { knightPriority = .5f; }
+			if (knightPriority > width / 10.0f) { knightPriority = width / 10.0f; }
+		}
+		else {
+			knightPriority = .3f;
+		}
 
 		PlayerData::pd->unitPriority[bc_UnitType::Knight] = knightPriority;
 	}
@@ -233,24 +253,20 @@ void BuilderOverlord::DesireUnits() {
 	{
 		float rangerPriority = .0f;
 
-		// Rangers can never go wrong (RANGERS NERFED IN SPRINT)
+		// Rangers can never go wrong (RANGERS NERFED AFTER SPRINT AND SEEDING)
 		// Good health, long range, good damage
 
-		//for (Section* section : Section::earthSections) {
-		//	if (section->status == Team) {
-
-		//	}
-		//}
 		float tilesToEnemy = PlayerData::pd->teamSpawnPositions[0].TilesTo(PlayerData::pd->enemySpawnPositions[0]) + 1;
 		float actualTilesToEnemy = Pathfind::GetFuzzyFlowTurns(PlayerData::pd->teamSpawnPositions[0], PlayerData::pd->enemySpawnPositions[0]);
 		float extraTravel = actualTilesToEnemy / tilesToEnemy;
 		if (extraTravel > 1.5) { // If we had to walk a maze, better do it with rangers...
+			rangerPriority = 1.0f;
+		}
+		float ratio = (knightAmo + mageAmo) / (rangerAmo + 1);
+		if (ratio > 1) {
 			rangerPriority = 0.9f;
 		}
-		else {
-			rangerPriority = 0.8f;
-		}
-		if (PlayerData::pd->teamUnitCounts[Ranger] < 4) rangerPriority += .1f;
+
 		PlayerData::pd->unitPriority[bc_UnitType::Ranger] = rangerPriority;
 	}
 
@@ -262,9 +278,8 @@ void BuilderOverlord::DesireUnits() {
 		float enemyToMap = (totalEnemyAmo / mapSize) * 10;
 
 		// If enemy is grouped up, then we should use mages to deal a lot of damage;
-		if (enemyToMap > 1.0f) {
-			magePriority = 1.0f;
-		}
+		magePriority = enemyToMap;
+		if (PlayerData::pd->enemyUnitCounts[Ranger] > 1) magePriority = 0.0f; // TODO, unless suicide bomber or sending to Mars
 
 		PlayerData::pd->unitPriority[bc_UnitType::Mage] = magePriority;
 	}
@@ -273,12 +288,18 @@ void BuilderOverlord::DesireUnits() {
 	{
 		float healerPriority = .0f;
 
-		float ratio = (knightAmo + mageAmo + rangerAmo) / (healerAmo + 1);
-		if (ratio / 5 > 1) {
-			healerPriority = 1.0f;
-		}
+		float ratio = (knightAmo + mageAmo + rangerAmo) / (healerAmo + healerProductionAmo + 1);
+		healerPriority = ratio / 3;
 
 		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
+	}
+
+	if (Strategist::strategy == Strategy::ShieldFormation) {
+		PlayerData::pd->unitPriority[Knight] += 0.1f;
+	}
+	else if (Strategist::strategy == Strategy::TerroristOvercharge) {
+		PlayerData::pd->unitPriority[Knight] = 0.0f;
+		PlayerData::pd->unitPriority[Ranger] = 0.9f;
 	}
 
 	if (factoryAmo + factoryProductionAmo == 0) {
@@ -309,19 +330,45 @@ void BuilderOverlord::ManageProduction()
 	std::vector<units::Worker> workers = VecUnit::Wrap<units::Worker>(bc_GameController_my_units(GameController::gc));
 	bc_UnitType highestPriority = PolicyOverlord::HighestPriority();
 	if (highestPriority == Factory || highestPriority == Rocket) {
-
-	}
-	std::vector<units::Factory> factories = VecUnit::Wrap<units::Factory>(bc_GameController_my_units(GameController::gc));
-	std::sort(factories.begin(), factories.end(), [](units::Factory& a, units::Factory& b) {
-		return ProductionScore(a) > ProductionScore(b);
-	});
-	for (units::Factory& factory : factories) {
-		if (ProductionScore(factory) <= 0) break;
-		bc_UnitType prio = Priority(factory);
-		if (factory.CanProduce(prio)) {
-			factory.Produce(prio);
+		if (GameController::Karbonite() < bc_UnitType_blueprint_cost(highestPriority)) return;
+		float highestScore = -1000000.0f;
+		uint16_t toBuild;
+		bc_Direction buildDirection;
+		for (units::Worker& worker : workers) {
+			if (!worker.Loc().IsOnMap()) continue;
+			for (bc_Direction direction : constants::directions_adjacent) {
+				if (worker.CanBlueprint(highestPriority, direction) && MapLocation::Neighbor(worker.Loc().ToMapLocation(), direction).IsValid()) {
+					float placementScore = highestPriority == Factory ? 
+						FactoryPlacementScore(MapLocation::Neighbor(worker.Loc().ToMapLocation(), direction)) :
+						RocketPlacementScore(MapLocation::Neighbor(worker.Loc().ToMapLocation(), direction));
+					if (placementScore > highestScore) {
+						highestScore = placementScore;
+						toBuild = worker.id;
+						buildDirection = direction;
+					}
+				}
+			}
+		}
+		units::Worker builder = bc_GameController_unit(GameController::gc, toBuild);
+		builder.Blueprint(highestPriority, buildDirection);
+		MapLocation buildLocation = MapLocation::Neighbor(builder.Loc().ToMapLocation(), buildDirection);
+		units::Structure build = buildLocation.Occupant();
+		BuilderOverlord::buildProjects[build.id].push_back(builder.id);
+		if (highestPriority == bc_UnitType::Rocket) {
+			BuilderOverlord::rockets[build.id]; // Add rockets
 		}
 	}
+	//std::vector<units::Factory> factories = VecUnit::Wrap<units::Factory>(bc_GameController_my_units(GameController::gc));
+	//std::sort(factories.begin(), factories.end(), [](units::Factory& a, units::Factory& b) {
+	//	return ProductionScore(a) > ProductionScore(b);
+	//});
+	//for (units::Factory& factory : factories) {
+	//	if (ProductionScore(factory) <= 0) break;
+	//	bc_UnitType prio = Priority(factory);
+	//	if (factory.CanProduce(prio)) {
+	//		factory.Produce(prio);
+	//	}
+	//}
 
 }
 
@@ -338,30 +385,52 @@ bc_UnitType BuilderOverlord::Priority(units::Factory & factory)
 
 float BuilderOverlord::FactoryPlacementScore(MapLocation location)
 {
-	return 0.0f;
+	float score = 0.0f;
+	for (MapLocation& point : CombatOverlord::controlPoints) {
+		score -= location.DistanceTo(point)/30;
+	}
+	int adjacentImpassable = 0;
+	for (bc_Direction direction : constants::directions_adjacent) {
+		MapLocation neighbor = MapLocation::Neighbor(location, direction);
+		if (!neighbor.IsPassable()) {
+			adjacentImpassable++;
+		}
+		else if (neighbor.IsOccupied()) {
+			units::Unit occupant = neighbor.Occupant();
+			if (!Utility::IsRobot(occupant.type)) {
+				adjacentImpassable++;
+			}
+		}
+	}
+	if (adjacentImpassable == 2) {
+		score -= 10000.0f; // This might block a chokepoint
+	}
+	else {
+		score += adjacentImpassable * 10.0f;
+	}
+	std::vector<units::Unit> nearby = location.NearbyUnits(16);
+	score -= CombatOverlord::fear.GetInfluence(location);
+	for (units::Unit& unit : nearby) {
+		if (unit.type == Worker) {
+			score += 10.0f;
+		}
+	}
+	return score;
 }
 
 float BuilderOverlord::RocketPlacementScore(MapLocation location)
 {
-	return 0.0f;
+	float score = 0.0f;
+	int adjacentImpassable = 0;
+	for (bc_Direction direction : constants::directions_adjacent) {
+		MapLocation neighbor = MapLocation::Neighbor(location, direction);
+		if (!neighbor.IsPassable()) {
+			adjacentImpassable++;
+		}
+	}
+	return (8 - adjacentImpassable);
 }
 
-std::list<Section*> BuilderOverlord::PrioritizeSections(std::list<Section*> sections)
-{
-	//if (bc_MapLocation_planet_get(sections.front()->locations[0]) == Earth) {
-	//	std::sort(sections.begin(), sections.end(), [](Section* a, Section* b) {
-	//		if (a->status == StartStatus::Enemy || a->status == StartStatus::None) return false;
-	//		if (a->status == StartStatus::Mixed && b->status != StartStatus::Mixed) return false; // Mixed sections always take priority
-	//		return a->TotalKarbonite() > b->TotalKarbonite();
-	//	});
-	//}
-	//else {
-	//	std::sort(sections.begin(), sections.end(), [](Section* a, Section* b) {
-	//		return a->TotalKarbonite() > b->TotalKarbonite();
-	//	});
-	//}
-	return sections;
-}
 
 void BuilderOverlord::CreateKarboniteFlows()
 {
@@ -369,7 +438,14 @@ void BuilderOverlord::CreateKarboniteFlows()
 		for (Section* section : Section::earthSections) {
 			if (section->status == StartStatus::Mixed || section->status == StartStatus::Team) {
 				if (section->karboniteDeposits.size() > 0) {
-					findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
+					std::vector<MapLocation> safeKarbonite = section->karboniteDeposits;
+					auto unsafeKarbonite = std::remove_if(safeKarbonite.begin(), safeKarbonite.end(), [](MapLocation& a) {
+						return CombatOverlord::damage.GetInfluence(a) > 1.0f;
+					});
+					if (unsafeKarbonite != safeKarbonite.end()) {
+						safeKarbonite.erase(unsafeKarbonite);
+					}
+					findKarbonite[section] = Pathfind::CreateFlowChart(safeKarbonite);
 				}
 			}
 		}
@@ -377,7 +453,14 @@ void BuilderOverlord::CreateKarboniteFlows()
 	else {
 		for (Section* section : Section::marsSections) {
 			if (section->karboniteDeposits.size() > 0) {
-				findKarbonite[section] = Pathfind::CreateFlowChart(section->karboniteDeposits);
+				std::vector<MapLocation> safeKarbonite = section->karboniteDeposits;
+				auto unsafeKarbonite = std::remove_if(safeKarbonite.begin(), safeKarbonite.end(), [](MapLocation& a) {
+					return CombatOverlord::damage.GetInfluence(a) > 0.5f;
+				});
+				if (unsafeKarbonite != safeKarbonite.end()) {
+					safeKarbonite.erase(unsafeKarbonite);
+				}
+				findKarbonite[section] = Pathfind::CreateFlowChart(safeKarbonite);
 			}
 		}
 	}

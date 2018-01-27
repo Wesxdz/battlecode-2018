@@ -14,6 +14,7 @@
 struct RocketInfo {
 	static std::vector<bc_UnitType> rocketLoadType; // Desired Load Types
 	static std::list<Section*> marsSectionsNotVisited;
+	static std::map<Section*, int> bestMarsSections;
 	static int rocketsLaunched;
 	static std::map<bc_UnitType, int> unitsLoaded;
 };

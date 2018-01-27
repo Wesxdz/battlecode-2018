@@ -19,6 +19,32 @@
 
 namespace policy {
 
+	float HoldTheLineEvaluate(bc_Unit* unit) {
+		units::Robot robot{ bc_Unit_clone(unit) };
+		if (!robot.IsMoveReady()) return 0.0f;
+		MapLocation location = robot.Loc().ToMapLocation();
+		float danger = CombatOverlord::fear.GetInfluence(location);
+		danger += CombatOverlord::damage.GetInfluence(location);
+		danger *= 2 - (robot.Health() / robot.MaxHealth());
+		bool shouldFlee = danger > CombatOverlord::courage.GetInfluence(location) + CombatOverlord::fearTolerance[robot.type];
+		if (!shouldFlee) return 0.0f;
+		auto moveable = Pathfind::Moveable(location);
+		auto run = std::min_element(moveable.begin(), moveable.end(), [](MapLocation& a, MapLocation& b) {
+			return CombatOverlord::fear.GetInfluence(a) < CombatOverlord::fear.GetInfluence(b);
+		});
+		if (run != moveable.end()) {
+			PolicyOverlord::storeDirection = location.DirectionTo(*run);
+			return 100.0f;
+		}
+		return 0.0f;
+	}
+
+	bool HoldTheLineExecute(bc_Unit* unit) {
+		units::Robot robot{ bc_Unit_clone(unit) };
+		robot.Move(PolicyOverlord::storeDirection);
+		return true;
+	}
+
 	float AvoidDamageEvaluate(bc_Unit* unit) {
 		units::Robot robot{ bc_Unit_clone(unit) };
 		if (!robot.IsMoveReady()) return 0.0f;
@@ -69,7 +95,7 @@ namespace policy {
 				PolicyOverlord::storeId = bc_Unit_id(rocket.self);
 				PolicyOverlord::storeUnitType = robot.type;
 				score += 40.0f;
-				std::cout << "Type " << robot.type << " is next to Rocket " << PolicyOverlord::storeId << std::endl;
+				//std::cout << "Type " << robot.type << " is next to Rocket " << PolicyOverlord::storeId << std::endl;
 				break;
 			}
 		}
@@ -82,7 +108,7 @@ namespace policy {
 		units::Robot robot = bc_Unit_clone(unit);
 		units::Rocket rocket = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
 		RocketInfo::unitsLoaded[PolicyOverlord::storeUnitType] += 1;
-		std::cout << "Loading unit " << PolicyOverlord::storeUnitType << std::endl;
+		//std::cout << "Loading unit " << PolicyOverlord::storeUnitType << std::endl;
 
 		rocket.Load(robot);
 		return true;
@@ -134,7 +160,7 @@ namespace policy {
 				BuilderOverlord::rockets[(*startWork).first].push_back(robot.id); 
 				seekingRocket = true;
 				rocketID = (*startWork).first;
-				std::cout << robot.id << " , Type " << robot.type << " is Seeking " << rocketID << std::endl;
+				//std::cout << robot.id << " , Type " << robot.type << " is Seeking " << rocketID << std::endl;
 			}
 		}
 
@@ -184,34 +210,6 @@ namespace policy {
 		return true;
 	}
 
-	float WorkerBlueprintEvaluate(bc_Unit* unit) {
-		units::Worker worker = bc_Unit_clone(unit);
-		if (worker.HasActed()) return 0.0f;
-		bc_UnitType priority = PolicyOverlord::HighestPriority();
-		if (!(priority == Factory || priority == Rocket)) return 0.0f;
-		if (GameController::Karbonite() < bc_UnitType_blueprint_cost(priority)) return 0.0f;
-		for (bc_Direction direction : constants::directions_adjacent) {
-			if (worker.CanBlueprint(priority, direction) && MapLocation::Neighbor(worker.Loc().ToMapLocation(), direction).IsValid()) {
-				PolicyOverlord::storeDirection = direction;
-				PolicyOverlord::storeUnitType = priority;
-				return 3.0f;
-			}
-		}
-		return 0.0f;
-	}
-
-	bool WorkerBlueprintExecute(bc_Unit* unit) {
-		units::Worker worker = bc_Unit_clone(unit);
-		worker.Blueprint(PolicyOverlord::storeUnitType, PolicyOverlord::storeDirection);
-		MapLocation buildLocation = MapLocation::Neighbor(worker.Loc().ToMapLocation(), PolicyOverlord::storeDirection);
-		units::Structure build = buildLocation.Occupant();
-		BuilderOverlord::buildProjects[build.id].push_back(worker.id);
-		if (PolicyOverlord::storeUnitType == bc_UnitType::Rocket) {
-			BuilderOverlord::rockets[build.id]; // Add rockets
-		}
-		return true;
-	}
-
 	float WorkerReplicateEvaluate(bc_Unit* unit) {
 		units::Worker worker = bc_Unit_clone(unit);
 		if (worker.HasActed()) return 0.0f;
@@ -244,11 +242,24 @@ namespace policy {
 		Section* section = Section::Get(workerLocation);
 		if (section->karboniteDeposits.size() == 0) return 0.0f;
 
-		if (BuilderOverlord::findKarbonite[section].directionMap == nullptr) {
-			std::cout << "Direction Map is Null" << std::endl;
+		if (BuilderOverlord::findKarbonite[section].directionMap == nullptr) return 0.0f;
+		if (workerLocation.Karbonite() > 0) {
+			for (bc_Direction direction : constants::directions_adjacent) {
+				MapLocation neighbor = MapLocation::Neighbor(workerLocation, direction);
+				MapLocation behind = MapLocation::Neighbor(workerLocation, bc_Direction_opposite(direction));
+				bool workerWaitingBehind = false;
+				if (behind.IsValid() && behind.IsOccupied()) {
+					units::Unit unitBehind = behind.Occupant();
+					if (unitBehind.type == Worker && unitBehind.Team() == GameController::Team()) {
+						workerWaitingBehind = true;
+					}
+				}
+				if (workerWaitingBehind && neighbor.IsValid() && neighbor.IsOccupiable() && neighbor.Karbonite() >= workerLocation.Karbonite()) {
+					PolicyOverlord::storeDirection = direction;
+					return 5.0f;
+				}
+			}
 		}
-
-		//std::cout << "index " << FlowChart::GetIndex(workerLocation) << std::endl;
 		bc_Direction move = BuilderOverlord::findKarbonite[section].directionMap[FlowChart::GetIndex(workerLocation)];
 		PolicyOverlord::storeDirection = move;
 		return 5.0f;
@@ -317,7 +328,7 @@ namespace policy {
 	bool WorkerFearBuiltExecute(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
 		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
-	}
+	} // Right now, Workers use Fuzzy, we should PUSH instead
 
 	float WorkerSeekBuildEvaluate(bc_Unit* unit) {
 		if (BuilderOverlord::buildProjects.size() == 0) return 0.0f;
@@ -524,10 +535,14 @@ namespace policy {
 	float SeekControlEvaluate(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
-		if (CombatOverlord::controlPoints.size() > 0 && PlayerData::pd->teamUnitCounts[Ranger] > 3) { // Move towards the closest control point
+		if (CombatOverlord::controlPoints.size() > 0) { // Move towards the closest control point
 			auto move = std::min_element(CombatOverlord::controlPoints.begin(), CombatOverlord::controlPoints.end(), [&robotLocation](MapLocation& a, MapLocation& b) {
 				return a.DistanceTo(robotLocation) < b.DistanceTo(robotLocation);
 			});
+			if (Section::Get(*move) != Section::Get(robotLocation)) return 0.0f;
+			if (Pathfind::GetFuzzyFlowTurns(robotLocation, *move) > 15) {
+				if (!PlayerData::pd->enemyUnitCounts[Ranger] > 0 && GameController::Round() < 150 && CombatOverlord::courage.GetInfluence(robotLocation) < 130) return 0.0f; // Wait to push
+			}
 			PolicyOverlord::storeLocation = *move;
 			return 1.0f;
 		}
@@ -571,13 +586,14 @@ namespace policy {
 
 	float HealerOverchargeEvaluate(bc_Unit* unit) {
 		units::Healer healer = bc_Unit_clone(unit);
-		if (!healer.IsActiveUnlocked() || !healer.IsAttackReady()) return 0.0f;
+		if (!healer.IsActiveUnlocked() || !healer.IsOverchargeReady()) return 0.0f;
 		auto nearby = healer.Loc().ToMapLocation().NearbyUnits(healer.AbilityRange(), healer.Team());
 		if (nearby.size() == 0) return 0.0f;
 		auto best = std::max_element(nearby.begin(), nearby.end(), [&healer](units::Unit& a, units::Unit& b) {
 			return CombatOverlord::OverchargeValue(healer, bc_Unit_clone(a.self)) < CombatOverlord::OverchargeValue(healer, bc_Unit_clone(b.self));
 		});
 		units::Robot toOvercharge = bc_Unit_clone((*best).self);
+		if (CombatOverlord::OverchargeValue(healer, toOvercharge) == 0) return 0.0f;
 		if (healer.CanOvercharge(toOvercharge.self)) {
 			PolicyOverlord::storeId = bc_Unit_id(toOvercharge.self);
 			return CombatOverlord::OverchargeValue(healer, bc_Unit_clone((*best).self));
@@ -620,38 +636,49 @@ namespace policy {
 			// TODO Consider units damaged and push them away
 			CHECK_ERRORS();
 
-			// Find the Section with the most Karbonite
-			int maxKarb = 0;
 			Section* bestSect = nullptr;
-			for (Section* section : RocketInfo::marsSectionsNotVisited) {
-				if (section->estimatedKarb > maxKarb) {
-					maxKarb = section->estimatedKarb;
-					bestSect = section;
+			if (RocketInfo::marsSectionsNotVisited.size() > 0) {
+				int bestRatio = 0;
+				for (auto val : RocketInfo::marsSectionsNotVisited) {
+
+					auto ratio = val->estimatedKarb * val->locations.size();
+					if (ratio > bestRatio) {
+						bestRatio = ratio;
+						bestSect = val;
+					}
+					RocketInfo::bestMarsSections[val] = ratio;
 				}
-			}
-			if (bestSect) { // Send Workers to areas with most Karb
-				// Land on random Place there
-				PolicyOverlord::storeLocation = (bestSect->karboniteDeposits[rand() % bestSect->karboniteDeposits.size()]);
 
 				// Remove from unvisited
 				RocketInfo::marsSectionsNotVisited.remove(bestSect);
+			} else {
+				int total = 1;
+				for (auto val : RocketInfo::bestMarsSections) {
+					total += val.second;
+				}
+
+				int randVal = rand() % total;
+				Section* bestSect = nullptr;
+				for (auto val : RocketInfo::bestMarsSections) {
+					if (randVal < val.second) {
+						bestSect = val.first;
+						break;
+					} 
+					randVal -= val.second;
+				}
+		
+			}
+			if (bestSect) {
+				if (bestSect->karboniteDeposits.size() > 0) {
+					PolicyOverlord::storeLocation = (bestSect->karboniteDeposits[rand() % bestSect->karboniteDeposits.size()]);
+				} else {
+					PolicyOverlord::storeLocation = (bestSect->locations[rand() % bestSect->locations.size()]);
+				}
 
 				std::cout << "Specfic Launch to " << PolicyOverlord::storeLocation.X() << ", " << PolicyOverlord::storeLocation.Y() << std::endl;
-			} else { // At this point We should send all units
-
-				auto val = rand() % Section::marsSections.size();
-				auto i = Section::marsSections.begin();
-				while (val > 0) {
-					i++;
-					val--;
-				}
-				
-				Section* section = *i;
-
-				PolicyOverlord::storeLocation = section->karboniteDeposits[rand() % section->karboniteDeposits.size()];
-				std::cout << "Random Launch to " << PolicyOverlord::storeLocation.X() << ", " << PolicyOverlord::storeLocation.Y() << std::endl;
+			} else {
+				return .0f;
 			}
-
 			CHECK_ERRORS();
 
 			return 1.0f;

@@ -7,6 +7,8 @@
 #include "Constants.h"
 #include <iostream>
 
+Strategy Strategist::strategy;
+
 Strategist::Strategist()
 {
 	// By default, choose ShieldFormation
@@ -41,7 +43,7 @@ Strategist::Strategist()
 				}
 			}
 		}
-		if (impassableAdjacent > passableAdjacent / 4) {
+		if (impassableAdjacent > passableAdjacent / 6) {
 			strategy = TerroristOvercharge;
 		}
 	}

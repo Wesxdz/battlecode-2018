@@ -22,13 +22,13 @@ public:
 	void Print();
 	void FindMax();
 	MapLocation max;
-private:
-	void Diffuse(int startIndex, float amount, int diffuse , std::function<float(float)> DiffuseEq);
 	float* influence;
-	bool IsValid(int index);
-	bool Overflow(int index, int x);
 	uintptr_t width;
 	uintptr_t height;
+private:
+	void Diffuse(int startIndex, float amount, int diffuse , std::function<float(float)> DiffuseEq);
+	bool IsValid(int index);
+	bool Overflow(int index, int x);
 	bc_Planet planet;
 };
 

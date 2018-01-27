@@ -25,8 +25,8 @@ class Section
 {
 public:
 	~Section();
+	StartStatus status = StartStatus::None;
 	std::vector<bc_MapLocation*> locations;
-	StartStatus status = None;
 	void Add(Section* section);
 	std::vector<MapLocation> karboniteDeposits;
 	int estimatedKarb = 0;

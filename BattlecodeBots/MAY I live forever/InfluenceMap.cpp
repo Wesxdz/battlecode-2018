@@ -49,11 +49,11 @@ void InfluenceMap::Print()
 {
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			//std::cout << std::setw(2) << static_cast<int>(influence[x + y * height]) << " ";
+			std::cout << std::setw(2) << static_cast<int>(influence[x + y * height]) << " ";
 		}
-		//std::cout << '\n';
+		std::cout << '\n';
 	}
-	//std::cout << std::endl;
+	std::cout << std::endl;
 }
 
 void InfluenceMap::FindMax()
