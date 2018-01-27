@@ -517,11 +517,9 @@ namespace policy {
 		if (bc_VecUnit_len(nearbyEnemies) > 0) {
 			units::Unit seek = bc_VecUnit_index(nearbyEnemies, 0);
 			MapLocation choice = seek.Loc().ToMapLocation();
-			if (CombatOverlord::courage.GetInfluence(choice) >= CombatOverlord::fear.GetInfluence(choice)) {
-				delete_bc_VecUnit(nearbyEnemies);
-				PolicyOverlord::storeDirection = robotLocation.DirectionTo(choice);
-				return 20.0f;
-			}
+			delete_bc_VecUnit(nearbyEnemies);
+			PolicyOverlord::storeDirection = robotLocation.DirectionTo(choice);
+			return 20.0f;
 		}
 		delete_bc_VecUnit(nearbyEnemies);
 		return 0.0f;

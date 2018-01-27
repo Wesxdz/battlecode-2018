@@ -218,7 +218,7 @@ void BuilderOverlord::DesireUnits() {
 		// Always want to be producing factories. Compare to Karb reserves
 		factoryPriority = GameController::Karbonite() / 200.0f;
 		float mapSize = (MapUtil::EARTH_MAP_WIDTH * MapUtil::EARTH_MAP_HEIGHT) / 2500; // .16 to 1
-		if (round > 3 && round < 30) {
+		if (round > 5 && round < 30) {
 			factoryPriority += (1 / mapSize) / (factoryAmo + 1)/((workerAmo + 1)/8);
 		}
 		PlayerData::pd->unitPriority[bc_UnitType::Factory] = factoryPriority;
@@ -406,7 +406,7 @@ float BuilderOverlord::FactoryPlacementScore(MapLocation location)
 		score -= 10000.0f; // This might block a chokepoint
 	}
 	else {
-		score += adjacentImpassable * 5.0f;
+		score -= adjacentImpassable * 5.0f;
 	}
 	std::vector<units::Unit> nearby = location.NearbyUnits(16);
 	score -= CombatOverlord::fear.GetInfluence(location);

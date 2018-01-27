@@ -18,10 +18,10 @@ InfluenceMap CombatOverlord::fear;
 InfluenceMap CombatOverlord::courage;
 InfluenceMap CombatOverlord::damage;
 std::map<bc_UnitType, float> CombatOverlord::multipliers = {
-	{ Factory, 40.0f },{ Healer, 15.0f },{ Worker, 1.0f },{ Knight, 5.0f },{ Mage, 20.0f },{ Ranger, 10.0f },{ Rocket, 20.0f }
+	{ Factory, 9.0f },{ Healer, 15.0f },{ Worker, 1.0f },{ Knight, 5.0f },{ Mage, 20.0f },{ Ranger, 10.0f },{ Rocket, 20.0f }
 };
 std::map<bc_UnitType, float> CombatOverlord::fearTolerance = {
-	{Healer, -30.0f}, {Knight, 0.0f}, {Mage, 0.0f}, {Ranger, -10.0f}
+	{Healer, -120.0f}, {Knight, 0.0f}, {Mage, 0.0f}, {Ranger, -100.0f}
 };
 std::map<uint16_t, HealthInstance> CombatOverlord::healthAmounts;
 
@@ -230,45 +230,44 @@ void CombatOverlord::CalculateInfluenceMaps()
 	courage.Reset();
 	auto units = GameController::Units(Visible);
 	for (units::Unit& unit : units) {
-		if (Utility::IsRobot(unit.type)) {
-			units::Robot robot = bc_Unit_clone(unit.self);
-			MapLocation robotLocation = robot.Loc().ToMapLocation();
-			if (unit.Team() == GameController::Team()) {
-				switch (unit.type) {
-				case Mage:
-					courage.SetInfluence(robotLocation, 10, 3, [](float distance) { return 1.0f; });
-					break;
-				case Knight:
-					courage.SetInfluence(robotLocation, 10, 2, [](float distance) { return 1.0f; });
-					break;
-				case Healer:
-					courage.SetInfluence(robotLocation, 5, 5, [](float distance) { return 1.0f; });
-					break;
-				case Ranger:
-					courage.SetInfluence(robotLocation, 15, 7, [](float distance) { return 1.0f; });
-					break;
-				default:
-					break;
-				}
+		MapLocation location = unit.Loc().ToMapLocation();
+		if (unit.Team() == GameController::Team()) {
+			switch (unit.type) {
+			case Mage:
+				courage.SetInfluence(location, 10, 3, [](float distance) { return 1.0f; });
+				break;
+			case Knight:
+				courage.SetInfluence(location, 10, 2, [](float distance) { return 1.0f; });
+				break;
+			case Healer:
+				courage.SetInfluence(location, 5, 5, [](float distance) { return 1.0f; });
+				break;
+			case Ranger:
+				courage.SetInfluence(location, 15, 7, [](float distance) { return 1.0f; });
+				break;
+			case Factory:
+				courage.SetInfluence(location, 30, 3, [](float distance) { return 1.0f; });
+			default:
+				break;
 			}
-			else {
-				switch (unit.type) {
-				case Mage:
-					fear.SetInfluence(robotLocation, 30, 7, [](float distance) { return 1.0f; });
-					break;
-				case Knight:
-					fear.SetInfluence(robotLocation, 10, 5, [](float distance) { return 1.0f; });
-					break;
-				case Healer:
-					fear.SetInfluence(robotLocation, 5, 5, [](float distance) { return 1.0f; });
-					break;
-				case Ranger:
-					fear.SetInfluence(robotLocation, 5, 10, [](float distance) { return 1.0f; });
-					fear.SetInfluence(robotLocation, -10, 3, [](float distance) { return 1.0f; });
-					break;
-				default:
-					break;
-				}
+		}
+		else {
+			switch (unit.type) {
+			case Mage:
+				fear.SetInfluence(location, 30, 7, [](float distance) { return 1.0f; });
+				break;
+			case Knight:
+				fear.SetInfluence(location, 10, 6, [](float distance) { return 1.0f; });
+				break;
+			case Healer:
+				fear.SetInfluence(location, 5, 5, [](float distance) { return 1.0f; });
+				break;
+			case Ranger:
+				fear.SetInfluence(location, 5, 10, [](float distance) { return 1.0f; });
+				fear.SetInfluence(location, -10, 3, [](float distance) { return 1.0f; });
+				break;
+			default:
+				break;
 			}
 		}
 	}
