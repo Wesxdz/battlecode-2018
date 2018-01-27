@@ -15,19 +15,31 @@
 #include "AsteroidPattern.h"
 #include "PolicyOverlord.h"
 
+std::vector<bc_UnitType> RocketInfo::rocketLoadType; // Desired Load Types
+std::map<bc_UnitType, int> RocketInfo::unitsLoaded;
+std::list<Section*> RocketInfo::marsSectionsNotVisited;
+int RocketInfo::rocketsLaunched = 0;
+
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
-std::vector<bc_UnitType> BuilderOverlord::rocketLoadType;
 std::map<Section*, FlowChart> BuilderOverlord::findKarbonite;
 std::map<uint16_t, int> BuilderOverlord::miningSuccess;
 
 BuilderOverlord::BuilderOverlord()
 {
-	rocketLoadType.push_back(Worker);
-	rocketLoadType.push_back(Knight);
-	rocketLoadType.push_back(Ranger);
-	rocketLoadType.push_back(Mage);
-	rocketLoadType.push_back(Healer);
+	for (Section* section : Section::marsSections) {
+		if (section->locations.size() > 9) {
+			RocketInfo::marsSectionsNotVisited.push_back(section);
+			std::cout << "Adding Section to Rocket Info " << RocketInfo::marsSectionsNotVisited.size() << std::endl;
+		}
+	}
+	
+	RocketInfo::unitsLoaded[Worker] = 0;
+	RocketInfo::unitsLoaded[Knight] = 0;
+	RocketInfo::unitsLoaded[Ranger] = 0;
+	RocketInfo::unitsLoaded[Mage] = 0;
+	RocketInfo::unitsLoaded[Healer] = 0;
+
 	CreateKarboniteFlows();
 }
 
@@ -46,6 +58,19 @@ void BuilderOverlord::Update()
 				}
 			}
 		}
+		if (AsteroidPattern::WillAsteroidStrike(GameController::Round())) {
+			AsteroidStrike strike = AsteroidPattern::Strike(GameController::Round());
+			MapLocation landing = strike.Loc();
+			if (landing.IsPassable()) { // Otherwise not in section!
+				Section* sectionHit = Section::Get(landing);
+				auto deposit = std::find(sectionHit->karboniteDeposits.begin(), sectionHit->karboniteDeposits.end(), landing);
+				if (deposit == sectionHit->karboniteDeposits.end()) {
+					//std::cout << "Adding asteroid hit " << landing.X() << ", " << landing.Y() << std::endl;
+					sectionHit->karboniteDeposits.push_back(landing);
+				} 
+				sectionHit->estimatedKarb += strike.Karbonite();
+			}
+		} 
 	}
 	else {
 		if (GameController::Round() > 100) {
@@ -73,6 +98,7 @@ void BuilderOverlord::Update()
 					//std::cout << "Adding asteroid hit " << landing.X() << ", " << landing.Y() << std::endl;
 					sectionHit->karboniteDeposits.push_back(landing);
 				} 
+				sectionHit->estimatedKarb += strike.Karbonite();
 			}
 		} 
 	}
@@ -136,6 +162,8 @@ void BuilderOverlord::DesireUnits() {
 
 	// Rocket Priority
 	{
+		ChooseRocketLoad();
+
 		bc_ResearchInfo* info = bc_GameController_research_info(GameController::gc);
 		if (bc_ResearchInfo_get_level(info, Rocket) == 0) {
 			PlayerData::pd->unitPriority[Rocket] = 0.0f;
@@ -260,6 +288,19 @@ void BuilderOverlord::DesireUnits() {
 		PlayerData::pd->unitPriority[Mage] = 0.0f;
 	}
 
+}
+
+void BuilderOverlord::ChooseRocketLoad() {
+	RocketInfo::rocketLoadType.clear();
+	if (RocketInfo::marsSectionsNotVisited.size() == 0) {
+		RocketInfo::rocketLoadType.push_back(Knight);
+		RocketInfo::rocketLoadType.push_back(Ranger);
+		RocketInfo::rocketLoadType.push_back(Mage);
+		RocketInfo::rocketLoadType.push_back(Healer);
+	} else {
+		RocketInfo::rocketLoadType.push_back(Worker);
+		RocketInfo::rocketLoadType.push_back(Ranger);
+	}
 }
 
 void BuilderOverlord::ManageProduction()

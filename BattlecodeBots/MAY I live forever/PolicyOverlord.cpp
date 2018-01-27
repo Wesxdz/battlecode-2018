@@ -207,6 +207,11 @@ PolicyOverlord::PolicyOverlord()
 		worker4->Execute = policy::WorkerSeekBuildExecute;
 		policies[Worker].push_back(worker4);
 
+		auto worker5 = std::make_shared<Policy>("fear_built");
+		worker5->Evaluate = policy::WorkerFearBuiltEvaluate;
+		worker5->Execute = policy::WorkerFearBuiltExecute;
+		policies[Worker].push_back(worker5);
+
 		auto worker6 = std::make_shared<Policy>("build");
 		worker6->Evaluate = policy::WorkerBuildEvaluate;
 		worker6->Execute = policy::WorkerBuildExecute;

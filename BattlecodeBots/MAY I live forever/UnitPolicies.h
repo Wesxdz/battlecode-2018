@@ -43,8 +43,23 @@ namespace policy {
 	}
 
 	float LoadRocketEvaluate(bc_Unit* unit) {
+		// Check if Rockets Exists
+		if (BuilderOverlord::rockets.size() == 0) return 0.0f;
+
 		float score = 0.0f;
 		units::Robot robot = bc_Unit_clone(unit);
+
+		// Check if we are desired
+		bool desired = false;
+		for (auto type : RocketInfo::rocketLoadType) {
+			if (robot.type == type) {
+				desired = true;
+				break;
+			}
+		}
+		if(!desired) { return .0f; }
+		if(robot.type == Worker && PlayerData::pd->teamUnitCounts[Worker] < 4) { return .0f; }
+
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (!robot.IsMoveReady()) return 0.0f;
 		bc_VecUnit* nearbyRockets = bc_GameController_sense_nearby_units_by_type(GameController::gc, robotLocation.self, 2, Rocket);
@@ -52,10 +67,13 @@ namespace policy {
 			units::Rocket rocket{ bc_VecUnit_index(nearbyRockets, i) };
 			if (rocket.CanLoad(robot)) {
 				PolicyOverlord::storeId = bc_Unit_id(rocket.self);
+				PolicyOverlord::storeUnitType = robot.type;
 				score += 40.0f;
+				std::cout << "Type " << robot.type << " is next to Rocket " << PolicyOverlord::storeId << std::endl;
 				break;
 			}
 		}
+		CHECK_ERRORS();
 		delete_bc_VecUnit(nearbyRockets);
 		return score;
 	}
@@ -63,6 +81,9 @@ namespace policy {
 	bool LoadRocketExecute(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
 		units::Rocket rocket = bc_GameController_unit(GameController::gc, PolicyOverlord::storeId);
+		RocketInfo::unitsLoaded[PolicyOverlord::storeUnitType] += 1;
+		std::cout << "Loading unit " << PolicyOverlord::storeUnitType << std::endl;
+
 		rocket.Load(robot);
 		return true;
 	}
@@ -75,13 +96,14 @@ namespace policy {
 
 		// Check if we are desired
 		bool desired = false;
-		for (auto type : BuilderOverlord::rocketLoadType) {
+		for (auto type : RocketInfo::rocketLoadType) {
 			if (robot.type == type) {
 				desired = true;
 				break;
 			}
 		}
 		if(!desired) { return .0f; }
+		if(robot.type == Worker && PlayerData::pd->teamUnitCounts[Worker] < 4) { return .0f; }
 
 		// Check Movement
 		if (!robot.IsMoveReady()) return 0.0f; 
@@ -109,9 +131,10 @@ namespace policy {
 			});
 			if (startWork != BuilderOverlord::rockets.end() && (*startWork).second.size() < constants::RocketLoadAmo) {
 				//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
-				BuilderOverlord::rockets[(*startWork).first].push_back(robot.id); // Join the closest project if it has less than 4 workers!
+				BuilderOverlord::rockets[(*startWork).first].push_back(robot.id); 
 				seekingRocket = true;
 				rocketID = (*startWork).first;
+				std::cout << robot.id << " , Type " << robot.type << " is Seeking " << rocketID << std::endl;
 			}
 		}
 
@@ -260,6 +283,40 @@ namespace policy {
 			BuilderOverlord::buildProjects.erase(BuilderOverlord::buildProjects.find(updatedBuild.id)); //Remove build project
 		}
 		return true;
+	}
+
+	float WorkerFearBuiltEvaluate(bc_Unit* unit) {
+		float score = .0f;
+		units::Robot robot(bc_Unit_clone(unit));
+		MapLocation mapLoc = robot.Loc().ToMapLocation();
+		auto factories = bc_GameController_sense_nearby_units_by_type(GameController::gc, mapLoc.self, 2, Factory);
+		auto factoryAmo = bc_VecUnit_len(factories);
+		for (int i = 0; i < factoryAmo; i++) {
+			auto unit = bc_VecUnit_index(factories, i);
+			if (bc_Unit_structure_is_built(unit)) {
+				auto strucLoc = bc_Location_map_location(bc_Unit_location(unit));
+				PolicyOverlord::storeDirection = bc_MapLocation_direction_to(strucLoc, mapLoc.self);
+				return .1f;
+			}
+		}
+
+		auto rockets = bc_GameController_sense_nearby_units_by_type(GameController::gc, mapLoc.self, 2, Rocket);
+		auto rocketAmo = bc_VecUnit_len(rockets);
+		for (int i = 0; i < rocketAmo; i++) {
+			auto unit = bc_VecUnit_index(rockets, i);
+			if (bc_Unit_structure_is_built(unit)) {
+				auto strucLoc = bc_Location_map_location(bc_Unit_location(unit));
+				PolicyOverlord::storeDirection = bc_MapLocation_direction_to(strucLoc, mapLoc.self);
+				return .1f;
+			}
+		}
+
+		return .0f;
+	}
+
+	bool WorkerFearBuiltExecute(bc_Unit* unit) {
+		units::Robot robot = bc_Unit_clone(unit);
+		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
 	float WorkerSeekBuildEvaluate(bc_Unit* unit) {
@@ -562,7 +619,39 @@ namespace policy {
 		if (GameController::Round() == 749 || rocket.Health() < 100 || rocket.Garrison().size() == rocket.MaxCapacity()) {
 			// TODO Consider units damaged and push them away
 			CHECK_ERRORS();
-			PolicyOverlord::storeLocation = bc_MapLocation_clone(MapUtil::marsPassableLocations[rand() % MapUtil::marsPassableLocations.size()]);
+
+			// Find the Section with the most Karbonite
+			int maxKarb = 0;
+			Section* bestSect = nullptr;
+			for (Section* section : RocketInfo::marsSectionsNotVisited) {
+				if (section->estimatedKarb > maxKarb) {
+					maxKarb = section->estimatedKarb;
+					bestSect = section;
+				}
+			}
+			if (bestSect) { // Send Workers to areas with most Karb
+				// Land on random Place there
+				PolicyOverlord::storeLocation = (bestSect->karboniteDeposits[rand() % bestSect->karboniteDeposits.size()]);
+
+				// Remove from unvisited
+				RocketInfo::marsSectionsNotVisited.remove(bestSect);
+
+				std::cout << "Specfic Launch to " << PolicyOverlord::storeLocation.X() << ", " << PolicyOverlord::storeLocation.Y() << std::endl;
+			} else { // At this point We should send all units
+
+				auto val = rand() % Section::marsSections.size();
+				auto i = Section::marsSections.begin();
+				while (val > 0) {
+					i++;
+					val--;
+				}
+				
+				Section* section = *i;
+
+				PolicyOverlord::storeLocation = section->karboniteDeposits[rand() % section->karboniteDeposits.size()];
+				std::cout << "Random Launch to " << PolicyOverlord::storeLocation.X() << ", " << PolicyOverlord::storeLocation.Y() << std::endl;
+			}
+
 			CHECK_ERRORS();
 
 			return 1.0f;
@@ -573,6 +662,7 @@ namespace policy {
 	bool RocketLaunchExecute(bc_Unit* unit) {
 		units::Rocket rocket = bc_Unit_clone(unit);
 		rocket.Launch(PolicyOverlord::storeLocation);
+		RocketInfo::rocketsLaunched += 1;
 		return true;
 	}
 
