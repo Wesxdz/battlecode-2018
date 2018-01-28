@@ -23,8 +23,10 @@ std::list<Section*> RocketInfo::marsSectionsNotVisited;
 std::map<Section*, int> RocketInfo::bestMarsSections;
 int RocketInfo::rocketsLaunched = 0;
 
-std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
+//std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
+std::map<uint16_t, std::map<bc_Direction, uint16_t>> BuilderOverlord::buildProjects;
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
+//std::map<uint16_t, int> BuilderOverlord::buildLocation;
 std::map<Section*, FlowChart> BuilderOverlord::findKarbonite;
 std::map<uint16_t, int> BuilderOverlord::miningSuccess;
 std::map<Section*, FlowChart> BuilderOverlord::findRocket;
@@ -200,19 +202,25 @@ void BuilderOverlord::DesireUnits() {
 
 	// Worker Priority
 	{
+		// More Workers
+		// Focus on a Buildproject at a time
 		float workerPriority = .0f;
-		if (workerAmo < 5) {
-			workerPriority += 1.0f;
+		if (workerAmo < 8) {
+			workerPriority += 50.0f;
 		}
-		if (round < 40 && PlayerData::pd->teamUnitCounts[Worker] == 0) {
-			workerPriority += (competeKarbonite/4000)/mapSize;
-		}
-		if (GameController::Karbonite() > 250) {
-			workerPriority += 10.0f;
-		}
-		if (workerAmo == 0) {
-			workerPriority += 100.0f;
-		}
+		//if (workerAmo < 8 * Section::earthSections.size()) {
+		//	workerPriority += 10.0f;
+		//}
+		
+		//if (round < 40 && PlayerData::pd->teamUnitCounts[Worker] == 0) {
+		//	workerPriority += (competeKarbonite/4000)/mapSize;
+		//}
+		//if (GameController::Karbonite() > 250) {
+		//	workerPriority += 10.0f;
+		//}
+		//if (workerAmo == 0) {
+		//	workerPriority += 100.0f;
+		//}
 		PlayerData::pd->unitPriority[bc_UnitType::Worker] = workerPriority;
 	}
 
@@ -396,7 +404,17 @@ void BuilderOverlord::ManageProduction()
 		builder.Blueprint(highestPriority, buildDirection);
 		MapLocation buildLocation = MapLocation::Neighbor(builder.Loc().ToMapLocation(), buildDirection);
 		units::Structure build = buildLocation.Occupant();
-		BuilderOverlord::buildProjects[build.id].push_back(builder.id);
+
+		auto& buildDirections = BuilderOverlord::buildProjects[build.id];
+		for (bc_Direction direction : constants::directions_adjacent) {
+			auto neighbor = MapLocation::Neighbor(buildLocation, direction);
+			if (neighbor.IsPassable()) {
+				buildDirections[direction] = 0;
+			}
+		}
+		buildDirections[bc_Direction_opposite(buildDirection)] = builder.id;
+		//BuilderOverlord::buildProjects[build.id].push_back(builder.id);
+
 		if (highestPriority == bc_UnitType::Rocket) {
 			BuilderOverlord::rockets[build.id]; // Add rockets
 		}

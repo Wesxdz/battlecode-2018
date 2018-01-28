@@ -196,10 +196,17 @@ namespace policy {
 		units::Worker worker = bc_Unit_clone(unit);
 		MapLocation workerLocation = worker.Loc().ToMapLocation();
 		if (!worker.IsMoveReady()) return 0.0f;
+		//for (auto& project : BuilderOverlord::buildProjects) {
+		//	auto self = std::find(project.second.begin(), project.second.end(), worker.id);
+		//	bool workingOnProject = self != project.second.end();
+		//	if (workingOnProject) return 0.0f;
+		//}
 		for (auto& project : BuilderOverlord::buildProjects) {
-			auto self = std::find(project.second.begin(), project.second.end(), worker.id);
-			bool workingOnProject = self != project.second.end();
-			if (workingOnProject) return 0.0f;
+			for (auto direction : project.second) {
+				if (direction.second == worker.id) {
+					return .0f;
+				}
+			}
 		}
 		Section* section = Section::Get(workerLocation);
 		if (section->karboniteDeposits.size() == 0) return 0.0f;
@@ -235,12 +242,22 @@ namespace policy {
 	float WorkerBuildEvaluate(bc_Unit* unit) {
 		units::Worker worker = bc_Unit_clone(unit);
 		if (worker.HasActed()) return 0.0f;
+		//for (auto& project : BuilderOverlord::buildProjects) {
+		//	auto self = std::find(project.second.begin(), project.second.begin(), worker.id);
+		//	if (self != project.second.end()) {
+		//		if (bc_GameController_can_build(GameController::gc, worker.id, project.first)) {
+		//			PolicyOverlord::storeId = project.first;
+		//			return 10.0f;
+		//		}
+		//	}
+		//}
 		for (auto& project : BuilderOverlord::buildProjects) {
-			auto self = std::find(project.second.begin(), project.second.begin(), worker.id);
-			if (self != project.second.end()) {
-				if (bc_GameController_can_build(GameController::gc, worker.id, project.first)) {
-					PolicyOverlord::storeId = project.first;
-					return 10.0f;
+			for (auto direction : project.second) {
+				if (direction.second == worker.id) {
+					if (bc_GameController_can_build(GameController::gc, worker.id, project.first)) {
+						PolicyOverlord::storeId = project.first;
+						return 10.0f;
+					}
 				}
 			}
 		}
@@ -299,13 +316,21 @@ namespace policy {
 		MapLocation workerLocation = worker.Loc().ToMapLocation();
 		bool workingOnProject = false;
 		uint16_t projId = 0;
+		bc_Direction buildDirection = Center;
 		for (auto& project : BuilderOverlord::buildProjects) {
-			auto self = std::find(project.second.begin(), project.second.end(), worker.id);
-			workingOnProject = self != project.second.end();
-			if (workingOnProject) {
-				projId = project.first;
-				break;
+			for (auto direction : project.second) {
+				if (direction.second == worker.id) {
+					workingOnProject = true;
+					projId = project.first;
+					buildDirection = direction.first;
+				}
 			}
+			//auto self = std::find(project.second.begin(), project.second.end(), worker.id);
+			//workingOnProject = self != project.second.end();
+			//if (workingOnProject) {
+			//	projId = project.first;
+			//	break;
+			//}
 		}
 		if (!workingOnProject) { // Do we want to work on a project?
 			auto startWork = std::min_element(BuilderOverlord::buildProjects.begin(), BuilderOverlord::buildProjects.end(), [&workerLocation](auto& a, auto& b) { // std::pair<uint16_t, std::vector<uint16_t>>
@@ -313,25 +338,66 @@ namespace policy {
 				units::Structure buildB = bc_GameController_unit(GameController::gc, b.first);
 				return workerLocation.DistanceTo(buildA.Loc().ToMapLocation()) < workerLocation.DistanceTo(buildA.Loc().ToMapLocation());
 			});
-			if (startWork != BuilderOverlord::buildProjects.end() && (*startWork).second.size() < 6) {
+			//if (startWork != BuilderOverlord::buildProjects.end() && (*startWork).second.size() < 6) {
+			if (startWork != BuilderOverlord::buildProjects.end()) { // Look for closest BuildProject
 				units::Structure build = bc_GameController_unit(GameController::gc, (*startWork).first);
 				if (workerLocation.DistanceTo(build.Loc().ToMapLocation()) < 100) {
-					//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
-					BuilderOverlord::buildProjects[(*startWork).first].push_back(worker.id); // Join the closest project if it has less than 6 workers!
-					projId = (*startWork).first;
-					workingOnProject = true;
+					for (auto i = (*startWork).second.begin(); i != (*startWork).second.end(); i++) {
+						if (i->second == 0) {
+							workingOnProject = true;
+							projId = (*startWork).first;
+							i->second = worker.id;
+							buildDirection = i->first;
+							break;
+						} // If it's open then begin working on it
+					}
 				}
+
+				
+				//units::Structure build = bc_GameController_unit(GameController::gc, (*startWork).first);
+				//if (workerLocation.DistanceTo(build.Loc().ToMapLocation()) < 100) {
+					//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
+
+					// Build Projects should now check all of the surrounding locations and add them
+					// then workrs get assigned to those locations
+
+					//BuilderOverlord::buildProjects[(*startWork).first].push_back(worker.id); // Join the closest project if it has less than 6 workers!
+
+					// Get Build Location
+					//units::Structure buildB = bc_GameController_unit(GameController::gc, (*startWork).first);
+					//MapLocation buildLoc = buildB.Loc().ToMapLocation();
+					//bc_Direction buildDir = static_cast<bc_Direction>(BuilderOverlord::buildProjects[(*startWork).first].size());
+
+					//MapLocation mapLoc = MapLocation::Neighbor(buildLoc.self, buildDir);
+					//auto width = GameController::Planet() == Earth ? MapUtil::EARTH_MAP_WIDTH : MapUtil::MARS_MAP_WIDTH;
+					//BuilderOverlord::buildLocation[worker.id] = mapLoc.Y() * width + mapLoc.X();
+
+					//projId = (*startWork).first;
+					//workingOnProject = true;
+				//}
 			}
 		}
 		if (workingOnProject) {
 			units::Structure build = bc_GameController_unit(GameController::gc, projId);
-			if (worker.Loc().ToMapLocation().IsAdjacentTo(build.Loc().ToMapLocation())) {
-				return 0.0f; // We don't need to move if already next to the build location
-			}
-			else {
-				PolicyOverlord::storeDirection = worker.Loc().ToMapLocation().DirectionTo(build.Loc().ToMapLocation());
+
+			auto destLoc = MapLocation::Neighbor(build.Loc().ToMapLocation(), buildDirection);
+			bc_Direction dir = workerLocation.DirectionTo(destLoc);
+			if(dir == Center) {
+				return .0f;
+			} else {
+				PolicyOverlord::storeDirection = dir;
 				return 1000.0f;
 			}
+
+			//if (destID == currID) {
+			////if (worker.Loc().ToMapLocation().IsAdjacentTo(build.Loc().ToMapLocation())) {
+			//	return 0.0f; // We don't need to move if already next to the build location
+			//}
+			//else{
+			//	PolicyOverlord::storeDirection = Utility::DirectionTo(currX, currY, destX, destY);
+			//	//PolicyOverlord::storeDirection = worker.Loc().ToMapLocation().DirectionTo(build.Loc().ToMapLocation());
+			//	return 1000.0f;
+			//}
 		}
 		return 0.0f;
 	}
@@ -690,7 +756,7 @@ namespace policy {
 
 	bool GroupUpExecute(bc_Unit* unit) {
 		units::Robot robot = bc_Unit_clone(unit);
-		Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
+		return Pathfind::MoveFuzzy(robot, PolicyOverlord::storeDirection);
 	}
 
 }
