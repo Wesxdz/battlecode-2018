@@ -33,6 +33,8 @@ public:
 	static float ProductionScore(units::Factory& factory);
 	static bc_UnitType Priority(units::Factory& factory);
 
+	static float ReplicationScore(units::Worker& worker);
+
 	static float FactoryPlacementScore(MapLocation location);
 	static float RocketPlacementScore(MapLocation location);
 	static void ChooseRocketLoad();

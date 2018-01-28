@@ -21,7 +21,7 @@ std::map<bc_UnitType, float> CombatOverlord::multipliers = {
 	{ Factory, 9.0f },{ Healer, 15.0f },{ Worker, 1.0f },{ Knight, 5.0f },{ Mage, 20.0f },{ Ranger, 10.0f },{ Rocket, 20.0f }
 };
 std::map<bc_UnitType, float> CombatOverlord::fearTolerance = {
-	{Healer, -60.0f}, {Knight, 20.0f}, {Mage, -30.0f}, {Ranger, -40.0f}
+	{Healer, -40.0f}, {Knight, 0.0f}, {Mage, -50.0f}, {Ranger, -30.0f}
 };
 std::map<uint16_t, HealthInstance> CombatOverlord::healthAmounts;
 
@@ -236,7 +236,7 @@ void CombatOverlord::CalculateInfluenceMaps()
 		if (unit.Team() == GameController::Team()) {
 			switch (unit.type) {
 			case Mage:
-				courage.SetInfluence(location, 10, 3, [](float distance) { return 1.0f; });
+				courage.SetInfluence(location, 5, 3, [](float distance) { return 1.0f; });
 				break;
 			case Knight:
 				courage.SetInfluence(location, 10, 2, [](float distance) { return 1.0f; });

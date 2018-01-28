@@ -450,7 +450,7 @@ void Pathfind::GenerateFlowPath(Section* section, short destX, short destY) {
 		for (int x = 0; x < width; x++) {
 			 //std::cout << std::setw(6) << flowChart->pointsMap[y * width + x] << " ";
 		}
-		 std::cout << std::endl;
+		 //std::cout << std::endl;
 	}
 	 //std::cout << std::setw(0) << "\n\n" << std::endl;
 

@@ -132,7 +132,7 @@ PolicyOverlord::PolicyOverlord()
 	auto worker3 = std::make_shared<Policy>("replicate");
 	worker3->Evaluate = policy::WorkerReplicateEvaluate;
 	worker3->Execute = policy::WorkerReplicateExecute;
-	policies[Worker].push_back(worker3);
+	//policies[Worker].push_back(worker3);
 
 	auto fighter2 = std::make_shared<Policy>("seek_enemy");
 	fighter2->Evaluate = policy::SeekEnemyEvaluate;
@@ -205,6 +205,7 @@ PolicyOverlord::PolicyOverlord()
 		robot2->Execute = policy::LoadRocketExecute;
 		policies[Knight].push_back(robot2);
 		policies[Ranger].push_back(robot2);
+		policies[Healer].push_back(robot2);
 		policies[Mage].push_back(robot2);
 		policies[Worker].push_back(robot2);
 
