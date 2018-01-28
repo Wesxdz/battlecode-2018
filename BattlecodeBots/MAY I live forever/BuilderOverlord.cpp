@@ -84,6 +84,23 @@ void BuilderOverlord::Update()
 				sectionHit->estimatedKarb += strike.Karbonite();
 			}
 		} 
+		if (PlayerData::pd->teamUnitCounts[Rocket] > 0 && GameController::Round() % 5 == 0) {
+			for (Section* section : Section::earthSections) {
+				if (section->status == None || section->status == Enemy) continue;
+				std::vector<MapLocation> rocketLoadings;
+				auto units = GameController::Units(MyTeam);
+				for (units::Unit& unit : units) {
+					if (unit.type == Rocket) {
+						MapLocation rocketLocation = unit.Loc().ToMapLocation();
+						Section* sec = Section::Get(rocketLocation);
+						if (section == sec) {
+							rocketLoadings.push_back(rocketLocation);
+						}
+					}
+				}
+				findRocket[section] = Pathfind::CreateFlowChart(rocketLoadings);
+			}
+		}
 	}
 	else {
 		if (GameController::Round() > 100) {
@@ -122,23 +139,6 @@ void BuilderOverlord::Update()
 						break;
 					}
 				}
-			}
-		}
-		if (PlayerData::pd->teamUnitCounts[Rocket] > 0 && GameController::Round() % 5 == 0) {
-			for (Section* section : Section::earthSections) {
-				if (section->status == None || section->status == Enemy) continue;
-				std::vector<MapLocation> rocketLoadings;
-				auto units = GameController::Units(MyTeam);
-				for (units::Unit& unit : units) {
-					if (unit.type == Rocket) {
-						MapLocation rocketLocation = unit.Loc().ToMapLocation();
-						Section* sec = Section::Get(rocketLocation);
-						if (section == sec) {
-							rocketLoadings.push_back(rocketLocation);
-						}
-					}
-				}
-				findRocket[section] = Pathfind::CreateFlowChart(rocketLoadings);
 			}
 		}
 	}
@@ -334,13 +334,15 @@ void BuilderOverlord::DesireUnits() {
 		float healerPriority = .0f;
 
 		float ratio = (knightAmo + mageAmo + rangerAmo) / (healerAmo + healerProductionAmo + 1);
-		healerPriority = ratio / 3;
+		healerPriority = ratio / 5;
 
 		PlayerData::pd->unitPriority[bc_UnitType::Healer] = healerPriority;
 	}
 
-	if (Strategist::strategy == Strategy::ShieldFormation) {
-		PlayerData::pd->unitPriority[Knight] += 0.1f;
+	if (Strategist::strategy == Strategy::WizardWin) {
+		if (mageAmo + mageProductionAmo < 2) {
+			PlayerData::pd->unitPriority[Mage] = 1.0f;
+		}
 	}
 	else if (Strategist::strategy == Strategy::TerroristOvercharge) {
 		PlayerData::pd->unitPriority[Knight] = 0.0f;
@@ -419,6 +421,37 @@ void BuilderOverlord::ManageProduction()
 			BuilderOverlord::rockets[build.id]; // Add rockets
 		}
 	}
+	if (highestPriority == Worker) {
+		std::vector<int> triedIndexes;
+		bool workerCanReplicate = true;
+		while (workers.size() > 0 && GameController::Karbonite() >= 60 && workerCanReplicate) {
+			workerCanReplicate = false;
+			int repIndex = 0;
+			float maxScore = -10000.0f;
+			int i = -1;
+			for (units::Worker& worker : workers) {
+				i++;
+				if (std::find(triedIndexes.begin(), triedIndexes.end(), i) != triedIndexes.end()) continue;
+				if (worker.AbilityHeat() < 10 && worker.Loc().IsOnMap()) {
+					workerCanReplicate = true;
+				}
+				else {
+					continue;
+				}
+				float repScore = ReplicationScore(worker);
+				if (repScore > maxScore) {
+					maxScore = repScore;
+					repIndex = i;
+				}
+			}
+			triedIndexes.push_back(repIndex);
+			for (bc_Direction direction : constants::directions_adjacent) {
+				if (workers[repIndex].CanReplicate(direction)) { // TODO replicate best direction
+					workers[repIndex].Replicate(direction);
+				}
+			}
+		}
+	}
 	//std::vector<units::Factory> factories = VecUnit::Wrap<units::Factory>(bc_GameController_my_units(GameController::gc));
 	//std::sort(factories.begin(), factories.end(), [](units::Factory& a, units::Factory& b) {
 	//	return ProductionScore(a) > ProductionScore(b);
@@ -444,6 +477,24 @@ bc_UnitType BuilderOverlord::Priority(units::Factory & factory)
 	return bc_UnitType();
 }
 
+float BuilderOverlord::ReplicationScore(units::Worker& worker)
+{
+	float score = 0.0f;
+	MapLocation workerLocation = worker.Loc().ToMapLocation();
+	auto nearby = MapLocation::NearbyLocations(workerLocation, 4);
+	int closeKarbonite = 0;
+	for (MapLocation& location : nearby) {
+		closeKarbonite += location.Karbonite();
+	}
+	score += closeKarbonite;
+	score -= CombatOverlord::fear.GetInfluence(workerLocation) * 2;
+	for (auto& project : buildProjects) {
+		units::Structure structure = bc_GameController_unit(GameController::gc, project.first);
+		score -= workerLocation.DistanceTo(structure.Loc().ToMapLocation())/10.0f;
+	}
+	return score;
+}
+
 float BuilderOverlord::FactoryPlacementScore(MapLocation location)
 {
 	float score = 0.0f;
@@ -463,7 +514,7 @@ float BuilderOverlord::FactoryPlacementScore(MapLocation location)
 			}
 		}
 	}
-	if (adjacentImpassable == 2) {
+	if (adjacentImpassable == 8) {
 		score -= 10000.0f; // This might block a chokepoint
 	}
 	else {

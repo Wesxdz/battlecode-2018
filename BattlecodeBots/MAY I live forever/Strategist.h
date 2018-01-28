@@ -10,12 +10,10 @@ enum Strategy {
 	*/
 	Psychonaut,
 	/*
-	This strategy is a counter to the classic 'ranger horde'
-	Slowly amass an army of knights until a charge order is issued
-	This strategy assumes you will take control of the Earth before sending significant forces to Mars
-	Research knights, healers, rockets, then mages
+	This strategy is a counter to knight rush
+	Build a few mages and lots of rangers
 	*/
-	ShieldFormation,
+	WizardWin,
 	/*
 	Turtle with rangers until overcharge is researched
 	Multiple overcharge mages from the backlines to move into range of enemies and deal devastating damage

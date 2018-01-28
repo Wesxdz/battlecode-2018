@@ -11,8 +11,8 @@ Strategy Strategist::strategy;
 
 Strategist::Strategist()
 {
-	// By default, choose ShieldFormation
-	strategy = ShieldFormation;
+	// By default, choose AntiRush
+	strategy = WizardWin;
 
 	// Choose Psychonaut if we start on entirely different sections
 	int sharedSections = 0;
@@ -52,8 +52,8 @@ Strategist::Strategist()
 	if (strategy == Psychonaut) {
 		std::cout << "Psychonaut" << std::endl;
 	}
-	else if (strategy == ShieldFormation) {
-		std::cout << "ShieldFormation" << std::endl;
+	else if (strategy == WizardWin) {
+		std::cout << "WizardWin" << std::endl;
 	}
 	else if (strategy == TerroristOvercharge) {
 		std::cout << "TerroristOvercharge" << std::endl;
@@ -75,21 +75,19 @@ Strategist::Strategist()
 		// ???
 
 	}
-	else if (strategy == ShieldFormation) {
+	else if (strategy == WizardWin) {
 
-		bc_GameController_queue_research(GameController::gc, Knight); // 25
-		bc_GameController_queue_research(GameController::gc, Knight); // +75 = 100
-		bc_GameController_queue_research(GameController::gc, Knight); // +100 = 200
-		bc_GameController_queue_research(GameController::gc, Healer); // +25 = 225
-		bc_GameController_queue_research(GameController::gc, Healer); // +100 = 325
-		bc_GameController_queue_research(GameController::gc, Healer); // +100 = 425
+		bc_GameController_queue_research(GameController::gc, Ranger); // +100 = 325
+		bc_GameController_queue_research(GameController::gc, Ranger); // +100 = 325
+		bc_GameController_queue_research(GameController::gc, Mage); // 25
+		bc_GameController_queue_research(GameController::gc, Mage); // +75 = 100
+		bc_GameController_queue_research(GameController::gc, Mage); // +100 = 200
+		bc_GameController_queue_research(GameController::gc, Mage); // +25 = 225
 		bc_GameController_queue_research(GameController::gc, Rocket); // +50 = 475
+		bc_GameController_queue_research(GameController::gc, Healer); // +100 = 425
+		bc_GameController_queue_research(GameController::gc, Healer); // +100 = 425
 		bc_GameController_queue_research(GameController::gc, Rocket); // +100 = 575
 		bc_GameController_queue_research(GameController::gc, Rocket); // +100 = 675
-		bc_GameController_queue_research(GameController::gc, Mage); // +25 = 700
-		bc_GameController_queue_research(GameController::gc, Mage); // +75 = 775
-		bc_GameController_queue_research(GameController::gc, Mage); // +100 = 875
-		bc_GameController_queue_research(GameController::gc, Mage); // +75 = 950
 		bc_GameController_queue_research(GameController::gc, Ranger); // +25 = 975
 
 	}

@@ -70,7 +70,7 @@ namespace policy {
 
 	float LoadRocketEvaluate(bc_Unit* unit) {
 		// Check if Rockets Exists
-		if (BuilderOverlord::rockets.size() == 0) return 0.0f;
+		if (PlayerData::pd->teamUnitCounts[Rocket] == 0) return 0.0f;
 
 		float score = 0.0f;
 		units::Robot robot = bc_Unit_clone(unit);
@@ -734,10 +734,10 @@ namespace policy {
 
 	float GroupUpEvaluate(bc_Unit* unit) { // Move towards team units of similar type
 		units::Robot robot = bc_Unit_clone(unit);
-		bc_VecUnit* close = bc_GameController_sense_nearby_units_by_type(GameController::gc, robot.Loc().ToMapLocation().self, 1, robot.type);
+		bc_VecUnit* close = bc_GameController_sense_nearby_units_by_type(GameController::gc, robot.Loc().ToMapLocation().self, 2, robot.type);
 		int neighbors = bc_VecUnit_len(close);
 		delete_bc_VecUnit(close);
-		if (neighbors > 0) return 0.0f;
+		if (neighbors > 4) return 0.0f;
 		for (int i = 2; i < 100; i *= i) {
 			bc_VecUnit* nearby = bc_GameController_sense_nearby_units_by_type(GameController::gc, robot.Loc().ToMapLocation().self, i, robot.type);
 			if (bc_VecUnit_len(nearby) > 0) {

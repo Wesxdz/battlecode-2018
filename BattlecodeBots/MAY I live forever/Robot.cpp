@@ -56,7 +56,7 @@ namespace units {
 
 	uint32_t Robot::AbilityHeat()
 	{
-		return bc_Unit_ability_cooldown(self);
+		return bc_Unit_ability_heat(self);
 	}
 
 	uint32_t Robot::AbilityCooldown()
