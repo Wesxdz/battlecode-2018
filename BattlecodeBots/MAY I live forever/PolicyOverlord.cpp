@@ -18,9 +18,14 @@ bc_UnitType PolicyOverlord::storeUnitType;
 
 void PolicyOverlord::Update()
 {
+	int maxLoops = 5;
+	if (bc_GameController_get_time_left_ms(GameController::gc) < 2000) maxLoops = 3;
+	int loops = 0;
 	//std::cout << HighestPriority() << " is highest priority" << std::endl;
 	bool policyTaken = false;
 	do { // Loop through all units evaluating policies until no policy is executed
+		loops++;
+		if (loops == maxLoops) break; // :(
 		policyTaken = false;
 		bc_VecUnit* units = bc_GameController_my_units(GameController::gc);
 		for (uintptr_t i = 0; i < bc_VecUnit_len(units); i++) {

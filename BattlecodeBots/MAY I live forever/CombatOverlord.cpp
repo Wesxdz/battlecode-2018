@@ -21,7 +21,7 @@ std::map<bc_UnitType, float> CombatOverlord::multipliers = {
 	{ Factory, 9.0f },{ Healer, 15.0f },{ Worker, 1.0f },{ Knight, 5.0f },{ Mage, 20.0f },{ Ranger, 10.0f },{ Rocket, 20.0f }
 };
 std::map<bc_UnitType, float> CombatOverlord::fearTolerance = {
-	{Healer, -120.0f}, {Knight, 0.0f}, {Mage, -30.0f}, {Ranger, -100.0f}
+	{Healer, -60.0f}, {Knight, 20.0f}, {Mage, -30.0f}, {Ranger, -40.0f}
 };
 std::map<uint16_t, HealthInstance> CombatOverlord::healthAmounts;
 
@@ -75,7 +75,9 @@ void CombatOverlord::Update()
 			}
 		}
 	}
-	CalculateInfluenceMaps();
+	if (GameController::Round() % 3) {
+		CalculateInfluenceMaps();
+	}
 	//if (GameController::Round() % 10 == 0) {
 	//}
 }
@@ -92,7 +94,7 @@ void CombatOverlord::LateUpdate()
 			if (currentHealth < lastHealth) { // This unit has taken damage D:
 				uint32_t damageTaken = lastHealth - currentHealth;
 				//std::cout << "Unit took damage" << std::endl;
-				damage.SetInfluence(lastRoundHealth->second.location, damageTaken/2.0f, 5);
+				damage.SetInfluence(lastRoundHealth->second.location, damageTaken/10.0f, 5);
 			}
 			healthAmounts.erase((*lastRoundHealth).first);
 		}
@@ -254,7 +256,7 @@ void CombatOverlord::CalculateInfluenceMaps()
 		else {
 			switch (unit.type) {
 			case Mage:
-				fear.SetInfluence(location, 30, 7, [](float distance) { return 1.0f; });
+				fear.SetInfluence(location, 15, 7, [](float distance) { return 1.0f; });
 				break;
 			case Knight:
 				fear.SetInfluence(location, 10, 6, [](float distance) { return 1.0f; });

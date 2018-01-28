@@ -76,15 +76,15 @@ namespace policy {
 		units::Robot robot = bc_Unit_clone(unit);
 
 		// Check if we are desired
-		bool desired = false;
-		for (auto type : RocketInfo::rocketLoadType) {
-			if (robot.type == type) {
-				desired = true;
-				break;
-			}
-		}
-		if(!desired) { return .0f; }
-		if(robot.type == Worker && PlayerData::pd->teamUnitCounts[Worker] < 4) { return .0f; }
+		//bool desired = false;
+		//for (auto type : RocketInfo::rocketLoadType) {
+		//	if (robot.type == type) {
+		//		desired = true;
+		//		break;
+		//	}
+		//}
+		//if(!desired) { return .0f; }
+		if(robot.type == Worker && PlayerData::pd->teamUnitCounts[Worker] - RocketInfo::unitsLoaded[Worker] < 4) { return .0f; }
 
 		MapLocation robotLocation = robot.Loc().ToMapLocation();
 		if (!robot.IsMoveReady()) return 0.0f;
@@ -117,64 +117,26 @@ namespace policy {
 	float SeekRocketEvaluate(bc_Unit* unit) {
 		// Check if Rockets Exists
 		if (BuilderOverlord::rockets.size() == 0) return 0.0f;
-
 		units::Robot robot = bc_Unit_clone(unit);
+		MapLocation robotLocation = robot.Loc().ToMapLocation();
+		if (!robot.IsMoveReady()) return 0.0f;
 
 		// Check if we are desired
-		bool desired = false;
-		for (auto type : RocketInfo::rocketLoadType) {
-			if (robot.type == type) {
-				desired = true;
-				break;
-			}
+		//bool desired = false;
+		//for (auto type : RocketInfo::rocketLoadType) {
+		//	if (robot.type == type) {
+		//		desired = true;
+		//		break;
+		//	}
+		//}
+		//if(!desired) { return .0f; }
+		if(robot.type == Worker && PlayerData::pd->teamUnitCounts[Worker] - RocketInfo::unitsLoaded[Worker] < 4) { return .0f; }
+
+		auto chart = BuilderOverlord::findRocket.find(Section::Get(robotLocation));
+		if (chart != BuilderOverlord::findRocket.end()) {
+			PolicyOverlord::storeDirection = (*chart).second.directionMap[FlowChart::GetIndex(robotLocation)];
+			return 1000.0f;
 		}
-		if(!desired) { return .0f; }
-		if(robot.type == Worker && PlayerData::pd->teamUnitCounts[Worker] < 4) { return .0f; }
-
-		// Check Movement
-		if (!robot.IsMoveReady()) return 0.0f; 
-
-		// Determine if We are already heading to Rockets
-		MapLocation workerLocation = robot.Loc().ToMapLocation();
-		uint16_t rocketID = 0;
-		bool seekingRocket = false;
-		for (auto& rocket : BuilderOverlord::rockets) { 
-			auto self = std::find(rocket.second.begin(), rocket.second.begin(), robot.id);
-			seekingRocket = self != rocket.second.end();
-			if (seekingRocket) {
-				rocketID = rocket.first;
-				break;
-			}
-		}
-
-
-		// Determine if we should be seeking
-		if(!seekingRocket) {
-			auto startWork = std::min_element(BuilderOverlord::rockets.begin(), BuilderOverlord::rockets.end(), [&workerLocation](auto& a, auto& b) { // std::pair<uint16_t, std::vector<uint16_t>>
-				units::Structure buildA = bc_GameController_unit(GameController::gc, a.first);
-				units::Structure buildB = bc_GameController_unit(GameController::gc, b.first);
-				return workerLocation.DistanceTo(buildA.Loc().ToMapLocation()) < workerLocation.DistanceTo(buildA.Loc().ToMapLocation());
-			});
-			if (startWork != BuilderOverlord::rockets.end() && (*startWork).second.size() < constants::RocketLoadAmo) {
-				//std::cout << "Joining project with " << (*startWork).second.size() << " workers" << std::endl;
-				BuilderOverlord::rockets[(*startWork).first].push_back(robot.id); 
-				seekingRocket = true;
-				rocketID = (*startWork).first;
-				//std::cout << robot.id << " , Type " << robot.type << " is Seeking " << rocketID << std::endl;
-			}
-		}
-
-		// Move towards rocket
-		if (seekingRocket) {
-			units::Structure rocket = bc_GameController_unit(GameController::gc, rocketID);
-			if (robot.Loc().ToMapLocation().IsAdjacentTo(rocket.Loc().ToMapLocation())) {
-				return 0.0f; // We don't need to move if already next to the build location
-			}
-			else {
-				PolicyOverlord::storeDirection = robot.Loc().ToMapLocation().DirectionTo(rocket.Loc().ToMapLocation());
-				return 10.0f;
-			}
-		} 
 
 		return 0.0f;
 	}
@@ -665,15 +627,12 @@ namespace policy {
 		
 			}
 			if (bestSect) {
-				if (bestSect->karboniteDeposits.size() > 0) {
-					PolicyOverlord::storeLocation = (bestSect->karboniteDeposits[rand() % bestSect->karboniteDeposits.size()]);
-				} else {
-					PolicyOverlord::storeLocation = (bestSect->locations[rand() % bestSect->locations.size()]);
-				}
-
+				PolicyOverlord::storeLocation = (bestSect->locations[rand() % bestSect->locations.size()]);
 				std::cout << "Specfic Launch to " << PolicyOverlord::storeLocation.X() << ", " << PolicyOverlord::storeLocation.Y() << std::endl;
 			} else {
-				return .0f;
+				std::cout << "COULDNT FIND A BEST LOCATION" << std::endl;
+				PolicyOverlord::storeLocation = MapUtil::marsPassableLocations[rand() % MapUtil::marsPassableLocations.size()];
+				//return .0f; // If we want to launch and there's not a best section to launch to just don't launch at all?! That's stupid
 			}
 			CHECK_ERRORS();
 

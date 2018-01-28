@@ -27,6 +27,7 @@ std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::buildProjects;
 std::map<uint16_t, std::vector<uint16_t>> BuilderOverlord::rockets;
 std::map<Section*, FlowChart> BuilderOverlord::findKarbonite;
 std::map<uint16_t, int> BuilderOverlord::miningSuccess;
+std::map<Section*, FlowChart> BuilderOverlord::findRocket;
 
 BuilderOverlord::BuilderOverlord()
 {
@@ -120,7 +121,24 @@ void BuilderOverlord::Update()
 					}
 				}
 			}
-		} 
+		}
+		if (PlayerData::pd->teamUnitCounts[Rocket] > 0 && GameController::Round() % 5 == 0) {
+			for (Section* section : Section::earthSections) {
+				if (section->status == None || section->status == Enemy) continue;
+				std::vector<MapLocation> rocketLoadings;
+				auto units = GameController::Units(MyTeam);
+				for (units::Unit& unit : units) {
+					if (unit.type == Rocket) {
+						MapLocation rocketLocation = unit.Loc().ToMapLocation();
+						Section* sec = Section::Get(rocketLocation);
+						if (section == sec) {
+							rocketLoadings.push_back(rocketLocation);
+						}
+					}
+				}
+				findRocket[section] = Pathfind::CreateFlowChart(rocketLoadings);
+			}
+		}
 	}
 	if (GameController::Round() % 5 == 0) {
 		CreateKarboniteFlows();
@@ -190,12 +208,11 @@ void BuilderOverlord::DesireUnits() {
 			workerPriority += (competeKarbonite/4000)/mapSize;
 		}
 		if (GameController::Karbonite() > 250) {
-			workerPriority += 1.0f;
+			workerPriority += 10.0f;
 		}
 		if (workerAmo == 0) {
 			workerPriority += 100.0f;
 		}
-		std::cout << workerPriority << " worker prio" << std::endl;
 		PlayerData::pd->unitPriority[bc_UnitType::Worker] = workerPriority;
 	}
 
@@ -210,18 +227,21 @@ void BuilderOverlord::DesireUnits() {
 		else {
 			float rocketPriority = .0f;
 			rocketPriority += (round / 450.0f) / (rocketAmo + 1); // More rocket amounts signify they have not been loaded
-			int availableSpace = 0;
-			for (Section* section : Section::earthSections) {
-				if (section->status == Team) {
-					availableSpace += section->locations.size();
-				}
-				else if (section->status == Mixed) {
-					availableSpace += section->locations.size() / 2;
-				}
-			}
-			float spaceTaken = totalAmo / availableSpace;
-			if (spaceTaken > 0.3f) {
-				rocketPriority += 1000;
+			//int availableSpace = 0;
+			//for (Section* section : Section::earthSections) {
+			//	if (section->status == Team) {
+			//		availableSpace += section->locations.size();
+			//	}
+			//	else if (section->status == Mixed) {
+			//		availableSpace += section->locations.size() / 2;
+			//	}
+			//}
+			//float spaceTaken = totalAmo / availableSpace;
+			//if (spaceTaken > 0.5f) {
+			//	rocketPriority += 1000;
+			//}
+			if (Strategist::strategy == Psychonaut || round > 500 || (totalEnemyAmo == 0 && round > 200)) {
+				rocketPriority += (knightAmo + rangerAmo + mageAmo) / ((1 + rocketAmo) * 10);
 			}
 			PlayerData::pd->unitPriority[bc_UnitType::Rocket] = rocketPriority;
 		}
@@ -261,6 +281,7 @@ void BuilderOverlord::DesireUnits() {
 		else {
 			knightPriority = .3f;
 		}
+		if (PlayerData::pd->enemyUnitCounts[Mage] > 0) knightPriority = 0.0f;
 
 		PlayerData::pd->unitPriority[bc_UnitType::Knight] = knightPriority;
 	}
@@ -450,7 +471,11 @@ float BuilderOverlord::RocketPlacementScore(MapLocation location)
 			adjacentImpassable++;
 		}
 	}
-	return (8 - adjacentImpassable);
+	bc_VecUnit* nearbyRockets = bc_GameController_sense_nearby_units_by_type(GameController::gc, location.self, 2, Rocket);
+	score -= bc_VecUnit_len(nearbyRockets) * 5.0f;
+	delete_bc_VecUnit(nearbyRockets);
+	score += (8 - adjacentImpassable);
+	return score;
 }
 
 
